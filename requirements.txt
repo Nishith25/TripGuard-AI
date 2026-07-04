@@ -1,0 +1,6 @@
+fastapi[standard]
+langgraph
+python-dotenv
+pydantic
+python-multipart
+pypdf

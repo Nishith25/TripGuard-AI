@@ -1,0 +1,19 @@
+{
+  "company_name": "Demo Technologies Pvt Ltd",
+  "currency": "INR",
+  "domestic_flight_class": "economy",
+  "maximum_round_trip_flight_price": 10000,
+  "maximum_hotel_price_per_night": 4500,
+  "maximum_hotel_distance_km": 5,
+  "manager_approval_above": 18000,
+  "advance_booking_days": 7,
+  "allowed_transport_budget": 1200,
+  "rules": [
+    "Domestic flights must be booked in economy class.",
+    "Round-trip flight price should not exceed INR 10,000.",
+    "Hotel price should not exceed INR 4,500 per night.",
+    "Hotel should be within 5 kilometres of the work location.",
+    "Trips costing more than INR 18,000 require manager approval.",
+    "Domestic travel should normally be booked at least 7 days in advance."
+  ]
+}

@@ -1,0 +1,29 @@
+[
+  {
+    "id": "HT-201",
+    "name": "TechPark Inn",
+    "city": "Bengaluru",
+    "area": "Embassy Tech Village",
+    "price_per_night": 3800,
+    "distance_from_work_location_km": 1.8,
+    "rating": 4.2
+  },
+  {
+    "id": "HT-202",
+    "name": "Business Stay Whitefield",
+    "city": "Bengaluru",
+    "area": "Whitefield",
+    "price_per_night": 3200,
+    "distance_from_work_location_km": 9.5,
+    "rating": 4.1
+  },
+  {
+    "id": "HT-203",
+    "name": "Premium Tech Suites",
+    "city": "Bengaluru",
+    "area": "Embassy Tech Village",
+    "price_per_night": 5200,
+    "distance_from_work_location_km": 1.2,
+    "rating": 4.6
+  }
+]

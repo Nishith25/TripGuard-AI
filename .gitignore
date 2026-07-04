@@ -1,0 +1,14 @@
+.venv/
+__pycache__/
+*.pyc
+.env
+.vscode/
+.DS_Store
+
+data/uploads/
+data/active_policy.json
+data/policy_metadata.json
+
+frontend/node_modules/
+frontend/dist/
+frontend/.env
