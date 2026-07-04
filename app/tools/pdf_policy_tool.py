@@ -3,6 +3,7 @@ from __future__ import annotations
 import io
 import json
 import re
+import unicodedata
 from copy import deepcopy
 from datetime import datetime, timezone
 from pathlib import Path
@@ -12,23 +13,73 @@ from pypdf import PdfReader
 
 
 DATA_DIR = Path(__file__).resolve().parents[2] / "data"
+
 DEFAULT_POLICY_PATH = DATA_DIR / "travel_policy.json"
 ACTIVE_POLICY_PATH = DATA_DIR / "active_policy.json"
 POLICY_METADATA_PATH = DATA_DIR / "policy_metadata.json"
+
 UPLOAD_DIR = DATA_DIR / "uploads"
 ACTIVE_PDF_PATH = UPLOAD_DIR / "active_travel_policy.pdf"
 
 
+DASH_REPLACEMENTS = str.maketrans(
+    {
+        "\u2010": "-",
+        "\u2011": "-",
+        "\u2012": "-",
+        "\u2013": "-",
+        "\u2014": "-",
+        "\u2212": "-",
+    }
+)
+
+
+MONEY_PATTERN = re.compile(
+    r"(?:₹|INR|Rs\.?|Rupees?)"
+    r"\s*:?\s*"
+    r"("
+    r"\d{1,3}(?:\s*,\s*\d{3})+"
+    r"|"
+    r"\d{4,8}(?:\.\d+)?"
+    r")",
+    flags=re.IGNORECASE,
+)
+
+
+BARE_MONEY_PATTERN = re.compile(
+    r"\b("
+    r"\d{1,3}(?:\s*,\s*\d{3})+"
+    r"|"
+    r"\d{4,8}"
+    r")\b",
+    flags=re.IGNORECASE,
+)
+
+
 def load_json_file(path: Path) -> dict[str, Any]:
+    """
+    Load and return a JSON object.
+    """
     if not path.exists():
-        raise FileNotFoundError(f"Required file was not found: {path}")
+        raise FileNotFoundError(
+            f"Required file was not found: {path}"
+        )
 
     with path.open("r", encoding="utf-8") as file:
         return json.load(file)
 
 
-def save_json_file(path: Path, value: dict[str, Any]) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
+def save_json_file(
+    path: Path,
+    value: dict[str, Any],
+) -> None:
+    """
+    Save a dictionary as formatted JSON.
+    """
+    path.parent.mkdir(
+        parents=True,
+        exist_ok=True,
+    )
 
     with path.open("w", encoding="utf-8") as file:
         json.dump(
@@ -39,14 +90,19 @@ def save_json_file(path: Path, value: dict[str, Any]) -> None:
         )
 
 
-def extract_pdf_text(pdf_bytes: bytes) -> tuple[str, int]:
+def extract_pdf_text(
+    pdf_bytes: bytes,
+) -> tuple[str, int]:
     """
     Extract text from a text-based PDF.
 
-    Scanned PDFs need OCR and are not supported in this version.
+    Scanned image-only PDFs require OCR and are not supported in
+    this prototype.
     """
     try:
-        reader = PdfReader(io.BytesIO(pdf_bytes))
+        reader = PdfReader(
+            io.BytesIO(pdf_bytes)
+        )
     except Exception as exc:
         raise ValueError(
             "The uploaded file could not be read as a valid PDF."
@@ -54,7 +110,12 @@ def extract_pdf_text(pdf_bytes: bytes) -> tuple[str, int]:
 
     if reader.is_encrypted:
         try:
-            reader.decrypt("")
+            decryption_result = reader.decrypt("")
+
+            if decryption_result == 0:
+                raise ValueError(
+                    "The PDF requires a password."
+                )
         except Exception as exc:
             raise ValueError(
                 "Password-protected PDFs are not supported."
@@ -63,53 +124,318 @@ def extract_pdf_text(pdf_bytes: bytes) -> tuple[str, int]:
     extracted_pages: list[str] = []
 
     for page in reader.pages:
-        page_text = page.extract_text() or ""
-        extracted_pages.append(page_text.strip())
+        try:
+            page_text = page.extract_text() or ""
+        except Exception:
+            page_text = ""
+
+        cleaned_page_text = page_text.strip()
+
+        if cleaned_page_text:
+            extracted_pages.append(
+                cleaned_page_text
+            )
 
     full_text = "\n\n".join(
-        page for page in extracted_pages if page
+        extracted_pages
     ).strip()
 
     if len(full_text) < 50:
         raise ValueError(
-            "Very little text was found. The PDF may be scanned or "
-            "image-based. Upload a text-based PDF."
+            "Very little text was found. The PDF may be scanned "
+            "or image-based. Upload a text-based PDF."
         )
 
     return full_text, len(reader.pages)
 
 
 def normalize_text(text: str) -> str:
-    return re.sub(r"\s+", " ", text).strip()
+    """
+    Normalize Unicode characters, hidden characters, punctuation
+    and spacing generated during PDF text extraction.
+    """
+    normalized = unicodedata.normalize(
+        "NFKC",
+        text,
+    )
+
+    normalized = normalized.translate(
+        DASH_REPLACEMENTS
+    )
+
+    normalized = (
+        normalized
+        .replace("\u00a0", " ")
+        .replace("\u202f", " ")
+    )
+
+    normalized = re.sub(
+        r"[\u00ad\u200b\u200c\u200d\u2060\ufeff]",
+        "",
+        normalized,
+    )
+
+    normalized = re.sub(
+        r"\s*,\s*",
+        ",",
+        normalized,
+    )
+
+    normalized = re.sub(
+        r"\s+",
+        " ",
+        normalized,
+    )
+
+    return normalized.strip()
 
 
-def find_number(
-    text: str,
-    patterns: list[str],
+def normalize_lines(text: str) -> list[str]:
+    """
+    Preserve logical PDF lines while normalizing their contents.
+    """
+    normalized_lines: list[str] = []
+
+    for line in text.splitlines():
+        cleaned_line = normalize_text(line)
+
+        if cleaned_line:
+            normalized_lines.append(
+                cleaned_line
+            )
+
+    return normalized_lines
+
+
+def parse_number(
+    raw_value: str,
     *,
     allow_decimal: bool = False,
 ) -> float | int | None:
-    for pattern in patterns:
-        match = re.search(
-            pattern,
-            text,
+    """
+    Convert values such as 9,500, 9500 or 4.5 into numbers.
+    """
+    cleaned_value = re.sub(
+        r"[,\s]",
+        "",
+        raw_value,
+    )
+
+    cleaned_value = re.sub(
+        r"[^0-9.]",
+        "",
+        cleaned_value,
+    )
+
+    if not cleaned_value:
+        return None
+
+    try:
+        numeric_value = float(cleaned_value)
+    except ValueError:
+        return None
+
+    if allow_decimal:
+        return numeric_value
+
+    return int(numeric_value)
+
+
+def find_first_blocker_position(
+    text: str,
+    blockers: list[str],
+) -> int | None:
+    """
+    Return the earliest location of another policy category.
+    """
+    lowercase_text = text.lower()
+    positions: list[int] = []
+
+    for blocker in blockers:
+        position = lowercase_text.find(
+            blocker.lower()
+        )
+
+        if position >= 0:
+            positions.append(position)
+
+    if not positions:
+        return None
+
+    return min(positions)
+
+
+def find_money_after_labels(
+    text: str,
+    label_patterns: list[str],
+    *,
+    blockers: list[str] | None = None,
+    search_window: int = 180,
+) -> int | None:
+    """
+    Find a monetary amount immediately following a matching rule label.
+
+    The search stops before another policy category begins. This prevents
+    the flight rule from capturing the hotel or approval amount.
+    """
+    normalized_text = normalize_text(text)
+    blockers = blockers or []
+
+    for label_pattern in label_patterns:
+        matches = re.finditer(
+            label_pattern,
+            normalized_text,
             flags=re.IGNORECASE,
         )
 
-        if not match:
-            continue
+        for label_match in matches:
+            window_start = label_match.end()
+            window_end = min(
+                window_start + search_window,
+                len(normalized_text),
+            )
 
-        raw_value = match.group(1).replace(",", "").strip()
+            nearby_text = normalized_text[
+                window_start:window_end
+            ]
 
-        try:
-            numeric_value = float(raw_value)
-        except ValueError:
-            continue
+            blocker_position = find_first_blocker_position(
+                nearby_text,
+                blockers,
+            )
 
-        if allow_decimal:
-            return numeric_value
+            if blocker_position is not None:
+                nearby_text = nearby_text[
+                    :blocker_position
+                ]
 
-        return int(numeric_value)
+            currency_match = MONEY_PATTERN.search(
+                nearby_text
+            )
+
+            if currency_match:
+                amount = parse_number(
+                    currency_match.group(1)
+                )
+
+                if amount is not None:
+                    return int(amount)
+
+            bare_amount_match = BARE_MONEY_PATTERN.search(
+                nearby_text
+            )
+
+            if bare_amount_match:
+                amount = parse_number(
+                    bare_amount_match.group(1)
+                )
+
+                if amount is not None:
+                    return int(amount)
+
+    return None
+
+
+def find_distance_after_labels(
+    text: str,
+    label_patterns: list[str],
+    *,
+    search_window: int = 160,
+) -> float | None:
+    """
+    Find a kilometre value after a hotel-distance rule label.
+    """
+    normalized_text = normalize_text(text)
+
+    distance_pattern = re.compile(
+        r"([\d.]+)\s*"
+        r"(?:kilometres?|kilometers?|kms?|km)\b",
+        flags=re.IGNORECASE,
+    )
+
+    for label_pattern in label_patterns:
+        matches = re.finditer(
+            label_pattern,
+            normalized_text,
+            flags=re.IGNORECASE,
+        )
+
+        for label_match in matches:
+            window_start = label_match.start()
+            window_end = min(
+                label_match.end() + search_window,
+                len(normalized_text),
+            )
+
+            nearby_text = normalized_text[
+                window_start:window_end
+            ]
+
+            distance_match = distance_pattern.search(
+                nearby_text
+            )
+
+            if not distance_match:
+                continue
+
+            distance = parse_number(
+                distance_match.group(1),
+                allow_decimal=True,
+            )
+
+            if distance is not None:
+                return float(distance)
+
+    return None
+
+
+def find_days_after_labels(
+    text: str,
+    label_patterns: list[str],
+    *,
+    search_window: int = 160,
+) -> int | None:
+    """
+    Find an advance-booking period expressed in days.
+    """
+    normalized_text = normalize_text(text)
+
+    days_pattern = re.compile(
+        r"(\d+)\s*days?\b",
+        flags=re.IGNORECASE,
+    )
+
+    for label_pattern in label_patterns:
+        matches = re.finditer(
+            label_pattern,
+            normalized_text,
+            flags=re.IGNORECASE,
+        )
+
+        for label_match in matches:
+            window_start = label_match.start()
+            window_end = min(
+                label_match.end() + search_window,
+                len(normalized_text),
+            )
+
+            nearby_text = normalized_text[
+                window_start:window_end
+            ]
+
+            days_match = days_pattern.search(
+                nearby_text
+            )
+
+            if not days_match:
+                continue
+
+            number_of_days = parse_number(
+                days_match.group(1)
+            )
+
+            if number_of_days is not None:
+                return int(number_of_days)
 
     return None
 
@@ -118,19 +444,34 @@ def detect_company_name(
     extracted_text: str,
     fallback_name: str,
 ) -> str:
-    lines = [
-        normalize_text(line)
-        for line in extracted_text.splitlines()
-        if normalize_text(line)
+    """
+    Detect the company name from the first meaningful PDF line.
+    """
+    lines = normalize_lines(
+        extracted_text
+    )
+
+    ignored_phrases = [
+        "travel policy",
+        "corporate policy",
+        "employee travel policy",
+        "business travel policy",
+        "policy document",
     ]
 
-    for line in lines[:10]:
+    for line in lines[:12]:
         lowercase_line = line.lower()
 
-        if "travel policy" in lowercase_line:
+        if any(
+            phrase in lowercase_line
+            for phrase in ignored_phrases
+        ):
             continue
 
-        if "corporate policy" in lowercase_line:
+        if re.fullmatch(
+            r"(page\s*)?\d+",
+            lowercase_line,
+        ):
             continue
 
         if 3 <= len(line) <= 100:
@@ -139,173 +480,404 @@ def detect_company_name(
     return fallback_name
 
 
+def record_detection(
+    detected_fields: list[str],
+    fallback_fields: list[str],
+    field_name: str,
+    detected: bool,
+) -> None:
+    """
+    Record whether a policy field came from the PDF or fallback policy.
+    """
+    if detected:
+        if field_name not in detected_fields:
+            detected_fields.append(
+                field_name
+            )
+
+        if field_name in fallback_fields:
+            fallback_fields.remove(
+                field_name
+            )
+
+        return
+
+    if field_name not in fallback_fields:
+        fallback_fields.append(
+            field_name
+        )
+
+
 def parse_policy_text(
     extracted_text: str,
     filename: str,
-) -> tuple[dict[str, Any], list[str], list[str]]:
+) -> tuple[
+    dict[str, Any],
+    list[str],
+    list[str],
+]:
     """
-    Convert common travel-policy sentences into structured rules.
-
-    Any rule that cannot be identified safely uses the existing
-    demo-policy value and is reported as a fallback field.
+    Parse extracted PDF text into structured travel-policy rules.
     """
-    default_policy = load_json_file(DEFAULT_POLICY_PATH)
-    policy = deepcopy(default_policy)
+    default_policy = load_json_file(
+        DEFAULT_POLICY_PATH
+    )
 
-    searchable_text = normalize_text(extracted_text)
-    lowercase_text = searchable_text.lower()
+    policy = deepcopy(
+        default_policy
+    )
+
+    normalized_text = normalize_text(
+        extracted_text
+    )
+
+    lowercase_text = normalized_text.lower()
 
     detected_fields: list[str] = []
     fallback_fields: list[str] = []
 
-    policy["company_name"] = detect_company_name(
+    # Company name
+
+    company_name = detect_company_name(
         extracted_text,
         default_policy["company_name"],
     )
 
-    if policy["company_name"] != default_policy["company_name"]:
-        detected_fields.append("company_name")
-    else:
-        fallback_fields.append("company_name")
+    policy["company_name"] = company_name
 
-    if "economy class" in lowercase_text:
-        policy["domestic_flight_class"] = "economy"
-        detected_fields.append("domestic_flight_class")
-    elif "business class" in lowercase_text:
-        policy["domestic_flight_class"] = "business"
-        detected_fields.append("domestic_flight_class")
-    else:
-        fallback_fields.append("domestic_flight_class")
+    record_detection(
+        detected_fields,
+        fallback_fields,
+        "company_name",
+        company_name
+        != default_policy["company_name"],
+    )
 
-    flight_price = find_number(
-        searchable_text,
-        [
+    # Domestic flight class
+
+    if re.search(
+        r"\beconomy\s+class\b",
+        lowercase_text,
+    ):
+        policy[
+            "domestic_flight_class"
+        ] = "economy"
+
+        record_detection(
+            detected_fields,
+            fallback_fields,
+            "domestic_flight_class",
+            True,
+        )
+
+    elif re.search(
+        r"\bbusiness\s+class\b",
+        lowercase_text,
+    ):
+        policy[
+            "domestic_flight_class"
+        ] = "business"
+
+        record_detection(
+            detected_fields,
+            fallback_fields,
+            "domestic_flight_class",
+            True,
+        )
+
+    else:
+        record_detection(
+            detected_fields,
+            fallback_fields,
+            "domestic_flight_class",
+            False,
+        )
+
+    # Maximum round-trip flight price
+
+    flight_price = find_money_after_labels(
+        extracted_text,
+        label_patterns=[
             (
-                r"(?:round[\s-]?trip|return)\s+flight"
-                r"(?:\s+(?:fare|price|cost))?"
-                r".{0,60}?(?:₹|inr|rs\.?)\s*([\d,]+)"
+                r"\b(?:the\s+)?maximum\s+"
+                r"round\s*(?:-\s*)?trip\s+flight\s+"
+                r"(?:price|fare|cost)\b"
             ),
             (
-                r"(?:maximum|max|limit)\s+(?:domestic\s+)?flight"
-                r"(?:\s+(?:fare|price|cost))?"
-                r".{0,50}?(?:₹|inr|rs\.?)\s*([\d,]+)"
+                r"\bround\s*(?:-\s*)?trip\s+flight\s+"
+                r"(?:price|fare|cost)\b"
             ),
             (
-                r"flight.{0,45}?(?:must not|should not|cannot)\s+exceed"
-                r".{0,20}?(?:₹|inr|rs\.?)\s*([\d,]+)"
+                r"\b(?:the\s+)?maximum\s+"
+                r"(?:domestic\s+)?flight\s+"
+                r"(?:price|fare|cost)\b"
             ),
+            (
+                r"\bflight\s+(?:price|fare|cost)"
+                r".{0,40}?\b(?:must|should|shall|cannot)"
+                r".{0,20}?\bexceed\b"
+            ),
+        ],
+        blockers=[
+            "hotel",
+            "accommodation",
+            "transport",
+            "approval",
+            "booked",
+            "booking",
         ],
     )
 
     if flight_price is not None:
-        policy["maximum_round_trip_flight_price"] = flight_price
-        detected_fields.append("maximum_round_trip_flight_price")
-    else:
-        fallback_fields.append("maximum_round_trip_flight_price")
+        policy[
+            "maximum_round_trip_flight_price"
+        ] = int(flight_price)
 
-    hotel_price = find_number(
-        searchable_text,
-        [
+        record_detection(
+            detected_fields,
+            fallback_fields,
+            "maximum_round_trip_flight_price",
+            True,
+        )
+
+    else:
+        record_detection(
+            detected_fields,
+            fallback_fields,
+            "maximum_round_trip_flight_price",
+            False,
+        )
+
+    # Maximum hotel price per night
+
+    hotel_price = find_money_after_labels(
+        extracted_text,
+        label_patterns=[
             (
-                r"hotel.{0,50}?(?:per night|nightly)"
-                r".{0,40}?(?:₹|inr|rs\.?)\s*([\d,]+)"
+                r"\b(?:the\s+)?maximum\s+hotel\s+"
+                r"(?:price|rate|cost)\b"
             ),
             (
-                r"(?:maximum|max|limit)\s+hotel"
-                r"(?:\s+(?:price|rate|cost))?"
-                r".{0,45}?(?:₹|inr|rs\.?)\s*([\d,]+)"
+                r"\bhotel\s+"
+                r"(?:price|rate|cost)\b"
             ),
             (
-                r"hotel.{0,45}?(?:must not|should not|cannot)\s+exceed"
-                r".{0,20}?(?:₹|inr|rs\.?)\s*([\d,]+)"
+                r"\baccommodation\s+"
+                r"(?:price|rate|cost)\b"
             ),
+            (
+                r"\bhotel\b"
+                r".{0,40}?\bper\s+night\b"
+            ),
+        ],
+        blockers=[
+            "flight",
+            "transport",
+            "approval",
+            "booked",
+            "booking",
+            "hotel must be within",
         ],
     )
 
     if hotel_price is not None:
-        policy["maximum_hotel_price_per_night"] = hotel_price
-        detected_fields.append("maximum_hotel_price_per_night")
-    else:
-        fallback_fields.append("maximum_hotel_price_per_night")
+        policy[
+            "maximum_hotel_price_per_night"
+        ] = int(hotel_price)
 
-    hotel_distance = find_number(
-        searchable_text,
-        [
+        record_detection(
+            detected_fields,
+            fallback_fields,
+            "maximum_hotel_price_per_night",
+            True,
+        )
+
+    else:
+        record_detection(
+            detected_fields,
+            fallback_fields,
+            "maximum_hotel_price_per_night",
+            False,
+        )
+
+    # Maximum hotel distance
+
+    hotel_distance = find_distance_after_labels(
+        extracted_text,
+        label_patterns=[
             (
-                r"hotel.{0,70}?(?:within|maximum|max|not more than)"
-                r"\s*([\d.]+)\s*(?:kilometres|kilometers|kms|km)"
+                r"\bhotel\b"
+                r".{0,60}?"
+                r"\b(?:within|distance|located|location)\b"
             ),
             (
-                r"([\d.]+)\s*(?:kilometres|kilometers|kms|km)"
-                r".{0,45}?(?:office|work location|meeting location)"
+                r"\baccommodation\b"
+                r".{0,60}?"
+                r"\b(?:within|distance|located|location)\b"
+            ),
+            (
+                r"\b(?:work location|office|workplace|meeting location)\b"
             ),
         ],
-        allow_decimal=True,
     )
 
     if hotel_distance is not None:
-        policy["maximum_hotel_distance_km"] = hotel_distance
-        detected_fields.append("maximum_hotel_distance_km")
-    else:
-        fallback_fields.append("maximum_hotel_distance_km")
+        policy[
+            "maximum_hotel_distance_km"
+        ] = hotel_distance
 
-    approval_limit = find_number(
-        searchable_text,
-        [
+        record_detection(
+            detected_fields,
+            fallback_fields,
+            "maximum_hotel_distance_km",
+            True,
+        )
+
+    else:
+        record_detection(
+            detected_fields,
+            fallback_fields,
+            "maximum_hotel_distance_km",
+            False,
+        )
+
+    # Manager approval threshold
+
+    approval_limit = find_money_after_labels(
+        extracted_text,
+        label_patterns=[
             (
-                r"(?:manager|management|supervisor)\s+approval"
-                r".{0,55}?(?:above|over|exceeding)"
-                r".{0,20}?(?:₹|inr|rs\.?)\s*([\d,]+)"
+                r"\btrips?\s+costing\s+more\s+than\b"
             ),
             (
-                r"trips?\s+(?:costing|above|over)"
-                r".{0,20}?(?:₹|inr|rs\.?)\s*([\d,]+)"
-                r".{0,45}?approval"
+                r"\btrips?\s+above\b"
             ),
+            (
+                r"\bmanager\s+approval\b"
+            ),
+            (
+                r"\bmanagement\s+approval\b"
+            ),
+            (
+                r"\bapproval\s+(?:threshold|limit)\b"
+            ),
+        ],
+        blockers=[
+            "flight",
+            "hotel",
+            "transport",
+            "booked",
+            "booking",
         ],
     )
 
     if approval_limit is not None:
-        policy["manager_approval_above"] = approval_limit
-        detected_fields.append("manager_approval_above")
-    else:
-        fallback_fields.append("manager_approval_above")
+        policy[
+            "manager_approval_above"
+        ] = int(approval_limit)
 
-    advance_days = find_number(
-        searchable_text,
-        [
+        record_detection(
+            detected_fields,
+            fallback_fields,
+            "manager_approval_above",
+            True,
+        )
+
+    else:
+        record_detection(
+            detected_fields,
+            fallback_fields,
+            "manager_approval_above",
+            False,
+        )
+
+    # Advance-booking period
+
+    advance_days = find_days_after_labels(
+        extracted_text,
+        label_patterns=[
             (
-                r"(?:booked|booking).{0,40}?"
-                r"(?:at least|minimum of)\s*(\d+)\s*days?"
+                r"\b(?:domestic\s+)?travel\b"
+                r".{0,80}?"
+                r"\b(?:booked|booking|advance)\b"
             ),
             (
-                r"advance(?:\s+booking)?.{0,25}?(\d+)\s*days?"
+                r"\b(?:booked|booking)\b"
+                r".{0,60}?"
+                r"\b(?:at least|minimum|advance)\b"
+            ),
+            (
+                r"\badvance\s+booking\b"
             ),
         ],
     )
 
     if advance_days is not None:
-        policy["advance_booking_days"] = advance_days
-        detected_fields.append("advance_booking_days")
-    else:
-        fallback_fields.append("advance_booking_days")
+        policy[
+            "advance_booking_days"
+        ] = int(advance_days)
 
-    transport_budget = find_number(
-        searchable_text,
-        [
+        record_detection(
+            detected_fields,
+            fallback_fields,
+            "advance_booking_days",
+            True,
+        )
+
+    else:
+        record_detection(
+            detected_fields,
+            fallback_fields,
+            "advance_booking_days",
+            False,
+        )
+
+    # Local transport budget
+
+    transport_budget = find_money_after_labels(
+        extracted_text,
+        label_patterns=[
             (
-                r"(?:local\s+)?transport"
-                r"(?:\s+(?:budget|allowance|limit))?"
-                r".{0,45}?(?:₹|inr|rs\.?)\s*([\d,]+)"
+                r"\blocal\s+transport\s+"
+                r"(?:budget|allowance|limit)\b"
             ),
+            (
+                r"\btransport\s+"
+                r"(?:budget|allowance|limit)\b"
+            ),
+            (
+                r"\bground\s+transport\s+"
+                r"(?:budget|allowance|limit)\b"
+            ),
+        ],
+        blockers=[
+            "flight",
+            "hotel",
+            "approval",
+            "booked",
+            "booking",
         ],
     )
 
     if transport_budget is not None:
-        policy["allowed_transport_budget"] = transport_budget
-        detected_fields.append("allowed_transport_budget")
+        policy[
+            "allowed_transport_budget"
+        ] = int(transport_budget)
+
+        record_detection(
+            detected_fields,
+            fallback_fields,
+            "allowed_transport_budget",
+            True,
+        )
+
     else:
-        fallback_fields.append("allowed_transport_budget")
+        record_detection(
+            detected_fields,
+            fallback_fields,
+            "allowed_transport_budget",
+            False,
+        )
 
     policy["currency"] = "INR"
 
@@ -320,17 +892,18 @@ def parse_policy_text(
         ),
         (
             "Hotel price should not exceed INR "
-            f"{policy['maximum_hotel_price_per_night']:,} per night."
+            f"{policy['maximum_hotel_price_per_night']:,} "
+            "per night."
         ),
         (
             "Hotel should be within "
-            f"{policy['maximum_hotel_distance_km']} kilometres "
-            "of the work location."
+            f"{policy['maximum_hotel_distance_km']} "
+            "kilometres of the work location."
         ),
         (
             "Trips costing more than INR "
-            f"{policy['manager_approval_above']:,} require "
-            "manager approval."
+            f"{policy['manager_approval_above']:,} "
+            "require manager approval."
         ),
         (
             "Domestic travel should normally be booked at least "
@@ -347,57 +920,125 @@ def parse_policy_text(
         "filename": filename,
     }
 
-    return policy, detected_fields, fallback_fields
+    return (
+        policy,
+        detected_fields,
+        fallback_fields,
+    )
 
 
 def process_policy_pdf(
     pdf_bytes: bytes,
     filename: str,
 ) -> dict[str, Any]:
-    extracted_text, page_count = extract_pdf_text(pdf_bytes)
+    """
+    Extract, parse, save and activate an uploaded policy PDF.
+    """
+    extracted_text, page_count = extract_pdf_text(
+        pdf_bytes
+    )
 
-    policy, detected_fields, fallback_fields = parse_policy_text(
+    (
+        policy,
+        detected_fields,
+        fallback_fields,
+    ) = parse_policy_text(
         extracted_text,
         filename,
     )
 
-    uploaded_at = datetime.now(timezone.utc).isoformat()
+    uploaded_at = datetime.now(
+        timezone.utc
+    ).isoformat()
 
     metadata = {
         "filename": filename,
         "uploaded_at": uploaded_at,
         "page_count": page_count,
-        "extracted_character_count": len(extracted_text),
+        "extracted_character_count": len(
+            extracted_text
+        ),
         "detected_fields": detected_fields,
         "fallback_fields": fallback_fields,
-        "uses_fallback_values": len(fallback_fields) > 0,
+        "uses_fallback_values": (
+            len(fallback_fields) > 0
+        ),
+        "parsed_values": {
+            "company_name": policy[
+                "company_name"
+            ],
+            "domestic_flight_class": policy[
+                "domestic_flight_class"
+            ],
+            "maximum_round_trip_flight_price": policy[
+                "maximum_round_trip_flight_price"
+            ],
+            "maximum_hotel_price_per_night": policy[
+                "maximum_hotel_price_per_night"
+            ],
+            "maximum_hotel_distance_km": policy[
+                "maximum_hotel_distance_km"
+            ],
+            "manager_approval_above": policy[
+                "manager_approval_above"
+            ],
+            "advance_booking_days": policy[
+                "advance_booking_days"
+            ],
+            "allowed_transport_budget": policy[
+                "allowed_transport_budget"
+            ],
+        },
     }
 
-    UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
-    ACTIVE_PDF_PATH.write_bytes(pdf_bytes)
+    UPLOAD_DIR.mkdir(
+        parents=True,
+        exist_ok=True,
+    )
 
-    save_json_file(ACTIVE_POLICY_PATH, policy)
-    save_json_file(POLICY_METADATA_PATH, metadata)
+    ACTIVE_PDF_PATH.write_bytes(
+        pdf_bytes
+    )
+
+    save_json_file(
+        ACTIVE_POLICY_PATH,
+        policy,
+    )
+
+    save_json_file(
+        POLICY_METADATA_PATH,
+        metadata,
+    )
 
     return {
         "policy": policy,
         "metadata": metadata,
-        "text_preview": extracted_text[:1000],
+        "text_preview": extracted_text[:1500],
     }
 
 
 def get_policy_metadata() -> dict[str, Any] | None:
+    """
+    Return metadata for the active uploaded PDF.
+    """
     if not POLICY_METADATA_PATH.exists():
         return None
 
-    return load_json_file(POLICY_METADATA_PATH)
+    return load_json_file(
+        POLICY_METADATA_PATH
+    )
 
 
 def remove_active_policy() -> None:
-    for path in [
+    """
+    Delete the uploaded policy and return to the demo policy.
+    """
+    paths_to_remove = [
         ACTIVE_POLICY_PATH,
         POLICY_METADATA_PATH,
         ACTIVE_PDF_PATH,
-    ]:
+    ]
+
+    for path in paths_to_remove:
         if path.exists():
             path.unlink()
