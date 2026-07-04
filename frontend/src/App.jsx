@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import ApprovalModal from "./components/ApprovalModal";
 import PolicyUploadCard from "./components/PolicyUploadCard";
+import WeatherInsightCard from "./components/WeatherInsightCard";
 
 
 const API_URL =
@@ -88,7 +89,7 @@ function App() {
   ] = useState(null);
 
   const progress = useMemo(() => {
-    const totalExpectedSteps = 6;
+    const totalExpectedSteps = 7;
 
     return Math.min(
       Math.round(
@@ -757,6 +758,13 @@ function App() {
                   {result.explanation}
                 </p>
               </div>
+
+              <WeatherInsightCard
+  weather={result.weather}
+  advisories={
+    result.travel_advisories || []
+  }
+/>
 
               <div className="selection-card">
                 <div className="selection-icon">
