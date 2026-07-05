@@ -2,7 +2,10 @@ import {
   useState,
 } from "react";
 
-import ApprovalModal from "../approval/ApprovalModal";
+import {
+  useNavigate,
+} from "react-router-dom";
+
 import PolicyUploadCard from "../policy/PolicyUploadCard";
 import WeatherInsightCard from "../weather/WeatherInsightCard";
 
@@ -12,10 +15,9 @@ import {
   API_URL,
 } from "../../services/api";
 
-import {
-  saveApprovalDecision,
-  updateAgentRunApproval,
-} from "../../services/storage";
+
+const PENDING_APPROVALS_STORAGE_KEY =
+  "tripguard_pending_approval_requests";
 
 
 function getFutureDate(
@@ -159,6 +161,229 @@ function hasSeparateFlightReference(
       flight,
     )
   );
+}
+
+
+function readPendingApprovalRequests() {
+  try {
+    const storedValue =
+      window.localStorage.getItem(
+        PENDING_APPROVALS_STORAGE_KEY,
+      );
+
+    if (!storedValue) {
+      return [];
+    }
+
+    const parsedValue =
+      JSON.parse(storedValue);
+
+    return Array.isArray(
+      parsedValue,
+    )
+      ? parsedValue
+      : [];
+  } catch {
+    return [];
+  }
+}
+
+
+function generateApprovalRequestId() {
+  if (
+    globalThis.crypto
+      ?.randomUUID
+  ) {
+    return (
+      `APR-${globalThis.crypto
+        .randomUUID()
+        .slice(0, 8)
+        .toUpperCase()}`
+    );
+  }
+
+  return (
+    `APR-${Date.now()}-`
+    + Math.random()
+      .toString(36)
+      .slice(2, 8)
+      .toUpperCase()
+  );
+}
+
+
+function savePendingApprovalRequest({
+  result,
+  tripRunId,
+}) {
+  if (!result) {
+    throw new Error(
+      "No trip recommendation is available.",
+    );
+  }
+
+  const submittedAt =
+    new Date().toISOString();
+
+  const approvalRequest = {
+    id:
+      generateApprovalRequestId(),
+    status:
+      "pending",
+    trip_run_id:
+      tripRunId || null,
+    submitted_at:
+      submittedAt,
+    updated_at:
+      submittedAt,
+
+    route:
+      result.trip
+        ? (
+            `${result.trip.origin}`
+            + " → "
+            + `${result.trip.destination}`
+          )
+        : "Route unavailable",
+
+    origin:
+      result.trip?.origin
+      || null,
+
+    destination:
+      result.trip?.destination
+      || null,
+
+    destination_city:
+      result.trip
+        ?.destination_city
+      || null,
+
+    departure_date:
+      result.trip
+        ?.departure_date
+      || null,
+
+    return_date:
+      result.trip
+        ?.return_date
+      || null,
+
+    purpose:
+      result.trip?.purpose
+      || null,
+
+    total_cost:
+      Number(
+        result
+          .cost_summary
+          ?.total_cost
+        || 0,
+      ),
+
+    traveller_budget:
+      Number(
+        result
+          .cost_summary
+          ?.traveller_budget
+        || 0,
+      ),
+
+    budget_remaining:
+      Number(
+        result
+          .cost_summary
+          ?.budget_remaining
+        || 0,
+      ),
+
+    exception_amount:
+      Number(
+        result
+          .cost_summary
+          ?.exception_amount
+        || 0,
+      ),
+
+    selected_flight:
+      result.selected_flight
+      || null,
+
+    selected_hotel:
+      result.selected_hotel
+      || null,
+
+    compliance:
+      result.compliance
+      || {},
+
+    policy_coverage:
+      result.policy_coverage
+      || {},
+
+    approval_reason:
+      result
+        .approval_request
+        ?.reason
+      || (
+        "Manager review is "
+        + "required."
+      ),
+
+    recommendation_status:
+      result.status
+      || null,
+
+    recommendation_explanation:
+      result.explanation
+      || null,
+
+    reviewer_name:
+      "",
+
+    review_note:
+      "",
+
+    decision:
+      null,
+  };
+
+  const existingRequests =
+    readPendingApprovalRequests();
+
+  const requestsWithoutCurrentRun =
+    existingRequests.filter(
+      (request) => {
+        if (
+          tripRunId
+          && request.trip_run_id
+        ) {
+          return (
+            request.trip_run_id
+            !== tripRunId
+          );
+        }
+
+        return (
+          request.id
+          !== approvalRequest.id
+        );
+      },
+    );
+
+  const updatedRequests = [
+    approvalRequest,
+    ...requestsWithoutCurrentRun,
+  ];
+
+  window.localStorage.setItem(
+    PENDING_APPROVALS_STORAGE_KEY,
+    JSON.stringify(
+      updatedRequests,
+    ),
+  );
+
+  return approvalRequest;
 }
 
 
@@ -855,10 +1080,155 @@ function SelectionReasoningPanel({
 }
 
 
+function EmployeeApprovalHandoff({
+  compliance,
+  submission,
+  submissionError,
+  onSubmitForReview,
+  onOpenManagerQueue,
+}) {
+  const requiresApproval =
+    Boolean(
+      compliance
+        ?.approval_required,
+    );
+
+  if (!requiresApproval) {
+    return (
+      <div className="approval-control-card">
+        <div>
+          <span>
+            Employee workflow complete
+          </span>
+
+          <strong>
+            No manager approval required
+          </strong>
+        </div>
+
+        <button
+          type="button"
+          disabled
+        >
+          Ready for booking
+        </button>
+      </div>
+    );
+  }
+
+  const hasException =
+    !compliance.is_compliant;
+
+  const manualPolicyReview =
+    Boolean(
+      compliance
+        .manual_policy_review_required,
+    );
+
+  const manualInventoryReview =
+    Boolean(
+      compliance
+        .manual_inventory_review_required,
+    );
+
+  let reviewReason =
+    "Manager approval required";
+
+  if (
+    hasException
+    && (
+      manualPolicyReview
+      || manualInventoryReview
+    )
+  ) {
+    reviewReason =
+      "Policy exception + manual review required";
+  } else if (hasException) {
+    reviewReason =
+      "Policy exception approval required";
+  } else if (
+    manualPolicyReview
+  ) {
+    reviewReason =
+      "Manual policy review required";
+  } else if (
+    manualInventoryReview
+  ) {
+    reviewReason =
+      "Inventory verification required";
+  }
+
+  return (
+    <>
+      <div className="approval-control-card">
+        <div>
+          <span>
+            Employee submission
+          </span>
+
+          <strong>
+            {submission
+              ? (
+                  "Sent to manager "
+                  + "approval queue"
+                )
+              : reviewReason}
+          </strong>
+        </div>
+
+        <button
+          type="button"
+          onClick={
+            submission
+              ? onOpenManagerQueue
+              : onSubmitForReview
+          }
+        >
+          {submission
+            ? "Open manager approvals"
+            : "Submit for manager review"}
+        </button>
+      </div>
+
+      {submission && (
+        <div className="policy-message-row success">
+          <span>✓</span>
+
+          <div>
+            <strong>
+              Approval request submitted
+            </strong>
+
+            <p>
+              Request ID:{" "}
+              {submission.id}
+            </p>
+          </div>
+        </div>
+      )}
+
+      {submissionError && (
+        <div className="inline-error">
+          <strong>
+            Approval submission failed
+          </strong>
+
+          <p>
+            {submissionError}
+          </p>
+        </div>
+      )}
+    </>
+  );
+}
+
+
 function RecommendationPanel({
   result,
-  approvalOutcome,
-  onReviewApproval,
+  approvalSubmission,
+  approvalSubmissionError,
+  onSubmitForApproval,
+  onOpenApprovals,
 }) {
   if (!result) {
     return (
@@ -998,46 +1368,6 @@ function RecommendationPanel({
   const anyManualReviewRequired =
     manualPolicyReviewRequired
     || manualInventoryReviewRequired;
-
-  let approvalButtonText =
-    "Approve recommendation";
-
-  if (anyManualReviewRequired) {
-    approvalButtonText =
-      "Review details";
-  } else if (
-    compliance.approval_required
-  ) {
-    approvalButtonText =
-      compliance.is_compliant
-        ? "Review approval"
-        : "Review exception";
-  }
-
-  let approvalControlText =
-    "Ready for booking approval";
-
-  if (
-    manualPolicyReviewRequired
-  ) {
-    approvalControlText =
-      "Manual policy review required";
-  } else if (
-    manualInventoryReviewRequired
-  ) {
-    approvalControlText =
-      "Live inventory verification required";
-  } else if (
-    compliance.approval_required
-  ) {
-    approvalControlText =
-      compliance.is_compliant
-        ? "Manager approval required"
-        : (
-            "Policy exception "
-            + "approval required"
-          );
-  }
 
   const decisionClass =
     compliance.is_compliant
@@ -1478,78 +1808,30 @@ function RecommendationPanel({
           )}
       </div>
 
-      <div className="approval-control-card">
-        <div>
-          <span>
-            Human-in-the-loop control
-          </span>
-
-          <strong>
-            {approvalControlText}
-          </strong>
-        </div>
-
-        <button
-          type="button"
-          onClick={
-            onReviewApproval
-          }
-        >
-          {approvalButtonText}
-        </button>
-      </div>
-
-      {approvalOutcome && (
-        <div
-          className={
-            `approval-outcome ${approvalOutcome.status}`
-          }
-        >
-          <span>
-            {approvalOutcome.status
-              === "approved"
-              ? "✓"
-              : "!"}
-          </span>
-
-          <div>
-            <strong>
-              Trip{" "}
-              {approvalOutcome.status}
-            </strong>
-
-            <p>
-              Reviewed by{" "}
-              {
-                approvalOutcome
-                  .reviewer_name
-              }
-            </p>
-
-            {approvalOutcome
-              .review_note
-              && (
-                <p>
-                  {
-                    approvalOutcome
-                      .review_note
-                  }
-                </p>
-              )}
-
-            <p>
-              Approval ID:{" "}
-              {approvalOutcome.id}
-            </p>
-          </div>
-        </div>
-      )}
+      <EmployeeApprovalHandoff
+        compliance={compliance}
+        submission={
+          approvalSubmission
+        }
+        submissionError={
+          approvalSubmissionError
+        }
+        onSubmitForReview={
+          onSubmitForApproval
+        }
+        onOpenManagerQueue={
+          onOpenApprovals
+        }
+      />
     </section>
   );
 }
 
 
 function NewTripWorkspace() {
+  const navigate =
+    useNavigate();
+
   const [
     form,
     setForm,
@@ -1558,14 +1840,14 @@ function NewTripWorkspace() {
   );
 
   const [
-    approvalOpen,
-    setApprovalOpen,
-  ] = useState(false);
+    approvalSubmission,
+    setApprovalSubmission,
+  ] = useState(null);
 
   const [
-    approvalOutcome,
-    setApprovalOutcome,
-  ] = useState(null);
+    approvalSubmissionError,
+    setApprovalSubmissionError,
+  ] = useState("");
 
   const {
     steps,
@@ -1594,28 +1876,39 @@ function NewTripWorkspace() {
       return;
     }
 
-    setApprovalOpen(false);
-    setApprovalOutcome(null);
+    setApprovalSubmission(
+      null,
+    );
+
+    setApprovalSubmissionError(
+      "",
+    );
 
     await runTrip({
       ...form,
+
       origin:
         form.origin
           .trim()
           .toUpperCase(),
+
       destination:
         form.destination
           .trim()
           .toUpperCase(),
+
       destination_city:
         form.destination_city
           .trim(),
+
       work_location:
         form.work_location
           .trim(),
+
       purpose:
         form.purpose
           .trim(),
+
       budget:
         Number(
           form.budget,
@@ -1623,92 +1916,103 @@ function NewTripWorkspace() {
     });
   }
 
+
   function handleLoadDemo() {
     setForm(
       createDemoForm(),
     );
 
-    setApprovalOpen(false);
-    setApprovalOutcome(null);
+    setApprovalSubmission(
+      null,
+    );
+
+    setApprovalSubmissionError(
+      "",
+    );
   }
+
 
   function handleClearForm() {
     setForm(
       createEmptyForm(),
     );
 
-    setApprovalOpen(false);
-    setApprovalOutcome(null);
-  }
-
-  function handleApprovalCompleted(
-    approval,
-  ) {
-    const route =
-      result?.trip
-        ? (
-            `${result.trip.origin}`
-            + " → "
-            + `${result.trip.destination}`
-          )
-        : null;
-
-    const storedApproval =
-      saveApprovalDecision(
-        approval,
-        {
-          route,
-          total_cost:
-            result
-              ?.cost_summary
-              ?.total_cost
-            || 0,
-          trip_run_id:
-            currentRunId,
-        },
-      );
-
-    if (currentRunId) {
-      updateAgentRunApproval(
-        currentRunId,
-        storedApproval,
-      );
-    }
-
-    setApprovalOutcome(
-      storedApproval,
+    setApprovalSubmission(
+      null,
     );
 
-    setApprovalOpen(false);
+    setApprovalSubmissionError(
+      "",
+    );
   }
+
+
+  function handleSubmitForApproval() {
+    try {
+      const savedRequest =
+        savePendingApprovalRequest({
+          result,
+          tripRunId:
+            currentRunId,
+        });
+
+      setApprovalSubmission(
+        savedRequest,
+      );
+
+      setApprovalSubmissionError(
+        "",
+      );
+    } catch (submissionError) {
+      setApprovalSubmissionError(
+        submissionError
+          instanceof Error
+          ? submissionError.message
+          : (
+              "Unable to submit the "
+              + "approval request."
+            ),
+      );
+    }
+  }
+
+
+  function handleOpenApprovals() {
+    navigate(
+      "/app/approvals",
+    );
+  }
+
 
   return (
     <>
       <div className="page-introduction">
         <div>
           <span>
-            Autonomous travel planning
+            Employee travel request
           </span>
 
           <h2>
-            Plan, evaluate and approve
-            a business trip
+            Plan and submit a
+            business trip
           </h2>
 
           <p>
-            TripGuard retrieves policy,
-            calls live travel and weather
-            tools, evaluates alternatives
-            and explains its final
-            decision.
+            Enter the traveller’s
+            requirements. TripGuard
+            searches live inventory,
+            checks company policy and
+            prepares a recommendation.
+            Manager decisions are handled
+            separately in Approvals.
           </p>
         </div>
 
         <div className="live-system-label">
           <span>●</span>
 
-          Live travel inventory · Live
-          weather
+          Employee workspace · Live
+          travel inventory
         </div>
       </div>
 
@@ -1717,7 +2021,7 @@ function NewTripWorkspace() {
           <div className="surface-heading">
             <div>
               <span className="surface-eyebrow">
-                Travel request
+                Employee request
               </span>
 
               <h2>
@@ -1767,33 +2071,20 @@ function NewTripWorkspace() {
 
         <RecommendationPanel
           result={result}
-          approvalOutcome={
-            approvalOutcome
+          approvalSubmission={
+            approvalSubmission
           }
-          onReviewApproval={() => {
-            setApprovalOpen(
-              true,
-            );
-          }}
+          approvalSubmissionError={
+            approvalSubmissionError
+          }
+          onSubmitForApproval={
+            handleSubmitForApproval
+          }
+          onOpenApprovals={
+            handleOpenApprovals
+          }
         />
       </div>
-
-      <ApprovalModal
-        open={approvalOpen}
-        result={result}
-        apiUrl={API_URL}
-        tripRunId={
-          currentRunId
-        }
-        onClose={() => {
-          setApprovalOpen(
-            false,
-          );
-        }}
-        onCompleted={
-          handleApprovalCompleted
-        }
-      />
     </>
   );
 }
