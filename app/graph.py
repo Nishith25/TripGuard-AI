@@ -1406,7 +1406,7 @@ def evaluate_options_node(
                         "Trip is being booked "
                         f"{actual_advance_days} "
                         "day(s) before departure. "
-                        "The active policy requires "
+                        "The active policy recommends "
                         "booking at least "
                         f"{required_advance_days} "
                         "day(s) in advance."
