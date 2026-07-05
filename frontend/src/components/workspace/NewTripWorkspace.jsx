@@ -34,24 +34,22 @@ function getFutureDate(
 }
 
 
-function createSampleTrip() {
-  return {
-    origin: "HYD",
-    destination: "BLR",
-    destination_city:
-      "Bengaluru",
-    departure_date:
-      getFutureDate(4),
-    return_date:
-      getFutureDate(6),
-    budget: 18000,
-    arrival_before: "10:00",
-    work_location:
-      "Embassy Tech Village",
-    purpose:
-      "Important client meeting",
-  };
-}
+const initialForm = {
+  origin: "HYD",
+  destination: "BLR",
+  destination_city:
+    "Bengaluru",
+  departure_date:
+    getFutureDate(4),
+  return_date:
+    getFutureDate(6),
+  budget: 18000,
+  arrival_before: "10:00",
+  work_location:
+    "Embassy Tech Village",
+  purpose:
+    "Important client meeting",
+};
 
 
 function formatCurrency(
@@ -106,124 +104,43 @@ function formatPolicyField(
 }
 
 
-function validateTripForm(
-  form,
+function getFlightDisplayNumber(
+  flight,
 ) {
-  const errors = {};
+  const airlineFlightNumber =
+    String(
+      flight?.flight_number
+      || "",
+    ).trim();
 
-  const airportPattern =
-    /^[A-Za-z]{3}$/;
-
-  if (
-    !airportPattern.test(
-      form.origin.trim(),
-    )
-  ) {
-    errors.origin =
-      "Enter a valid three-letter airport code.";
+  if (airlineFlightNumber) {
+    return airlineFlightNumber;
   }
 
-  if (
-    !airportPattern.test(
-      form.destination.trim(),
-    )
-  ) {
-    errors.destination =
-      "Enter a valid three-letter airport code.";
-  }
-
-  if (
-    form.origin.trim().toUpperCase()
-    ===
-    form.destination
-      .trim()
-      .toUpperCase()
-  ) {
-    errors.destination =
-      "Origin and destination cannot be the same.";
-  }
-
-  if (
-    !form.destination_city
-      .trim()
-  ) {
-    errors.destination_city =
-      "Enter the destination city.";
-  }
-
-  const today = new Date();
-
-  today.setHours(
-    0,
-    0,
-    0,
-    0,
+  return String(
+    flight?.id
+    || "N/A",
   );
-
-  const departureDate =
-    new Date(
-      `${form.departure_date}T00:00:00`,
-    );
-
-  const returnDate =
-    new Date(
-      `${form.return_date}T00:00:00`,
-    );
-
-  if (
-    Number.isNaN(
-      departureDate.getTime(),
-    )
-  ) {
-    errors.departure_date =
-      "Select a departure date.";
-  } else if (
-    departureDate < today
-  ) {
-    errors.departure_date =
-      "Departure cannot be in the past.";
-  }
-
-  if (
-    Number.isNaN(
-      returnDate.getTime(),
-    )
-  ) {
-    errors.return_date =
-      "Select a return date.";
-  } else if (
-    !Number.isNaN(
-      departureDate.getTime(),
-    )
-    && returnDate
-      < departureDate
-  ) {
-    errors.return_date =
-      "Return date cannot be before departure.";
-  }
-
-  if (
-    Number(form.budget) <= 0
-  ) {
-    errors.budget =
-      "Budget must be greater than zero.";
-  }
-
-  return errors;
 }
 
 
-function FieldError({
-  message,
-}) {
-  if (!message) {
-    return null;
+function hasSeparateFlightReference(
+  flight,
+) {
+  const flightId = String(
+    flight?.id
+    || "",
+  ).trim();
+
+  if (!flightId) {
+    return false;
   }
 
   return (
-    <small className="field-error">
-      {message}
-    </small>
+    flightId
+    !== getFlightDisplayNumber(
+      flight,
+    )
   );
 }
 
@@ -231,7 +148,6 @@ function FieldError({
 function TripRequestForm({
   form,
   setForm,
-  errors,
   running,
   onSubmit,
 }) {
@@ -265,17 +181,6 @@ function TripRequestForm({
             onChange={updateField}
             maxLength="3"
             required
-            aria-invalid={
-              Boolean(
-                errors.origin,
-              )
-            }
-          />
-
-          <FieldError
-            message={
-              errors.origin
-            }
           />
         </label>
 
@@ -294,17 +199,6 @@ function TripRequestForm({
             onChange={updateField}
             maxLength="3"
             required
-            aria-invalid={
-              Boolean(
-                errors.destination,
-              )
-            }
-          />
-
-          <FieldError
-            message={
-              errors.destination
-            }
           />
         </label>
       </div>
@@ -321,19 +215,6 @@ function TripRequestForm({
           }
           onChange={updateField}
           required
-          aria-invalid={
-            Boolean(
-              errors
-                .destination_city,
-            )
-          }
-        />
-
-        <FieldError
-          message={
-            errors
-              .destination_city
-          }
         />
       </label>
 
@@ -349,19 +230,6 @@ function TripRequestForm({
             }
             onChange={updateField}
             required
-            aria-invalid={
-              Boolean(
-                errors
-                  .departure_date,
-              )
-            }
-          />
-
-          <FieldError
-            message={
-              errors
-                .departure_date
-            }
           />
         </label>
 
@@ -376,17 +244,6 @@ function TripRequestForm({
             }
             onChange={updateField}
             required
-            aria-invalid={
-              Boolean(
-                errors.return_date,
-              )
-            }
-          />
-
-          <FieldError
-            message={
-              errors.return_date
-            }
           />
         </label>
       </div>
@@ -404,17 +261,6 @@ function TripRequestForm({
             onChange={updateField}
             min="1"
             required
-            aria-invalid={
-              Boolean(
-                errors.budget,
-              )
-            }
-          />
-
-          <FieldError
-            message={
-              errors.budget
-            }
           />
         </label>
 
@@ -458,7 +304,7 @@ function TripRequestForm({
           name="purpose"
           value={form.purpose}
           onChange={updateField}
-          rows="4"
+          rows="3"
           placeholder="Describe the purpose of this trip"
         />
       </label>
@@ -550,10 +396,8 @@ function AgentTimeline({
               <p>
                 Submit a travel request
                 to watch TripGuard call
-                policy, inventory and
-                weather tools before
-                making an explainable
-                decision.
+                its tools and make an
+                explainable decision.
               </p>
             </div>
           )}
@@ -675,9 +519,8 @@ function RecommendationPanel({
           </div>
 
           <p>
-            The complete itinerary,
-            weather assessment, cost
-            summary and policy decision
+            The itinerary, costs,
+            weather and policy decision
             will appear here.
           </p>
         </div>
@@ -701,10 +544,6 @@ function RecommendationPanel({
               No recommendation
             </h2>
           </div>
-
-          <span className="surface-number">
-            03
-          </span>
         </div>
 
         <div className="inline-error">
@@ -752,6 +591,24 @@ function RecommendationPanel({
     policyCoverage
       .not_specified_fields || [];
 
+  const flightDisplayNumber =
+    getFlightDisplayNumber(
+      flight,
+    );
+
+  const showFlightReference =
+    hasSeparateFlightReference(
+      flight,
+    );
+
+  const isLiveFlight =
+    flight.data_source
+    === "live";
+
+  const isLiveHotel =
+    hotel.data_source
+    === "live";
+
   const manualPolicyReviewRequired =
     Boolean(
       compliance
@@ -760,14 +617,21 @@ function RecommendationPanel({
         .requires_manual_review,
     );
 
+  const manualInventoryReviewRequired =
+    Boolean(
+      compliance
+        .manual_inventory_review_required,
+    );
+
   let approvalButtonText =
     "Approve recommendation";
 
   if (
     manualPolicyReviewRequired
+    || manualInventoryReviewRequired
   ) {
     approvalButtonText =
-      "Review policy";
+      "Review details";
   } else if (
     compliance.approval_required
   ) {
@@ -786,12 +650,20 @@ function RecommendationPanel({
     approvalControlText =
       "Manual policy review required";
   } else if (
+    manualInventoryReviewRequired
+  ) {
+    approvalControlText =
+      "Live inventory verification required";
+  } else if (
     compliance.approval_required
   ) {
     approvalControlText =
       compliance.is_compliant
         ? "Manager approval required"
-        : "Policy exception approval required";
+        : (
+            "Policy exception "
+            + "approval required"
+          );
   }
 
   const decisionClass =
@@ -825,391 +697,449 @@ function RecommendationPanel({
         </span>
       </div>
 
-      <div className="recommendation-overview-grid">
-        <div className="recommendation-main-column">
-          <div className="recommendation-header">
-            <div>
-              <span
-                className={
-                  `decision-status ${decisionClass}`
-                }
-              >
-                {compliance.is_compliant
-                  && !manualPolicyReviewRequired
-                  ? "✓"
-                  : "!"}
+      <div className="recommendation-header">
+        <div>
+          <span
+            className={
+              `decision-status ${decisionClass}`
+            }
+          >
+            {compliance.is_compliant
+              && !manualPolicyReviewRequired
+              ? "✓"
+              : "!"}
 
-                {decisionLabel}
-              </span>
+            {decisionLabel}
+          </span>
 
-              <h3>
-                {result.trip?.origin}
+          <h3>
+            {result.trip?.origin}
 
-                <span>→</span>
+            <span>→</span>
 
-                {result.trip?.destination}
-              </h3>
+            {result.trip?.destination}
+          </h3>
 
-              <p>
-                {
-                  result.trip
-                    ?.departure_date
-                }
-                {" to "}
-                {
-                  result.trip
-                    ?.return_date
-                }
-              </p>
-            </div>
-
-            <div className="recommendation-total">
-              <span>Total trip cost</span>
-
-              <strong>
-                {formatCurrency(
-                  cost.total_cost,
-                )}
-              </strong>
-            </div>
-          </div>
-
-          <div className="decision-explanation">
-            <span>
-              Why this option?
-            </span>
-
-            <p>
-              {result.explanation}
-            </p>
-          </div>
-
-          <div className="itinerary-grid">
-            <div className="itinerary-selection-card">
-              <div className="itinerary-icon">
-                ✈
-              </div>
-
-              <div>
-                <span>
-                  Selected flight
-                </span>
-
-                <strong>
-                  {flight.airline}
-                  {" · "}
-                  {flight.id}
-                </strong>
-
-                <p>
-                  {flight.departure_time}
-                  {" – "}
-                  {flight.arrival_time}
-                  {" · "}
-                  {flight.travel_class}
-                </p>
-              </div>
-
-              <b>
-                {formatCurrency(
-                  flight.round_trip_price,
-                )}
-              </b>
-            </div>
-
-            <div className="itinerary-selection-card">
-              <div className="itinerary-icon">
-                ⌂
-              </div>
-
-              <div>
-                <span>
-                  Selected hotel
-                </span>
-
-                <strong>
-                  {hotel.name}
-                </strong>
-
-                <p>
-                  {
-                    hotel
-                      .distance_from_work_location_km
-                  }
-                  {" km from work · Rating "}
-                  {hotel.rating}
-                </p>
-              </div>
-
-              <b>
-                {formatCurrency(
-                  hotel.price_per_night,
-                )}
-
-                <small>
-                  /night
-                </small>
-              </b>
-            </div>
-          </div>
-
-          <div className="cost-summary-grid">
-            <div>
-              <span>Flight</span>
-
-              <strong>
-                {formatCurrency(
-                  cost.flight_cost,
-                )}
-              </strong>
-            </div>
-
-            <div>
-              <span>Hotel</span>
-
-              <strong>
-                {formatCurrency(
-                  cost.hotel_cost,
-                )}
-              </strong>
-            </div>
-
-            <div>
-              <span>Transport</span>
-
-              <strong>
-                {formatCurrency(
-                  cost.transport_budget,
-                )}
-              </strong>
-            </div>
-
-            <div>
-              <span>
-                Budget remaining
-              </span>
-
-              <strong
-                className={
-                  cost.budget_remaining
-                  >= 0
-                    ? "positive-text"
-                    : "negative-text"
-                }
-              >
-                {formatCurrency(
-                  cost.budget_remaining,
-                )}
-              </strong>
-            </div>
-          </div>
+          <p>
+            {
+              result.trip
+                ?.departure_date
+            }
+            {" to "}
+            {
+              result.trip
+                ?.return_date
+            }
+          </p>
         </div>
 
-        <div className="recommendation-insight-column">
-          <WeatherInsightCard
-            weather={result.weather}
-            advisories={
-              result
-                .travel_advisories
-              || []
-            }
-          />
+        <div className="recommendation-total">
+          <span>Total</span>
 
-          <div className="policy-assessment">
-            <div className="policy-assessment-heading">
-              <h4>
-                Policy assessment
-              </h4>
-
-              <span>
-                {
-                  result
-                    .alternatives_evaluated
-                }
-                {" options evaluated"}
-              </span>
-            </div>
-
-            {compliance.is_compliant
-              && (
-                <div className="policy-message-row success">
-                  <span>✓</span>
-
-                  All automatically
-                  enforceable traveller and
-                  company-policy constraints
-                  have been satisfied.
-                </div>
-              )}
-
-            {manualPolicyReviewRequired
-              && (
-                <div className="policy-message-row warning">
-                  <span>!</span>
-
-                  Some uploaded policy
-                  clauses require human
-                  review before this trip
-                  can be approved.
-                </div>
-              )}
-
-            {compliance
-              .violations
-              ?.map(
-                (
-                  violation,
-                  index,
-                ) => (
-                  <div
-                    className="policy-message-row error"
-                    key={
-                      `violation-${index}`
-                    }
-                  >
-                    <span>!</span>
-
-                    {violation}
-                  </div>
-                ),
-              )}
-
-            {compliance
-              .warnings
-              ?.map(
-                (
-                  warning,
-                  index,
-                ) => (
-                  <div
-                    className="policy-message-row warning"
-                    key={
-                      `warning-${index}`
-                    }
-                  >
-                    <span>•</span>
-
-                    {warning}
-                  </div>
-                ),
-              )}
-
-            {unsupportedRules.map(
-              (
-                rule,
-                index,
-              ) => (
-                <div
-                  className="policy-message-row warning"
-                  key={
-                    `unsupported-rule-${index}`
-                  }
-                >
-                  <span>?</span>
-
-                  Manual clause: {rule}
-                </div>
-              ),
+          <strong>
+            {formatCurrency(
+              cost.total_cost,
             )}
-
-            {enforcedFields.length > 0
-              && (
-                <div className="policy-message-row success">
-                  <span>✓</span>
-
-                  Enforced rules:{" "}
-                  {enforcedFields
-                    .map(
-                      formatPolicyField,
-                    )
-                    .join(", ")}
-                </div>
-              )}
-
-            {unspecifiedFields.length > 0
-              && (
-                <div className="policy-message-row warning">
-                  <span>•</span>
-
-                  Not specified in the
-                  uploaded policy:{" "}
-                  {unspecifiedFields
-                    .map(
-                      formatPolicyField,
-                    )
-                    .join(", ")}
-                </div>
-              )}
-          </div>
-
-          <div className="approval-control-card">
-            <div>
-              <span>
-                Human-in-the-loop control
-              </span>
-
-              <strong>
-                {approvalControlText}
-              </strong>
-            </div>
-
-            <button
-              type="button"
-              onClick={
-                onReviewApproval
-              }
-            >
-              {approvalButtonText}
-            </button>
-          </div>
-
-          {approvalOutcome && (
-            <div
-              className={
-                `approval-outcome ${approvalOutcome.status}`
-              }
-            >
-              <span>
-                {approvalOutcome.status
-                  === "approved"
-                  ? "✓"
-                  : "!"}
-              </span>
-
-              <div>
-                <strong>
-                  Trip{" "}
-                  {approvalOutcome.status}
-                </strong>
-
-                <p>
-                  Reviewed by{" "}
-                  {
-                    approvalOutcome
-                      .reviewer_name
-                  }
-                </p>
-
-                {approvalOutcome
-                  .review_note
-                  && (
-                    <p>
-                      {
-                        approvalOutcome
-                          .review_note
-                      }
-                    </p>
-                  )}
-
-                <p>
-                  Approval ID:{" "}
-                  {approvalOutcome.id}
-                </p>
-              </div>
-            </div>
-          )}
+          </strong>
         </div>
       </div>
+
+      <div className="decision-explanation">
+        <span>
+          Why this option?
+        </span>
+
+        <p>
+          {result.explanation}
+        </p>
+      </div>
+
+      <WeatherInsightCard
+        weather={result.weather}
+        advisories={
+          result
+            .travel_advisories
+          || []
+        }
+      />
+
+      <div className="itinerary-selection-card">
+        <div className="itinerary-icon">
+          ✈
+        </div>
+
+        <div>
+          <span>
+            {isLiveFlight
+              ? "Selected live flight"
+              : "Selected flight"}
+          </span>
+
+          <strong>
+            {flight.airline
+              || "Airline"}
+            {" · "}
+            {flightDisplayNumber}
+          </strong>
+
+          <p>
+            {flight.departure_time
+              || "—"}
+            {" – "}
+            {flight.arrival_time
+              || "—"}
+            {" · "}
+            {flight.travel_class
+              || "Class unavailable"}
+          </p>
+
+          {showFlightReference && (
+            <p>
+              TripGuard reference:{" "}
+              {flight.id}
+            </p>
+          )}
+
+          {flight.provider && (
+            <p>
+              Source:{" "}
+              {flight.provider}
+            </p>
+          )}
+        </div>
+
+        <b>
+          {formatCurrency(
+            flight.round_trip_price,
+          )}
+        </b>
+      </div>
+
+      <div className="itinerary-selection-card">
+        <div className="itinerary-icon">
+          ⌂
+        </div>
+
+        <div>
+          <span>
+            {isLiveHotel
+              ? "Selected live hotel"
+              : "Selected hotel"}
+          </span>
+
+          <strong>
+            {hotel.name}
+          </strong>
+
+          <p>
+            {hotel
+              .distance_from_work_location_km
+              ?? "Distance unavailable"}
+            {hotel
+              .distance_from_work_location_km
+              !== null
+              && hotel
+                .distance_from_work_location_km
+                !== undefined
+              ? " km from work"
+              : ""}
+            {" · Rating "}
+            {hotel.rating
+              ?? "N/A"}
+          </p>
+
+          {hotel.provider && (
+            <p>
+              Source:{" "}
+              {hotel.provider}
+            </p>
+          )}
+        </div>
+
+        <b>
+          {formatCurrency(
+            hotel.price_per_night,
+          )}
+
+          <small>
+            /night
+          </small>
+        </b>
+      </div>
+
+      <div className="cost-summary-grid">
+        <div>
+          <span>Flight</span>
+
+          <strong>
+            {formatCurrency(
+              cost.flight_cost,
+            )}
+          </strong>
+        </div>
+
+        <div>
+          <span>Hotel</span>
+
+          <strong>
+            {formatCurrency(
+              cost.hotel_cost,
+            )}
+          </strong>
+        </div>
+
+        <div>
+          <span>Transport</span>
+
+          <strong>
+            {formatCurrency(
+              cost.transport_budget,
+            )}
+          </strong>
+        </div>
+
+        <div>
+          <span>
+            Budget remaining
+          </span>
+
+          <strong
+            className={
+              cost.budget_remaining
+              >= 0
+                ? "positive-text"
+                : "negative-text"
+            }
+          >
+            {formatCurrency(
+              cost.budget_remaining,
+            )}
+          </strong>
+        </div>
+      </div>
+
+      <div className="policy-assessment">
+        <div className="policy-assessment-heading">
+          <h4>
+            Policy assessment
+          </h4>
+
+          <span>
+            {
+              result
+                .alternatives_evaluated
+            }
+            {" options evaluated"}
+          </span>
+        </div>
+
+        {compliance.is_compliant
+          && (
+            <div className="policy-message-row success">
+              <span>✓</span>
+
+              All automatically
+              enforceable traveller and
+              company-policy constraints
+              have been satisfied.
+            </div>
+          )}
+
+        {manualPolicyReviewRequired
+          && (
+            <div className="policy-message-row warning">
+              <span>!</span>
+
+              Some clauses require human
+              review before this trip can
+              be approved.
+            </div>
+          )}
+
+        {manualInventoryReviewRequired
+          && (
+            <div className="policy-message-row warning">
+              <span>!</span>
+
+              Some live inventory details
+              require manual verification.
+            </div>
+          )}
+
+        {compliance
+          .manual_inventory_review_reasons
+          ?.map(
+            (
+              reason,
+              index,
+            ) => (
+              <div
+                className="policy-message-row warning"
+                key={
+                  `inventory-review-${index}`
+                }
+              >
+                <span>•</span>
+
+                {reason}
+              </div>
+            ),
+          )}
+
+        {compliance
+          .violations
+          ?.map(
+            (
+              violation,
+              index,
+            ) => (
+              <div
+                className="policy-message-row error"
+                key={
+                  `violation-${index}`
+                }
+              >
+                <span>!</span>
+
+                {violation}
+              </div>
+            ),
+          )}
+
+        {compliance
+          .warnings
+          ?.map(
+            (
+              warning,
+              index,
+            ) => (
+              <div
+                className="policy-message-row warning"
+                key={
+                  `warning-${index}`
+                }
+              >
+                <span>•</span>
+
+                {warning}
+              </div>
+            ),
+          )}
+
+        {unsupportedRules.map(
+          (
+            rule,
+            index,
+          ) => (
+            <div
+              className="policy-message-row warning"
+              key={
+                `unsupported-rule-${index}`
+              }
+            >
+              <span>?</span>
+
+              Manual clause: {rule}
+            </div>
+          ),
+        )}
+
+        {enforcedFields.length > 0
+          && (
+            <div className="policy-message-row success">
+              <span>✓</span>
+
+              Enforced rules:{" "}
+              {enforcedFields
+                .map(
+                  formatPolicyField,
+                )
+                .join(", ")}
+            </div>
+          )}
+
+        {unspecifiedFields.length > 0
+          && (
+            <div className="policy-message-row warning">
+              <span>•</span>
+
+              Not specified in the
+              uploaded policy:{" "}
+              {unspecifiedFields
+                .map(
+                  formatPolicyField,
+                )
+                .join(", ")}
+            </div>
+          )}
+      </div>
+
+      <div className="approval-control-card">
+        <div>
+          <span>
+            Human-in-the-loop control
+          </span>
+
+          <strong>
+            {approvalControlText}
+          </strong>
+        </div>
+
+        <button
+          type="button"
+          onClick={
+            onReviewApproval
+          }
+        >
+          {approvalButtonText}
+        </button>
+      </div>
+
+      {approvalOutcome && (
+        <div
+          className={
+            `approval-outcome ${approvalOutcome.status}`
+          }
+        >
+          <span>
+            {approvalOutcome.status
+              === "approved"
+              ? "✓"
+              : "!"}
+          </span>
+
+          <div>
+            <strong>
+              Trip{" "}
+              {approvalOutcome.status}
+            </strong>
+
+            <p>
+              Reviewed by{" "}
+              {
+                approvalOutcome
+                  .reviewer_name
+              }
+            </p>
+
+            {approvalOutcome
+              .review_note
+              && (
+                <p>
+                  {
+                    approvalOutcome
+                      .review_note
+                  }
+                </p>
+              )}
+
+            <p>
+              Approval ID:{" "}
+              {approvalOutcome.id}
+            </p>
+          </div>
+        </div>
+      )}
     </section>
   );
 }
@@ -1220,13 +1150,8 @@ function NewTripWorkspace() {
     form,
     setForm,
   ] = useState(
-    createSampleTrip,
+    initialForm,
   );
-
-  const [
-    formErrors,
-    setFormErrors,
-  ] = useState({});
 
   const [
     approvalOpen,
@@ -1254,37 +1179,10 @@ function NewTripWorkspace() {
   ) {
     event.preventDefault();
 
-    const validationErrors =
-      validateTripForm(
-        form,
-      );
-
-    setFormErrors(
-      validationErrors,
-    );
-
-    if (
-      Object.keys(
-        validationErrors,
-      ).length > 0
-    ) {
-      return;
-    }
-
     setApprovalOpen(false);
     setApprovalOutcome(null);
 
     await runTrip(form);
-  }
-
-  function loadSampleTrip() {
-    setForm(
-      createSampleTrip(),
-    );
-
-    setFormErrors({});
-    setApprovalOpen(false);
-    setApprovalOutcome(null);
   }
 
   function handleApprovalCompleted(
@@ -1342,85 +1240,68 @@ function NewTripWorkspace() {
           </h2>
 
           <p>
-            TripGuard retrieves the
-            uploaded company policy,
-            calls travel and weather
+            TripGuard retrieves policy,
+            calls live travel and weather
             tools, evaluates alternatives
             and explains its final
             decision.
           </p>
         </div>
 
-        <div className="page-introduction-side">
-          <button
-            type="button"
-            className="sample-trip-button"
-            onClick={
-              loadSampleTrip
-            }
-            disabled={running}
-          >
-            Load sample trip
-          </button>
+        <div className="live-system-label">
+          <span>●</span>
 
-          <div className="live-system-label">
-            <span>●</span>
-
-            Prototype inventory · Live
-            weather
-          </div>
+          Live travel inventory · Live
+          weather
         </div>
       </div>
 
       <div className="trip-workspace-grid">
-        <div className="trip-workspace-top">
-          <section className="workspace-surface trip-request-surface">
-            <div className="surface-heading">
-              <div>
-                <span className="surface-eyebrow">
-                  Travel request
-                </span>
-
-                <h2>
-                  Trip requirements
-                </h2>
-              </div>
-
-              <span className="surface-number">
-                01
+        <section className="workspace-surface trip-request-surface">
+          <div className="surface-heading">
+            <div>
+              <span className="surface-eyebrow">
+                Travel request
               </span>
+
+              <h2>
+                Trip requirements
+              </h2>
             </div>
 
-            <PolicyUploadCard
-              apiUrl={API_URL}
-            />
+            <span className="surface-number">
+              01
+            </span>
+          </div>
 
-            <div className="form-section-divider">
-              <span>
-                Traveller requirements
-              </span>
-            </div>
-
-            <TripRequestForm
-              form={form}
-              setForm={setForm}
-              errors={formErrors}
-              running={running}
-              onSubmit={
-                handleSubmit
-              }
-            />
-          </section>
-
-          <AgentTimeline
-            steps={steps}
-            running={running}
-            started={started}
-            result={result}
-            progress={progress}
-            error={error}
+          <PolicyUploadCard
+            apiUrl={API_URL}
           />
-        </div>
+
+          <div className="form-section-divider">
+            <span>
+              Traveller requirements
+            </span>
+          </div>
+
+          <TripRequestForm
+            form={form}
+            setForm={setForm}
+            running={running}
+            onSubmit={
+              handleSubmit
+            }
+          />
+        </section>
+
+        <AgentTimeline
+          steps={steps}
+          running={running}
+          started={started}
+          result={result}
+          progress={progress}
+          error={error}
+        />
 
         <RecommendationPanel
           result={result}

@@ -20,16 +20,41 @@ function formatCurrency(
 }
 
 
-function formatPolicyField(
-  fieldName,
+function getFlightDisplayNumber(
+  flight,
 ) {
-  return fieldName
-    .replaceAll("_", " ")
-    .replace(
-      /\b\w/g,
-      (letter) =>
-        letter.toUpperCase(),
-    );
+  const airlineFlightNumber =
+    String(
+      flight?.flight_number
+      || "",
+    ).trim();
+
+  if (airlineFlightNumber) {
+    return airlineFlightNumber;
+  }
+
+  return String(
+    flight?.id
+    || "N/A",
+  );
+}
+
+
+function hasSeparateFlightReference(
+  flight,
+) {
+  const flightId = String(
+    flight?.id
+    || "",
+  ).trim();
+
+  return Boolean(
+    flightId
+    && flightId
+      !== getFlightDisplayNumber(
+        flight,
+      )
+  );
 }
 
 
@@ -48,16 +73,20 @@ function ApprovalModal({
     "Travel Manager",
   );
 
-  const [note, setNote] =
-    useState("");
+  const [
+    note,
+    setNote,
+  ] = useState("");
 
   const [
     submitting,
     setSubmitting,
   ] = useState(false);
 
-  const [error, setError] =
-    useState("");
+  const [
+    error,
+    setError,
+  ] = useState("");
 
   useEffect(() => {
     if (!open) {
@@ -65,23 +94,6 @@ function ApprovalModal({
       setNote("");
       setSubmitting(false);
     }
-  }, [open]);
-
-  useEffect(() => {
-    if (!open) {
-      return undefined;
-    }
-
-    const previousOverflow =
-      document.body.style.overflow;
-
-    document.body.style.overflow =
-      "hidden";
-
-    return () => {
-      document.body.style.overflow =
-        previousOverflow;
-    };
   }, [open]);
 
   useEffect(() => {
@@ -141,12 +153,23 @@ function ApprovalModal({
     policyCoverage
       .enforced_fields || [];
 
-  const unspecifiedFields =
-    policyCoverage
-      .not_specified_fields || [];
-
   const violations =
     compliance.violations || [];
+
+  const inventoryReviewReasons =
+    compliance
+      .manual_inventory_review_reasons
+    || [];
+
+  const flightDisplayNumber =
+    getFlightDisplayNumber(
+      flight,
+    );
+
+  const showFlightReference =
+    hasSeparateFlightReference(
+      flight,
+    );
 
   const isException =
     compliance.is_compliant
@@ -156,6 +179,12 @@ function ApprovalModal({
     Boolean(
       policyCoverage
         .requires_manual_review,
+    );
+
+  const requiresManualInventoryReview =
+    Boolean(
+      compliance
+        .manual_inventory_review_required,
     );
 
   const approvalReason =
@@ -174,6 +203,11 @@ function ApprovalModal({
   ) {
     modalTitle =
       "Review extracted policy";
+  } else if (
+    requiresManualInventoryReview
+  ) {
+    modalTitle =
+      "Verify live inventory";
   } else if (
     compliance.approval_required
   ) {
@@ -210,16 +244,14 @@ function ApprovalModal({
                 "application/json",
             },
             body: JSON.stringify({
-              trip: result.trip,
+              trip:
+                result.trip,
               selected_flight:
-                result
-                  .selected_flight,
+                result.selected_flight,
               selected_hotel:
-                result
-                  .selected_hotel,
+                result.selected_hotel,
               cost_summary:
-                result
-                  .cost_summary,
+                result.cost_summary,
               compliance:
                 result.compliance,
               explanation:
@@ -239,8 +271,8 @@ function ApprovalModal({
         throw new Error(
           createPayload?.detail
           || (
-            "Unable to create "
-            + "the approval request."
+            "Unable to create the "
+            + "approval request."
           ),
         );
       }
@@ -258,7 +290,10 @@ function ApprovalModal({
 
       const decisionResponse =
         await fetch(
-          `${apiUrl}/api/approvals/${approvalId}/decision`,
+          (
+            `${apiUrl}/api/approvals/`
+            + `${approvalId}/decision`
+          ),
           {
             method: "PATCH",
             headers: {
@@ -285,8 +320,8 @@ function ApprovalModal({
         throw new Error(
           decisionPayload?.detail
           || (
-            "Unable to submit "
-            + "the approval decision."
+            "Unable to submit the "
+            + "approval decision."
           ),
         );
       }
@@ -300,7 +335,9 @@ function ApprovalModal({
             .approval,
         );
       }
-    } catch (requestError) {
+    } catch (
+      requestError
+    ) {
       setError(
         requestError
         instanceof Error
@@ -322,7 +359,7 @@ function ApprovalModal({
       onMouseDown={(event) => {
         if (
           event.target
-          === event.currentTarget
+            === event.currentTarget
           && !submitting
         ) {
           onClose();
@@ -369,9 +406,7 @@ function ApprovalModal({
           </div>
 
           <div>
-            <span>
-              Total cost
-            </span>
+            <span>Total cost</span>
 
             <strong>
               {formatCurrency(
@@ -381,14 +416,15 @@ function ApprovalModal({
           </div>
 
           <div>
-            <span>Flight</span>
+            <span>
+              Airline flight number
+            </span>
 
             <strong>
               {flight.airline
                 || "N/A"}
               {" · "}
-              {flight.id
-                || "N/A"}
+              {flightDisplayNumber}
             </strong>
           </div>
 
@@ -400,6 +436,30 @@ function ApprovalModal({
                 || "N/A"}
             </strong>
           </div>
+
+          {showFlightReference && (
+            <div>
+              <span>
+                TripGuard flight reference
+              </span>
+
+              <strong>
+                {flight.id}
+              </strong>
+            </div>
+          )}
+
+          {flight.provider && (
+            <div>
+              <span>
+                Flight data source
+              </span>
+
+              <strong>
+                {flight.provider}
+              </strong>
+            </div>
+          )}
         </div>
 
         <div className="approval-reason">
@@ -408,39 +468,39 @@ function ApprovalModal({
               ? "Exception reason"
               : requiresManualPolicyReview
                 ? "Manual policy review"
-                : "Approval reason"}
+                : requiresManualInventoryReview
+                  ? "Inventory verification"
+                  : "Approval reason"}
           </span>
 
           {isException && (
             <div>
-              {violations.length > 0
-                ? (
-                    violations.map(
-                      (
-                        violation,
-                        index,
-                      ) => (
-                        <p
-                          key={
-                            `violation-${index}`
-                          }
-                        >
-                          • {violation}
-                        </p>
-                      ),
-                    )
-                  )
-                : (
-                    <p>
-                      The recommendation
-                      requires an exception
-                      review.
+              {violations.length > 0 ? (
+                violations.map(
+                  (
+                    violation,
+                    index,
+                  ) => (
+                    <p
+                      key={
+                        `violation-${index}`
+                      }
+                    >
+                      • {violation}
                     </p>
-                  )}
+                  ),
+                )
+              ) : (
+                <p>
+                  The recommendation
+                  requires an exception
+                  review.
+                </p>
+              )}
 
               {requiresManualPolicyReview
                 && unsupportedRules
-                  .slice(0, 6)
+                  .slice(0, 4)
                   .map(
                     (
                       rule,
@@ -476,7 +536,7 @@ function ApprovalModal({
                 {unsupportedRules.length
                 > 0 ? (
                   unsupportedRules
-                    .slice(0, 6)
+                    .slice(0, 4)
                     .map(
                       (
                         rule,
@@ -494,10 +554,9 @@ function ApprovalModal({
                 ) : (
                   <p>
                     • The policy did not
-                    contain enough
-                    supported rules for a
-                    fully automated
-                    decision.
+                    contain enough supported
+                    rules for a fully
+                    automated decision.
                   </p>
                 )}
 
@@ -510,24 +569,58 @@ function ApprovalModal({
             )}
 
           {!isException
+            && requiresManualInventoryReview
+            && (
+              <div>
+                <p>
+                  The itinerary uses live
+                  flight or hotel data, but
+                  some fields require final
+                  human verification.
+                </p>
+
+                {inventoryReviewReasons
+                  .map(
+                    (
+                      reason,
+                      index,
+                    ) => (
+                      <p
+                        key={
+                          `inventory-reason-${index}`
+                        }
+                      >
+                        • {reason}
+                      </p>
+                    ),
+                  )}
+
+                {approvalReason && (
+                  <p>
+                    • {approvalReason}
+                  </p>
+                )}
+              </div>
+            )}
+
+          {!isException
             && !requiresManualPolicyReview
+            && !requiresManualInventoryReview
             && (
               <p>
                 {approvalReason
                   || (
-                    compliance
-                      .approval_required
+                    compliance.approval_required
                       ? (
-                          "The trip satisfies "
-                          + "the enforceable "
-                          + "policy rules but "
-                          + "requires final "
+                          "The trip satisfies the "
+                          + "enforceable policy rules "
+                          + "but requires final "
                           + "manager approval."
                         )
                       : (
-                          "The recommendation "
-                          + "is policy-compliant "
-                          + "and ready for final "
+                          "The recommendation is "
+                          + "policy-compliant and "
+                          + "ready for final "
                           + "booking approval."
                         )
                   )}
@@ -543,34 +636,42 @@ function ApprovalModal({
 
             <p>
               {enforcedFields
-                .map(
-                  formatPolicyField,
+                .map((field) =>
+                  field.replaceAll(
+                    "_",
+                    " ",
+                  ),
                 )
                 .join(", ")}
             </p>
           </div>
         )}
 
-        {unspecifiedFields.length > 0 && (
-          <div className="approval-reason">
-            <span>
-              Not specified in policy
-            </span>
+        {policyCoverage
+          .not_specified_fields
+          ?.length > 0
+          && (
+            <div className="approval-reason">
+              <span>
+                Not specified in policy
+              </span>
 
-            <p>
-              {unspecifiedFields
-                .map(
-                  formatPolicyField,
-                )
-                .join(", ")}
-            </p>
-          </div>
-        )}
+              <p>
+                {policyCoverage
+                  .not_specified_fields
+                  .map((field) =>
+                    field.replaceAll(
+                      "_",
+                      " ",
+                    ),
+                  )
+                  .join(", ")}
+              </p>
+            </div>
+          )}
 
         <label className="approval-field">
-          <span>
-            Reviewer name
-          </span>
+          <span>Reviewer name</span>
 
           <input
             value={reviewerName}
@@ -585,9 +686,7 @@ function ApprovalModal({
         </label>
 
         <label className="approval-field">
-          <span>
-            Review note
-          </span>
+          <span>Review note</span>
 
           <textarea
             value={note}
@@ -596,7 +695,7 @@ function ApprovalModal({
                 event.target.value,
               );
             }}
-            rows="4"
+            rows="3"
             placeholder="Add the reason for this decision"
             disabled={submitting}
           />
