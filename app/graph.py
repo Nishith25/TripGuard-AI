@@ -4,12 +4,27 @@ import asyncio
 from datetime import date, datetime
 from typing import Any, TypedDict
 
-from langgraph.graph import END, START, StateGraph
+from langgraph.graph import (
+    END,
+    START,
+    StateGraph,
+)
 
-from app.tools.flight_tool import search_flights
-from app.tools.hotel_tool import search_hotels
-from app.tools.policy_tool import load_travel_policy
-from app.tools.weather_tool import fetch_weather_forecast
+from app.tools.flight_tool import (
+    search_flights,
+)
+
+from app.tools.hotel_tool import (
+    search_hotels,
+)
+
+from app.tools.policy_tool import (
+    load_travel_policy,
+)
+
+from app.tools.weather_tool import (
+    fetch_weather_forecast,
+)
 
 
 class TripGuardState(
@@ -19,14 +34,24 @@ class TripGuardState(
     request: dict[str, Any]
     requirements: dict[str, Any]
     policy: dict[str, Any]
-    flights: list[dict[str, Any]]
-    hotels: list[dict[str, Any]]
+    flights: list[
+        dict[str, Any]
+    ]
+    hotels: list[
+        dict[str, Any]
+    ]
+    inventory_sources: dict[
+        str,
+        Any,
+    ]
     weather: dict[str, Any]
     evaluated_options: list[
         dict[str, Any]
     ]
     result: dict[str, Any]
-    trace: list[dict[str, str]]
+    trace: list[
+        dict[str, str]
+    ]
 
 
 def add_trace(
@@ -44,29 +69,58 @@ def add_trace(
 
     trace.append(
         {
-            "tool": tool,
-            "message": message,
-            "status": status,
+            "tool":
+                tool,
+            "message":
+                message,
+            "status":
+                status,
         }
     )
 
     return trace
 
 
+def _optional_float(
+    value: Any,
+) -> float | None:
+    if value is None:
+        return None
+
+    try:
+        return float(value)
+
+    except (
+        TypeError,
+        ValueError,
+    ):
+        return None
+
+
 def parse_requirements_node(
     state: TripGuardState,
 ) -> dict[str, Any]:
-    request = state["request"]
+    request = state[
+        "request"
+    ]
 
-    departure_date = datetime.strptime(
-        request["departure_date"],
-        "%Y-%m-%d",
-    ).date()
+    departure_date = (
+        datetime.strptime(
+            request[
+                "departure_date"
+            ],
+            "%Y-%m-%d",
+        ).date()
+    )
 
-    return_date = datetime.strptime(
-        request["return_date"],
-        "%Y-%m-%d",
-    ).date()
+    return_date = (
+        datetime.strptime(
+            request[
+                "return_date"
+            ],
+            "%Y-%m-%d",
+        ).date()
+    )
 
     number_of_nights = max(
         (
@@ -77,77 +131,95 @@ def parse_requirements_node(
     )
 
     requirements = {
-        "origin": (
-            request["origin"]
-            .strip()
-            .upper()
-        ),
-        "destination": (
-            request["destination"]
-            .strip()
-            .upper()
-        ),
-        "destination_city": (
+        "origin":
+            (
+                request["origin"]
+                .strip()
+                .upper()
+            ),
+        "destination":
+            (
+                request[
+                    "destination"
+                ]
+                .strip()
+                .upper()
+            ),
+        "destination_city":
+            (
+                request[
+                    "destination_city"
+                ].strip()
+            ),
+        "departure_date":
             request[
-                "destination_city"
-            ].strip()
-        ),
-        "departure_date": request[
-            "departure_date"
-        ],
-        "return_date": request[
-            "return_date"
-        ],
-        "number_of_nights": (
-            number_of_nights
-        ),
-        "budget": float(
-            request["budget"]
-        ),
-        "arrival_before": (
+                "departure_date"
+            ],
+        "return_date":
+            request[
+                "return_date"
+            ],
+        "number_of_nights":
+            number_of_nights,
+        "budget":
+            float(
+                request[
+                    "budget"
+                ]
+            ),
+        "arrival_before":
             request.get(
                 "arrival_before"
-            )
-        ),
-        "work_location": (
+            ),
+        "work_location":
             request.get(
                 "work_location"
-            )
-        ),
-        "purpose": request.get(
-            "purpose"
-        ),
+            ),
+        "purpose":
+            request.get(
+                "purpose"
+            ),
     }
 
     return {
-        "requirements": requirements,
-        "trace": add_trace(
-            state,
-            "Requirement Planner",
-            (
-                "Extracted route, dates, budget, purpose and "
-                f"arrival constraints. Trip duration: "
-                f"{number_of_nights} night(s)."
+        "requirements":
+            requirements,
+        "trace":
+            add_trace(
+                state,
+                "Requirement Planner",
+                (
+                    "Extracted route, dates, "
+                    "budget, purpose and arrival "
+                    "constraints. Trip duration: "
+                    f"{number_of_nights} night(s)."
+                ),
             ),
-        ),
     }
 
 
 def retrieve_policy_node(
     state: TripGuardState,
 ) -> dict[str, Any]:
-    policy = load_travel_policy()
+    policy = (
+        load_travel_policy()
+    )
 
     source = (
         policy
-        .get("source", {})
+        .get(
+            "source",
+            {},
+        )
         .get("type")
         or "default_policy"
     )
 
-    policy_coverage = policy.get(
-        "policy_coverage",
-        {},
+    policy_coverage = (
+        policy.get(
+            "policy_coverage",
+            {},
+        )
     )
 
     manual_review_required = (
@@ -165,27 +237,31 @@ def retrieve_policy_node(
     )
 
     message = (
-        f"Loaded {enforceable_rule_count} enforceable "
-        f"travel-policy rule(s) from {source}."
+        f"Loaded {enforceable_rule_count} "
+        "enforceable travel-policy rule(s) "
+        f"from {source}."
     )
 
     if manual_review_required:
         message += (
-            " Additional clauses require human review."
+            " Additional clauses require "
+            "human review."
         )
 
     return {
-        "policy": policy,
-        "trace": add_trace(
-            state,
-            "Policy Retrieval Tool",
-            message,
-            status=(
-                "warning"
-                if manual_review_required
-                else "completed"
+        "policy":
+            policy,
+        "trace":
+            add_trace(
+                state,
+                "Policy Retrieval Tool",
+                message,
+                status=(
+                    "warning"
+                    if manual_review_required
+                    else "completed"
+                ),
             ),
-        ),
     }
 
 
@@ -196,27 +272,94 @@ def search_inventory_node(
         "requirements"
     ]
 
-    flights = search_flights(
-        origin=requirements[
-            "origin"
-        ],
-        destination=requirements[
-            "destination"
-        ],
+    flight_search = (
+        search_flights(
+            origin=(
+                requirements[
+                    "origin"
+                ]
+            ),
+            destination=(
+                requirements[
+                    "destination"
+                ]
+            ),
+            departure_date=(
+                requirements[
+                    "departure_date"
+                ]
+            ),
+            return_date=(
+                requirements[
+                    "return_date"
+                ]
+            ),
+        )
     )
 
-    hotels = search_hotels(
-        city=requirements[
-            "destination_city"
-        ],
+    hotel_search = (
+        search_hotels(
+            city=(
+                requirements[
+                    "destination_city"
+                ]
+            ),
+            work_location=(
+                requirements.get(
+                    "work_location"
+                )
+            ),
+            check_in_date=(
+                requirements[
+                    "departure_date"
+                ]
+            ),
+            check_out_date=(
+                requirements[
+                    "return_date"
+                ]
+            ),
+        )
     )
+
+    flights = (
+        flight_search.get(
+            "items",
+            [],
+        )
+    )
+
+    hotels = (
+        hotel_search.get(
+            "items",
+            [],
+        )
+    )
+
+    flight_message = (
+        f"Found {len(flights)} matching "
+        "round-trip flight option(s) using "
+        f"{flight_search.get('provider', 'the configured provider')}."
+    )
+
+    if flight_search.get(
+        "fallback_used"
+    ):
+        flight_message += (
+            " Live search failed and local "
+            "fallback was used."
+        )
 
     trace = add_trace(
         state,
         "Flight Search Tool",
-        (
-            f"Found {len(flights)} matching round-trip "
-            "flight option(s)."
+        flight_message,
+        status=(
+            "warning"
+            if flight_search.get(
+                "fallback_used"
+            )
+            else "completed"
         ),
     )
 
@@ -228,18 +371,84 @@ def search_inventory_node(
         "trace"
     ] = trace
 
+    hotel_message = (
+        f"Found {len(hotels)} matching "
+        "hotel option(s) using "
+        f"{hotel_search.get('provider', 'the configured provider')}."
+    )
+
+    if hotel_search.get(
+        "fallback_used"
+    ):
+        hotel_message += (
+            " Live search failed and local "
+            "fallback was used."
+        )
+
+    elif (
+        hotel_search.get(
+            "distance_verification"
+        )
+        == "unavailable"
+    ):
+        hotel_message += (
+            " Work-location distance requires "
+            "manual verification."
+        )
+
     trace = add_trace(
         temporary_state,
         "Hotel Search Tool",
-        (
-            f"Found {len(hotels)} matching hotel option(s)."
+        hotel_message,
+        status=(
+            "warning"
+            if (
+                hotel_search.get(
+                    "fallback_used"
+                )
+                or hotel_search.get(
+                    "distance_verification"
+                )
+                == "unavailable"
+            )
+            else "completed"
         ),
     )
 
+    inventory_sources = {
+        "flight":
+            {
+                key: value
+                for (
+                    key,
+                    value,
+                ) in (
+                    flight_search.items()
+                )
+                if key != "items"
+            },
+        "hotel":
+            {
+                key: value
+                for (
+                    key,
+                    value,
+                ) in (
+                    hotel_search.items()
+                )
+                if key != "items"
+            },
+    }
+
     return {
-        "flights": flights,
-        "hotels": hotels,
-        "trace": trace,
+        "flights":
+            flights,
+        "hotels":
+            hotels,
+        "inventory_sources":
+            inventory_sources,
+        "trace":
+            trace,
     }
 
 
@@ -252,15 +461,21 @@ def weather_intelligence_node(
 
     weather = asyncio.run(
         fetch_weather_forecast(
-            city=requirements[
-                "destination_city"
-            ],
-            start_date=requirements[
-                "departure_date"
-            ],
-            end_date=requirements[
-                "return_date"
-            ],
+            city=(
+                requirements[
+                    "destination_city"
+                ]
+            ),
+            start_date=(
+                requirements[
+                    "departure_date"
+                ]
+            ),
+            end_date=(
+                requirements[
+                    "return_date"
+                ]
+            ),
         )
     )
 
@@ -292,27 +507,32 @@ def weather_intelligence_node(
             )
             or (
                 "Weather forecast was unavailable. "
-                "The travel workflow continued without it."
+                "The travel workflow continued "
+                "without it."
             )
         )
 
         status = "warning"
 
     return {
-        "weather": weather,
-        "trace": add_trace(
-            state,
-            "Weather Intelligence Tool",
-            message,
-            status=status,
-        ),
+        "weather":
+            weather,
+        "trace":
+            add_trace(
+                state,
+                "Weather Intelligence Tool",
+                message,
+                status=status,
+            ),
     }
 
 
 def evaluate_options_node(
     state: TripGuardState,
 ) -> dict[str, Any]:
-    policy = state["policy"]
+    policy = state[
+        "policy"
+    ]
 
     requirements = state[
         "requirements"
@@ -345,12 +565,14 @@ def evaluate_options_node(
         or 0
     )
 
-    policy_coverage = policy.get(
-        "policy_coverage",
-        {},
+    policy_coverage = (
+        policy.get(
+            "policy_coverage",
+            {},
+        )
     )
 
-    manual_review_required = (
+    policy_manual_review_required = (
         policy_coverage.get(
             "requires_manual_review",
             False,
@@ -373,20 +595,52 @@ def evaluate_options_node(
 
     for flight in flights:
         for hotel in hotels:
-            violations: list[str] = []
-            warnings: list[str] = []
+            violations: list[
+                str
+            ] = []
 
-            flight_price = float(
-                flight[
-                    "round_trip_price"
-                ]
+            warnings: list[
+                str
+            ] = []
+
+            manual_review_reasons: list[
+                str
+            ] = []
+
+            flight_price = (
+                _optional_float(
+                    flight.get(
+                        "round_trip_price"
+                    )
+                )
             )
 
-            hotel_price_per_night = float(
-                hotel[
-                    "price_per_night"
-                ]
+            hotel_price_per_night = (
+                _optional_float(
+                    hotel.get(
+                        "price_per_night"
+                    )
+                )
             )
+
+            if flight_price is None:
+                violations.append(
+                    "Flight price could not be verified."
+                )
+
+                flight_price = 0.0
+
+            if (
+                hotel_price_per_night
+                is None
+            ):
+                violations.append(
+                    "Hotel nightly price could not be verified."
+                )
+
+                hotel_price_per_night = (
+                    0.0
+                )
 
             hotel_total = (
                 hotel_price_per_night
@@ -407,19 +661,35 @@ def evaluate_options_node(
                 )
             )
 
-            if (
-                required_class
-                and flight[
+            flight_class = str(
+                flight.get(
                     "travel_class"
-                ].lower()
-                != str(
-                    required_class
-                ).lower()
-            ):
-                violations.append(
-                    "Domestic flight is not in the travel class "
-                    "permitted by the uploaded policy."
                 )
+                or ""
+            ).strip().lower()
+
+            if required_class:
+                if not flight_class:
+                    warnings.append(
+                        "Flight class could not be "
+                        "verified from live inventory."
+                    )
+
+                    manual_review_reasons.append(
+                        "Verify the selected flight class."
+                    )
+
+                elif (
+                    flight_class
+                    != str(
+                        required_class
+                    ).lower()
+                ):
+                    violations.append(
+                        "Domestic flight is not in "
+                        "the travel class permitted "
+                        "by the uploaded policy."
+                    )
 
             maximum_flight_price = (
                 policy.get(
@@ -436,8 +706,8 @@ def evaluate_options_node(
                 )
             ):
                 violations.append(
-                    "Round-trip flight price exceeds the uploaded "
-                    "policy limit."
+                    "Round-trip flight price exceeds "
+                    "the uploaded policy limit."
                 )
 
             maximum_hotel_price = (
@@ -455,8 +725,8 @@ def evaluate_options_node(
                 )
             ):
                 violations.append(
-                    "Hotel nightly price exceeds the uploaded "
-                    "policy limit."
+                    "Hotel nightly price exceeds "
+                    "the uploaded policy limit."
                 )
 
             maximum_hotel_distance = (
@@ -465,22 +735,41 @@ def evaluate_options_node(
                 )
             )
 
+            hotel_distance = (
+                _optional_float(
+                    hotel.get(
+                        "distance_from_work_location_km"
+                    )
+                )
+            )
+
             if (
                 maximum_hotel_distance
                 is not None
-                and float(
-                    hotel[
-                        "distance_from_work_location_km"
-                    ]
-                )
-                > float(
-                    maximum_hotel_distance
-                )
             ):
-                violations.append(
-                    "Hotel is farther from the work location "
-                    "than the uploaded policy permits."
-                )
+                if hotel_distance is None:
+                    warnings.append(
+                        "Hotel distance from the work "
+                        "location could not be verified "
+                        "automatically."
+                    )
+
+                    manual_review_reasons.append(
+                        "Verify the selected hotel's "
+                        "distance from the work location."
+                    )
+
+                elif (
+                    hotel_distance
+                    > float(
+                        maximum_hotel_distance
+                    )
+                ):
+                    violations.append(
+                        "Hotel is farther from the work "
+                        "location than the uploaded "
+                        "policy permits."
+                    )
 
             arrival_before = (
                 requirements.get(
@@ -488,17 +777,33 @@ def evaluate_options_node(
                 )
             )
 
-            if (
-                arrival_before
-                and flight[
+            arrival_time = str(
+                flight.get(
                     "arrival_time"
-                ]
-                > arrival_before
-            ):
-                violations.append(
-                    "Flight arrives after the traveller's required "
-                    "arrival time."
                 )
+                or ""
+            ).strip()
+
+            if arrival_before:
+                if not arrival_time:
+                    warnings.append(
+                        "Flight arrival time could not "
+                        "be verified from live inventory."
+                    )
+
+                    manual_review_reasons.append(
+                        "Verify the selected flight "
+                        "arrival time."
+                    )
+
+                elif (
+                    arrival_time
+                    > arrival_before
+                ):
+                    violations.append(
+                        "Flight arrives after the "
+                        "traveller's required arrival time."
+                    )
 
             if (
                 total_cost
@@ -507,7 +812,8 @@ def evaluate_options_node(
                 ]
             ):
                 violations.append(
-                    "Trip cost exceeds the traveller's stated budget."
+                    "Trip cost exceeds the traveller's "
+                    "stated budget."
                 )
 
             manager_approval_limit = (
@@ -525,8 +831,9 @@ def evaluate_options_node(
                 )
             ):
                 warnings.append(
-                    "Manager approval is required because the trip "
-                    "exceeds the uploaded policy's cost threshold."
+                    "Manager approval is required "
+                    "because the trip exceeds the "
+                    "uploaded policy's cost threshold."
                 )
 
             advance_booking_days = (
@@ -544,86 +851,129 @@ def evaluate_options_node(
                 )
             ):
                 warnings.append(
-                    "Trip is being booked inside the advance-booking "
-                    "period specified by the uploaded policy."
+                    "Trip is being booked inside the "
+                    "advance-booking period specified "
+                    "by the uploaded policy."
                 )
 
-            if manual_review_required:
+            if (
+                policy_manual_review_required
+            ):
                 warnings.append(
-                    "Some uploaded policy clauses could not be "
-                    "automatically enforced and require human review."
+                    "Some uploaded policy clauses "
+                    "could not be automatically "
+                    "enforced and require human review."
                 )
 
             evaluated_options.append(
                 {
-                    "flight": flight,
-                    "hotel": hotel,
-                    "number_of_nights": (
-                        number_of_nights
-                    ),
-                    "flight_cost": (
-                        flight_price
-                    ),
-                    "hotel_cost": (
-                        hotel_total
-                    ),
-                    "transport_budget": (
+                    "flight":
+                        flight,
+                    "hotel":
+                        hotel,
+                    "number_of_nights":
+                        number_of_nights,
+                    "flight_cost":
+                        flight_price,
+                    "hotel_cost":
+                        hotel_total,
+                    "transport_budget":
                         float(
                             transport_budget
-                        )
-                    ),
-                    "total_cost": (
-                        total_cost
-                    ),
-                    "budget_remaining": (
-                        requirements[
-                            "budget"
-                        ]
-                        - total_cost
-                    ),
-                    "is_compliant": (
-                        len(violations)
-                        == 0
-                    ),
-                    "violations": (
-                        violations
-                    ),
-                    "warnings": (
-                        warnings
-                    ),
-                    "violation_count": len(
-                        violations
-                    ),
+                        ),
+                    "total_cost":
+                        total_cost,
+                    "budget_remaining":
+                        (
+                            requirements[
+                                "budget"
+                            ]
+                            - total_cost
+                        ),
+                    "is_compliant":
+                        (
+                            len(
+                                violations
+                            )
+                            == 0
+                        ),
+                    "violations":
+                        violations,
+                    "warnings":
+                        warnings,
+                    "violation_count":
+                        len(
+                            violations
+                        ),
+                    "manual_review_required":
+                        (
+                            len(
+                                manual_review_reasons
+                            )
+                            > 0
+                        ),
+                    "manual_review_reasons":
+                        (
+                            manual_review_reasons
+                        ),
                 }
             )
 
     compliant_count = sum(
         1
-        for option in evaluated_options
+        for option in (
+            evaluated_options
+        )
         if option[
             "is_compliant"
         ]
     )
 
+    inventory_manual_review_count = (
+        sum(
+            1
+            for option in (
+                evaluated_options
+            )
+            if option.get(
+                "manual_review_required"
+            )
+        )
+    )
+
+    message = (
+        f"Evaluated {len(evaluated_options)} "
+        "flight-hotel combinations. "
+        f"{compliant_count} option(s) satisfy "
+        "all automatically enforceable rules."
+    )
+
+    if (
+        inventory_manual_review_count
+    ):
+        message += (
+            f" {inventory_manual_review_count} "
+            "option(s) contain inventory fields "
+            "requiring manual verification."
+        )
+
     return {
-        "evaluated_options": (
-            evaluated_options
-        ),
-        "trace": add_trace(
-            state,
-            "Policy Compliance Tool",
-            (
-                f"Evaluated {len(evaluated_options)} "
-                "flight-hotel combinations. "
-                f"{compliant_count} option(s) satisfy all "
-                "automatically enforceable rules."
+        "evaluated_options":
+            evaluated_options,
+        "trace":
+            add_trace(
+                state,
+                "Policy Compliance Tool",
+                message,
+                status=(
+                    "warning"
+                    if (
+                        policy_manual_review_required
+                        or inventory_manual_review_count
+                    )
+                    else "completed"
+                ),
             ),
-            status=(
-                "warning"
-                if manual_review_required
-                else "completed"
-            ),
-        ),
     }
 
 
@@ -639,50 +989,71 @@ def select_recommendation_node(
         "requirements"
     ]
 
-    policy = state["policy"]
+    policy = state[
+        "policy"
+    ]
 
-    policy_coverage = policy.get(
-        "policy_coverage",
-        {
-            "requires_manual_review": False,
-            "unsupported_rules": [],
-            "enforced_fields": [],
-            "not_specified_fields": [],
-        },
+    policy_coverage = (
+        policy.get(
+            "policy_coverage",
+            {
+                "requires_manual_review":
+                    False,
+                "unsupported_rules":
+                    [],
+                "enforced_fields":
+                    [],
+                "not_specified_fields":
+                    [],
+            },
+        )
     )
 
     weather = state.get(
         "weather",
         {
-            "available": False,
-            "message": (
-                "Weather was not checked."
-            ),
+            "available":
+                False,
+            "message":
+                "Weather was not checked.",
         },
+    )
+
+    inventory_sources = (
+        state.get(
+            "inventory_sources",
+            {},
+        )
     )
 
     if not options:
         return {
             "result": {
-                "status": "no_inventory",
-                "message": (
-                    "No matching flight and hotel inventory "
-                    "was found."
-                ),
-                "weather": weather,
-                "policy_coverage": (
-                    policy_coverage
-                ),
+                "status":
+                    "no_inventory",
+                "message":
+                    (
+                        "No matching flight and "
+                        "hotel inventory was found."
+                    ),
+                "weather":
+                    weather,
+                "policy_coverage":
+                    policy_coverage,
+                "inventory_sources":
+                    inventory_sources,
             },
-            "trace": add_trace(
-                state,
-                "Decision Agent",
-                (
-                    "No recommendation could be generated because "
-                    "matching inventory was unavailable."
+            "trace":
+                add_trace(
+                    state,
+                    "Decision Agent",
+                    (
+                        "No recommendation could be "
+                        "generated because matching "
+                        "inventory was unavailable."
+                    ),
+                    status="failed",
                 ),
-                status="failed",
-            ),
         }
 
     compliant_options = [
@@ -697,14 +1068,20 @@ def select_recommendation_node(
         selected = min(
             compliant_options,
             key=lambda option: (
+                bool(
+                    option.get(
+                        "manual_review_required"
+                    )
+                ),
                 option[
                     "total_cost"
                 ],
                 option[
                     "flight"
-                ][
-                    "arrival_time"
-                ],
+                ].get(
+                    "arrival_time",
+                    "23:59",
+                ),
             ),
         )
 
@@ -713,9 +1090,11 @@ def select_recommendation_node(
         )
 
         explanation = (
-            "Selected the lowest-cost option that satisfies the "
-            "traveller's constraints and every uploaded policy rule "
-            "that TripGuard could automatically enforce."
+            "Selected the lowest-cost option "
+            "that satisfies the traveller's "
+            "constraints and every uploaded "
+            "policy rule that TripGuard could "
+            "automatically enforce."
         )
 
     else:
@@ -725,14 +1104,20 @@ def select_recommendation_node(
                 option[
                     "violation_count"
                 ],
+                bool(
+                    option.get(
+                        "manual_review_required"
+                    )
+                ),
                 option[
                     "total_cost"
                 ],
                 option[
                     "flight"
-                ][
-                    "arrival_time"
-                ],
+                ].get(
+                    "arrival_time",
+                    "23:59",
+                ),
             ),
         )
 
@@ -741,9 +1126,10 @@ def select_recommendation_node(
         )
 
         explanation = (
-            "No fully compliant option was available. TripGuard "
-            "selected the option with the fewest policy violations "
-            "and the lowest total cost."
+            "No fully compliant option was "
+            "available. TripGuard selected "
+            "the option with the fewest policy "
+            "violations and the lowest total cost."
         )
 
     manager_approval_limit = (
@@ -763,10 +1149,18 @@ def select_recommendation_node(
         )
     )
 
-    manual_review_required = (
+    policy_manual_review_required = (
         policy_coverage.get(
             "requires_manual_review",
             False,
+        )
+    )
+
+    inventory_manual_review_required = (
+        bool(
+            selected.get(
+                "manual_review_required"
+            )
         )
     )
 
@@ -775,14 +1169,27 @@ def select_recommendation_node(
         or not selected[
             "is_compliant"
         ]
-        or manual_review_required
+        or policy_manual_review_required
+        or inventory_manual_review_required
     )
 
-    if manual_review_required:
+    if (
+        policy_manual_review_required
+    ):
         explanation += (
-            " Some uploaded policy clauses were preserved for "
-            "human review because they are outside the current "
-            "automatic enforcement schema."
+            " Some uploaded policy clauses "
+            "were preserved for human review "
+            "because they are outside the "
+            "current automatic enforcement schema."
+        )
+
+    if (
+        inventory_manual_review_required
+    ):
+        explanation += (
+            " One or more live inventory fields "
+            "could not be verified automatically "
+            "and must be confirmed by a human reviewer."
         )
 
     exception_amount = max(
@@ -795,14 +1202,18 @@ def select_recommendation_node(
         0,
     )
 
-    travel_advisories: list[str] = []
+    travel_advisories: list[
+        str
+    ] = []
 
     if weather.get(
         "available"
     ):
-        risk_level = weather.get(
-            "risk_level",
-            "low",
+        risk_level = (
+            weather.get(
+                "risk_level",
+                "low",
+            )
         )
 
         weather_advice = (
@@ -818,8 +1229,9 @@ def select_recommendation_node(
 
         if risk_level == "high":
             travel_advisories.append(
-                "Consider a flexible fare because weather "
-                "disruption risk is high."
+                "Consider a flexible fare "
+                "because weather disruption "
+                "risk is high."
             )
 
     else:
@@ -828,173 +1240,190 @@ def select_recommendation_node(
                 "message"
             )
             or (
-                "Weather information was unavailable and was "
-                "not used in the final decision."
+                "Weather information was "
+                "unavailable and was not used "
+                "in the final decision."
             )
         )
 
-    approval_reasons: list[str] = []
+    approval_reasons: list[
+        str
+    ] = []
 
     if cost_approval_required:
         approval_reasons.append(
-            "The trip exceeds the manager-approval threshold."
+            "The trip exceeds the "
+            "manager-approval threshold."
         )
 
     if not selected[
         "is_compliant"
     ]:
         approval_reasons.append(
-            "The recommendation contains policy or traveller "
-            "constraint exceptions."
+            "The recommendation contains "
+            "policy or traveller constraint "
+            "exceptions."
         )
 
-    if manual_review_required:
+    if (
+        policy_manual_review_required
+    ):
         approval_reasons.append(
-            "Some uploaded policy clauses require manual review."
+            "Some uploaded policy clauses "
+            "require manual review."
+        )
+
+    if (
+        inventory_manual_review_required
+    ):
+        approval_reasons.append(
+            "Some live inventory fields "
+            "require manual verification."
         )
 
     result = {
-        "status": decision_type,
-        "explanation": explanation,
+        "status":
+            decision_type,
+        "explanation":
+            explanation,
         "trip": {
-            "origin": (
+            "origin":
                 requirements[
                     "origin"
-                ]
-            ),
-            "destination": (
+                ],
+            "destination":
                 requirements[
                     "destination"
-                ]
-            ),
-            "destination_city": (
+                ],
+            "destination_city":
                 requirements[
                     "destination_city"
-                ]
-            ),
-            "departure_date": (
+                ],
+            "departure_date":
                 requirements[
                     "departure_date"
-                ]
-            ),
-            "return_date": (
+                ],
+            "return_date":
                 requirements[
                     "return_date"
-                ]
-            ),
-            "purpose": (
+                ],
+            "purpose":
                 requirements.get(
                     "purpose"
-                )
-            ),
+                ),
         },
-        "selected_flight": (
-            selected["flight"]
-        ),
-        "selected_hotel": (
-            selected["hotel"]
-        ),
-        "weather": weather,
-        "travel_advisories": (
-            travel_advisories
-        ),
-        "policy_coverage": (
-            policy_coverage
-        ),
+        "selected_flight":
+            selected[
+                "flight"
+            ],
+        "selected_hotel":
+            selected[
+                "hotel"
+            ],
+        "inventory_sources":
+            inventory_sources,
+        "weather":
+            weather,
+        "travel_advisories":
+            travel_advisories,
+        "policy_coverage":
+            policy_coverage,
         "cost_summary": {
-            "flight_cost": (
+            "flight_cost":
                 selected[
                     "flight_cost"
-                ]
-            ),
-            "hotel_cost": (
+                ],
+            "hotel_cost":
                 selected[
                     "hotel_cost"
-                ]
-            ),
-            "transport_budget": (
+                ],
+            "transport_budget":
                 selected[
                     "transport_budget"
-                ]
-            ),
-            "total_cost": (
+                ],
+            "total_cost":
                 selected[
                     "total_cost"
-                ]
-            ),
-            "traveller_budget": (
+                ],
+            "traveller_budget":
                 requirements[
                     "budget"
-                ]
-            ),
-            "budget_remaining": (
+                ],
+            "budget_remaining":
                 selected[
                     "budget_remaining"
-                ]
-            ),
-            "exception_amount": (
-                exception_amount
-            ),
+                ],
+            "exception_amount":
+                exception_amount,
         },
         "compliance": {
-            "is_compliant": (
+            "is_compliant":
                 selected[
                     "is_compliant"
-                ]
-            ),
-            "violations": (
+                ],
+            "violations":
                 selected[
                     "violations"
-                ]
-            ),
-            "warnings": (
+                ],
+            "warnings":
                 selected[
                     "warnings"
-                ]
-            ),
-            "approval_required": (
-                approval_required
-            ),
-            "manual_policy_review_required": (
-                manual_review_required
-            ),
+                ],
+            "approval_required":
+                approval_required,
+            "manual_policy_review_required":
+                (
+                    policy_manual_review_required
+                ),
+            "manual_inventory_review_required":
+                (
+                    inventory_manual_review_required
+                ),
+            "manual_inventory_review_reasons":
+                selected.get(
+                    "manual_review_reasons",
+                    [],
+                ),
         },
         "approval_request": {
-            "prepared": (
-                approval_required
-            ),
-            "reason": (
-                " ".join(
-                    approval_reasons
-                )
-                if approval_reasons
-                else (
-                    "No additional manager approval is required."
-                )
-            ),
+            "prepared":
+                approval_required,
+            "reason":
+                (
+                    " ".join(
+                        approval_reasons
+                    )
+                    if approval_reasons
+                    else (
+                        "No additional manager "
+                        "approval is required."
+                    )
+                ),
         },
-        "alternatives_evaluated": len(
-            options
-        ),
+        "alternatives_evaluated":
+            len(options),
     }
 
     return {
-        "result": result,
-        "trace": add_trace(
-            state,
-            "Decision Agent",
-            (
-                f"Selected option "
-                f"{selected['flight']['id']} with hotel "
-                f"{selected['hotel']['id']}. "
-                f"Decision: {decision_type}."
+        "result":
+            result,
+        "trace":
+            add_trace(
+                state,
+                "Decision Agent",
+                (
+                    "Selected option "
+                    f"{selected['flight']['id']} "
+                    "with hotel "
+                    f"{selected['hotel']['id']}. "
+                    f"Decision: {decision_type}."
+                ),
+                status=(
+                    "warning"
+                    if approval_required
+                    else "completed"
+                ),
             ),
-            status=(
-                "warning"
-                if approval_required
-                else "completed"
-            ),
-        ),
     }
 
 
