@@ -3,7 +3,9 @@ export const API_URL =
   "http://127.0.0.1:8000";
 
 
-async function parseResponse(response) {
+async function parseResponse(
+  response,
+) {
   const payload = await response
     .json()
     .catch(() => null);
@@ -47,7 +49,9 @@ export async function getSystemStatus() {
     if (!response.ok) {
       return {
         online: false,
-        message: `HTTP ${response.status}`,
+        message: (
+          `HTTP ${response.status}`
+        ),
       };
     }
 
@@ -74,4 +78,86 @@ export async function getCurrentPolicy() {
   return apiRequest(
     "/api/policy/current",
   );
+}
+
+
+export async function createTripRun(
+  tripRun,
+) {
+  const payload = await apiRequest(
+    "/api/trips",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type":
+          "application/json",
+      },
+      body: JSON.stringify(
+        tripRun,
+      ),
+    },
+  );
+
+  return payload.trip;
+}
+
+
+export async function getTripRuns(
+  limit = 50,
+) {
+  const payload = await apiRequest(
+    `/api/trips?limit=${limit}`,
+  );
+
+  return payload.trips || [];
+}
+
+
+export async function getTripRun(
+  tripRunId,
+) {
+  const payload = await apiRequest(
+    `/api/trips/${encodeURIComponent(
+      tripRunId,
+    )}`,
+  );
+
+  return payload.trip;
+}
+
+
+export async function updateTripRunApproval(
+  tripRunId,
+  approval,
+) {
+  const payload = await apiRequest(
+    `/api/trips/${encodeURIComponent(
+      tripRunId,
+    )}/approval`,
+    {
+      method: "PATCH",
+      headers: {
+        "Content-Type":
+          "application/json",
+      },
+      body: JSON.stringify({
+        approval_status:
+          approval.status,
+        approval,
+      }),
+    },
+  );
+
+  return payload.trip;
+}
+
+
+export async function getApprovalRequests(
+  limit = 50,
+) {
+  const payload = await apiRequest(
+    `/api/approvals?limit=${limit}`,
+  );
+
+  return payload.approvals || [];
 }

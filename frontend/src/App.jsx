@@ -1,4 +1,7 @@
-import { useEffect, useState } from "react";
+import {
+  useEffect,
+  useState,
+} from "react";
 
 import AppShell from "./components/layout/AppShell";
 import NewTripWorkspace from "./components/workspace/NewTripWorkspace";
@@ -12,20 +15,31 @@ import {
   PoliciesPage,
 } from "./pages/PageViews";
 
+import {
+  syncPersistentData,
+} from "./services/storage";
+
 
 const PAGE_TITLES = {
   "/app": "Dashboard",
-  "/app/trips/new": "Plan a new trip",
-  "/app/policies": "Travel policies",
-  "/app/approvals": "Approvals",
-  "/app/activity": "Agent activity",
-  "/app/architecture": "System architecture",
+  "/app/trips/new":
+    "Plan a new trip",
+  "/app/policies":
+    "Travel policies",
+  "/app/approvals":
+    "Approvals",
+  "/app/activity":
+    "Agent activity",
+  "/app/architecture":
+    "System architecture",
 };
 
 
 const VALID_PATHS = new Set([
   "/",
-  ...Object.keys(PAGE_TITLES),
+  ...Object.keys(
+    PAGE_TITLES,
+  ),
 ]);
 
 
@@ -62,7 +76,9 @@ function getCurrentPath() {
       "",
     );
 
-  return normalizePath(hashValue);
+  return normalizePath(
+    hashValue,
+  );
 }
 
 
@@ -70,7 +86,14 @@ function App() {
   const [
     currentPath,
     setCurrentPath,
-  ] = useState(getCurrentPath);
+  ] = useState(
+    getCurrentPath,
+  );
+
+  const [
+    persistenceReady,
+    setPersistenceReady,
+  ] = useState(false);
 
   useEffect(() => {
     if (!window.location.hash) {
@@ -81,7 +104,9 @@ function App() {
       const nextPath =
         getCurrentPath();
 
-      setCurrentPath(nextPath);
+      setCurrentPath(
+        nextPath,
+      );
 
       window.scrollTo({
         top: 0,
@@ -104,15 +129,44 @@ function App() {
   }, []);
 
   useEffect(() => {
+    let mounted = true;
+
+    async function hydrateData() {
+      try {
+        await syncPersistentData();
+      } catch (syncError) {
+        console.warn(
+          "Persistent data synchronization failed:",
+          syncError,
+        );
+      } finally {
+        if (mounted) {
+          setPersistenceReady(
+            true,
+          );
+        }
+      }
+    }
+
+    hydrateData();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  useEffect(() => {
     const pageTitle =
       currentPath === "/"
         ? "TripGuard AI"
         : `${
-            PAGE_TITLES[currentPath] ||
-            "Dashboard"
+            PAGE_TITLES[
+              currentPath
+            ] || "Dashboard"
           } · TripGuard AI`;
 
-    document.title = pageTitle;
+    document.title =
+      pageTitle;
   }, [currentPath]);
 
   function navigate(path) {
@@ -141,6 +195,27 @@ function App() {
       <LandingPage
         navigate={navigate}
       />
+    );
+  }
+
+  if (!persistenceReady) {
+    return (
+      <div className="platform-loading">
+        <div className="platform-loading-mark">
+          TG
+        </div>
+
+        <span className="button-spinner" />
+
+        <strong>
+          Loading TripGuard workspace
+        </strong>
+
+        <p>
+          Synchronising trips and
+          approval history…
+        </p>
+      </div>
     );
   }
 
@@ -193,10 +268,13 @@ function App() {
 
   return (
     <AppShell
-      activePath={currentPath}
+      activePath={
+        currentPath
+      }
       title={
-        PAGE_TITLES[currentPath] ||
-        "Dashboard"
+        PAGE_TITLES[
+          currentPath
+        ] || "Dashboard"
       }
       navigate={navigate}
     >

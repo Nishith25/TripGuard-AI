@@ -3,7 +3,11 @@ import {
   useState,
 } from "react";
 
-import { API_URL } from "../services/api";
+import {
+  API_URL,
+  createTripRun,
+} from "../services/api";
+
 import {
   saveAgentRun,
 } from "../services/storage";
@@ -19,7 +23,9 @@ function createRunId() {
       .slice(2, 8)
       .toUpperCase();
 
-  return `RUN-${timestamp}-${randomPart}`;
+  return (
+    `RUN-${timestamp}-${randomPart}`
+  );
 }
 
 
@@ -65,13 +71,17 @@ export default function useTripAgent() {
 
     return Math.min(
       Math.round(
-        (steps.length /
-          totalExpectedSteps) *
-          100,
+        (
+          steps.length /
+          totalExpectedSteps
+        ) * 100,
       ),
       100,
     );
-  }, [result, steps]);
+  }, [
+    result,
+    steps,
+  ]);
 
   async function runTrip(form) {
     const runId =
@@ -95,7 +105,9 @@ export default function useTripAgent() {
             "Content-Type":
               "application/json",
           },
-          body: JSON.stringify(form),
+          body: JSON.stringify(
+            form,
+          ),
         },
       );
 
@@ -124,7 +136,7 @@ export default function useTripAgent() {
 
       let buffer = "";
 
-      function processStreamEvent(
+      async function processStreamEvent(
         streamEvent,
       ) {
         if (
@@ -136,7 +148,8 @@ export default function useTripAgent() {
         }
 
         if (
-          streamEvent.type === "step"
+          streamEvent.type ===
+          "step"
         ) {
           const stepWithTime = {
             ...streamEvent,
@@ -162,25 +175,57 @@ export default function useTripAgent() {
           const finalResult =
             streamEvent.result;
 
-          setResult(finalResult);
+          const approvalRequired =
+            Boolean(
+              finalResult
+                ?.compliance
+                ?.approval_required,
+            );
 
-          saveAgentRun({
+          const runRecord = {
             id: runId,
+
             created_at:
               new Date().toISOString(),
+
             request: {
               ...form,
             },
+
             result: finalResult,
+
             trace: [
               ...collectedSteps,
             ],
+
             approval_status:
-              finalResult?.compliance
-                ?.approval_required
+              approvalRequired
                 ? "pending"
                 : "not_required",
-          });
+
+            approval: null,
+
+            source: "web_app",
+          };
+
+          setResult(finalResult);
+
+          saveAgentRun(
+            runRecord,
+          );
+
+          try {
+            await createTripRun(
+              runRecord,
+            );
+          } catch (
+            persistenceError
+          ) {
+            console.warn(
+              "Trip run was saved locally but could not be persisted to the backend:",
+              persistenceError,
+            );
+          }
 
           return;
         }
@@ -223,7 +268,7 @@ export default function useTripAgent() {
           }
 
           try {
-            processStreamEvent(
+            await processStreamEvent(
               JSON.parse(line),
             );
           } catch {
@@ -236,16 +281,16 @@ export default function useTripAgent() {
       }
 
       if (buffer.trim()) {
-        processStreamEvent(
+        await processStreamEvent(
           JSON.parse(buffer),
         );
       }
     } catch (requestError) {
       setError(
-        requestError instanceof Error
-          ? requestError.message
-          : "Unable to connect to TripGuard AI.",
-      );
+  requestError instanceof Error
+    ? requestError.message
+    : "Unable to connect to TripGuard AI.",
+);
     } finally {
       setRunning(false);
     }
