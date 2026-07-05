@@ -2,7 +2,6 @@ import {
   useState,
 } from "react";
 
-import PolicyUploadCard from "../policy/PolicyUploadCard";
 import WeatherInsightCard from "../weather/WeatherInsightCard";
 
 import useTripAgent from "../../hooks/useTripAgent";
@@ -11,9 +10,10 @@ import {
   API_URL,
 } from "../../services/api";
 
-
-const PENDING_APPROVALS_STORAGE_KEY =
-  "tripguard_pending_approval_requests";
+import {
+  saveApprovalDecision,
+  updateAgentRunApproval,
+} from "../../services/storage";
 
 
 function getFutureDate(
@@ -160,229 +160,6 @@ function hasSeparateFlightReference(
 }
 
 
-function readPendingApprovalRequests() {
-  try {
-    const storedValue =
-      window.localStorage.getItem(
-        PENDING_APPROVALS_STORAGE_KEY,
-      );
-
-    if (!storedValue) {
-      return [];
-    }
-
-    const parsedValue =
-      JSON.parse(storedValue);
-
-    return Array.isArray(
-      parsedValue,
-    )
-      ? parsedValue
-      : [];
-  } catch {
-    return [];
-  }
-}
-
-
-function generateApprovalRequestId() {
-  if (
-    globalThis.crypto
-      ?.randomUUID
-  ) {
-    return (
-      `APR-${globalThis.crypto
-        .randomUUID()
-        .slice(0, 8)
-        .toUpperCase()}`
-    );
-  }
-
-  return (
-    `APR-${Date.now()}-`
-    + Math.random()
-      .toString(36)
-      .slice(2, 8)
-      .toUpperCase()
-  );
-}
-
-
-function savePendingApprovalRequest({
-  result,
-  tripRunId,
-}) {
-  if (!result) {
-    throw new Error(
-      "No trip recommendation is available.",
-    );
-  }
-
-  const submittedAt =
-    new Date().toISOString();
-
-  const approvalRequest = {
-    id:
-      generateApprovalRequestId(),
-    status:
-      "pending",
-    trip_run_id:
-      tripRunId || null,
-    submitted_at:
-      submittedAt,
-    updated_at:
-      submittedAt,
-
-    route:
-      result.trip
-        ? (
-            `${result.trip.origin}`
-            + " → "
-            + `${result.trip.destination}`
-          )
-        : "Route unavailable",
-
-    origin:
-      result.trip?.origin
-      || null,
-
-    destination:
-      result.trip?.destination
-      || null,
-
-    destination_city:
-      result.trip
-        ?.destination_city
-      || null,
-
-    departure_date:
-      result.trip
-        ?.departure_date
-      || null,
-
-    return_date:
-      result.trip
-        ?.return_date
-      || null,
-
-    purpose:
-      result.trip?.purpose
-      || null,
-
-    total_cost:
-      Number(
-        result
-          .cost_summary
-          ?.total_cost
-        || 0,
-      ),
-
-    traveller_budget:
-      Number(
-        result
-          .cost_summary
-          ?.traveller_budget
-        || 0,
-      ),
-
-    budget_remaining:
-      Number(
-        result
-          .cost_summary
-          ?.budget_remaining
-        || 0,
-      ),
-
-    exception_amount:
-      Number(
-        result
-          .cost_summary
-          ?.exception_amount
-        || 0,
-      ),
-
-    selected_flight:
-      result.selected_flight
-      || null,
-
-    selected_hotel:
-      result.selected_hotel
-      || null,
-
-    compliance:
-      result.compliance
-      || {},
-
-    policy_coverage:
-      result.policy_coverage
-      || {},
-
-    approval_reason:
-      result
-        .approval_request
-        ?.reason
-      || (
-        "Manager review is "
-        + "required."
-      ),
-
-    recommendation_status:
-      result.status
-      || null,
-
-    recommendation_explanation:
-      result.explanation
-      || null,
-
-    reviewer_name:
-      "",
-
-    review_note:
-      "",
-
-    decision:
-      null,
-  };
-
-  const existingRequests =
-    readPendingApprovalRequests();
-
-  const requestsWithoutCurrentRun =
-    existingRequests.filter(
-      (request) => {
-        if (
-          tripRunId
-          && request.trip_run_id
-        ) {
-          return (
-            request.trip_run_id
-            !== tripRunId
-          );
-        }
-
-        return (
-          request.id
-          !== approvalRequest.id
-        );
-      },
-    );
-
-  const updatedRequests = [
-    approvalRequest,
-    ...requestsWithoutCurrentRun,
-  ];
-
-  window.localStorage.setItem(
-    PENDING_APPROVALS_STORAGE_KEY,
-    JSON.stringify(
-      updatedRequests,
-    ),
-  );
-
-  return approvalRequest;
-}
-
-
 function TripRequestForm({
   form,
   setForm,
@@ -401,6 +178,7 @@ function TripRequestForm({
 
     setForm((current) => ({
       ...current,
+
       [name]:
         name === "budget"
           ? (
@@ -1080,6 +858,7 @@ function EmployeeApprovalHandoff({
   compliance,
   submission,
   submissionError,
+  submitting,
   onSubmitForReview,
   onOpenManagerQueue,
 }) {
@@ -1113,18 +892,20 @@ function EmployeeApprovalHandoff({
   }
 
   const hasException =
-    !compliance.is_compliant;
+    compliance
+      ?.is_compliant
+    === false;
 
   const manualPolicyReview =
     Boolean(
       compliance
-        .manual_policy_review_required,
+        ?.manual_policy_review_required,
     );
 
   const manualInventoryReview =
     Boolean(
       compliance
-        .manual_inventory_review_required,
+        ?.manual_inventory_review_required,
     );
 
   let reviewReason =
@@ -1154,6 +935,17 @@ function EmployeeApprovalHandoff({
       "Inventory verification required";
   }
 
+  let actionLabel =
+    "Submit for manager review";
+
+  if (submitting) {
+    actionLabel =
+      "Submitting…";
+  } else if (submission) {
+    actionLabel =
+      "Open manager approvals";
+  }
+
   return (
     <>
       <div className="approval-control-card">
@@ -1179,10 +971,9 @@ function EmployeeApprovalHandoff({
               ? onOpenManagerQueue
               : onSubmitForReview
           }
+          disabled={submitting}
         >
-          {submission
-            ? "Open manager approvals"
-            : "Submit for manager review"}
+          {actionLabel}
         </button>
       </div>
 
@@ -1223,6 +1014,7 @@ function RecommendationPanel({
   result,
   approvalSubmission,
   approvalSubmissionError,
+  submittingForApproval,
   onSubmitForApproval,
   onOpenApprovals,
 }) {
@@ -1328,6 +1120,20 @@ function RecommendationPanel({
   const unspecifiedFields =
     policyCoverage
       .not_specified_fields || [];
+
+  const rawWarnings =
+    compliance.warnings || [];
+
+  const visibleWarnings =
+    rawWarnings.filter(
+      (warning) =>
+        warning !==
+        (
+          "Some uploaded policy clauses "
+          + "could not be automatically "
+          + "enforced and require human review."
+        ),
+    );
 
   const flightDisplayNumber =
     getFlightDisplayNumber(
@@ -1666,10 +1472,9 @@ function RecommendationPanel({
             <div className="policy-message-row success">
               <span>✓</span>
 
-              All automatically
-              enforceable traveller and
-              company-policy constraints
-              have been satisfied.
+              All mandatory traveller and
+              company-policy rules have
+              been satisfied.
             </div>
           )}
 
@@ -1734,25 +1539,23 @@ function RecommendationPanel({
             ),
           )}
 
-        {compliance
-          .warnings
-          ?.map(
-            (
-              warning,
-              index,
-            ) => (
-              <div
-                className="policy-message-row warning"
-                key={
-                  `warning-${index}`
-                }
-              >
-                <span>•</span>
+        {visibleWarnings.map(
+          (
+            warning,
+            index,
+          ) => (
+            <div
+              className="policy-message-row warning"
+              key={
+                `warning-${index}`
+              }
+            >
+              <span>•</span>
 
-                {warning}
-              </div>
-            ),
-          )}
+              {warning}
+            </div>
+          ),
+        )}
 
         {unsupportedRules.map(
           (
@@ -1812,6 +1615,9 @@ function RecommendationPanel({
         submissionError={
           approvalSubmissionError
         }
+        submitting={
+          submittingForApproval
+        }
         onSubmitForReview={
           onSubmitForApproval
         }
@@ -1825,7 +1631,6 @@ function RecommendationPanel({
 
 
 function NewTripWorkspace() {
-
   const [
     form,
     setForm,
@@ -1843,6 +1648,11 @@ function NewTripWorkspace() {
     setApprovalSubmissionError,
   ] = useState("");
 
+  const [
+    submittingForApproval,
+    setSubmittingForApproval,
+  ] = useState(false);
+
   const {
     steps,
     result,
@@ -1853,6 +1663,7 @@ function NewTripWorkspace() {
     currentRunId,
     runTrip,
   } = useTripAgent();
+
 
   async function handleSubmit(
     event,
@@ -1876,6 +1687,10 @@ function NewTripWorkspace() {
 
     setApprovalSubmissionError(
       "",
+    );
+
+    setSubmittingForApproval(
+      false,
     );
 
     await runTrip({
@@ -1923,6 +1738,10 @@ function NewTripWorkspace() {
     setApprovalSubmissionError(
       "",
     );
+
+    setSubmittingForApproval(
+      false,
+    );
   }
 
 
@@ -1938,43 +1757,169 @@ function NewTripWorkspace() {
     setApprovalSubmissionError(
       "",
     );
+
+    setSubmittingForApproval(
+      false,
+    );
   }
 
 
-  function handleSubmitForApproval() {
+  async function handleSubmitForApproval() {
+    if (
+      !result
+      || submittingForApproval
+    ) {
+      return;
+    }
+
+    setSubmittingForApproval(
+      true,
+    );
+
+    setApprovalSubmissionError(
+      "",
+    );
+
     try {
-      const savedRequest =
-        savePendingApprovalRequest({
-          result,
-          tripRunId:
-            currentRunId,
-        });
+      const response = await fetch(
+        `${API_URL}/api/approvals`,
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+
+          body: JSON.stringify({
+            trip:
+              result.trip,
+
+            selected_flight:
+              result.selected_flight,
+
+            selected_hotel:
+              result.selected_hotel,
+
+            cost_summary:
+              result.cost_summary,
+
+            compliance:
+              result.compliance,
+
+            explanation:
+              result.explanation,
+
+            trip_run_id:
+              currentRunId || null,
+          }),
+        },
+      );
+
+      const payload = await response
+        .json()
+        .catch(() => null);
+
+      if (!response.ok) {
+        throw new Error(
+          payload?.detail
+          || (
+            "Unable to create the "
+            + "manager approval request."
+          ),
+        );
+      }
+
+      const approval =
+        payload?.approval;
+
+      if (!approval?.id) {
+        throw new Error(
+          "The backend did not return an approval request ID.",
+        );
+      }
+
+      const route =
+        result?.trip
+          ? (
+              `${result.trip.origin}`
+              + " → "
+              + `${result.trip.destination}`
+            )
+          : null;
+
+      const storedApproval =
+        saveApprovalDecision(
+          approval,
+          {
+            route,
+
+            total_cost:
+              result
+                ?.cost_summary
+                ?.total_cost
+              || 0,
+
+            trip_run_id:
+              currentRunId,
+          },
+        );
+
+      if (currentRunId) {
+        updateAgentRunApproval(
+          currentRunId,
+          storedApproval,
+        );
+      }
 
       setApprovalSubmission(
-        savedRequest,
+        storedApproval,
       );
-
-      setApprovalSubmissionError(
-        "",
-      );
-    } catch (submissionError) {
+    } catch (
+      submissionError
+    ) {
       setApprovalSubmissionError(
         submissionError
-          instanceof Error
+        instanceof Error
           ? submissionError.message
           : (
               "Unable to submit the "
-              + "approval request."
+              + "manager approval request."
             ),
+      );
+    } finally {
+      setSubmittingForApproval(
+        false,
       );
     }
   }
 
 
   function handleOpenApprovals() {
-    navigate(
-      "/app/approvals",
-    );
+    const approvalsPath =
+      "/app/approvals";
+
+    const currentHashPath =
+      window.location.hash.replace(
+        /^#/,
+        "",
+      );
+
+    if (
+      currentHashPath
+      === approvalsPath
+    ) {
+      window.dispatchEvent(
+        new HashChangeEvent(
+          "hashchange",
+        ),
+      );
+
+      return;
+    }
+
+    window.location.hash =
+      approvalsPath;
   }
 
 
@@ -1995,8 +1940,9 @@ function NewTripWorkspace() {
             Enter the traveller’s
             requirements. TripGuard
             searches live inventory,
-            checks company policy and
-            prepares a recommendation.
+            checks the active company
+            policy and prepares an
+            explainable recommendation.
             Manager decisions are handled
             separately in Approvals.
           </p>
@@ -2028,9 +1974,16 @@ function NewTripWorkspace() {
             </span>
           </div>
 
-          <PolicyUploadCard
-            apiUrl={API_URL}
-          />
+          <div className="information-callout">
+            <span>i</span>
+
+            <p>
+              The company policy is managed
+              separately from the employee
+              request under the Policies
+              workspace.
+            </p>
+          </div>
 
           <div className="form-section-divider">
             <span>
@@ -2070,6 +2023,9 @@ function NewTripWorkspace() {
           }
           approvalSubmissionError={
             approvalSubmissionError
+          }
+          submittingForApproval={
+            submittingForApproval
           }
           onSubmitForApproval={
             handleSubmitForApproval
