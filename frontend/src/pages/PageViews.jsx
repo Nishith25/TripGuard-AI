@@ -3,6 +3,7 @@ import {
   useState,
 } from "react";
 
+import ApprovalModal from "../components/approval/ApprovalModal";
 import PolicyUploadCard from "../components/policy/PolicyUploadCard";
 
 import {
@@ -16,10 +17,14 @@ import {
   clearApprovalDecisions,
   getAgentRuns,
   getApprovalDecisions,
+  saveApprovalDecision,
+  updateAgentRunApproval,
 } from "../services/storage";
 
 
-function formatCurrency(value) {
+function formatCurrency(
+  value,
+) {
   return new Intl.NumberFormat(
     "en-IN",
     {
@@ -33,8 +38,21 @@ function formatCurrency(value) {
 }
 
 
-function formatDate(value) {
+function formatDate(
+  value,
+) {
   if (!value) {
+    return "—";
+  }
+
+  const parsedDate =
+    new Date(value);
+
+  if (
+    Number.isNaN(
+      parsedDate.getTime(),
+    )
+  ) {
     return "—";
   }
 
@@ -45,7 +63,7 @@ function formatDate(value) {
       timeStyle: "short",
     },
   ).format(
-    new Date(value),
+    parsedDate,
   );
 }
 
@@ -59,9 +77,17 @@ function EmptyList({
 }) {
   return (
     <div className="page-empty-list">
-      <span>{icon}</span>
-      <h3>{title}</h3>
-      <p>{description}</p>
+      <span>
+        {icon}
+      </span>
+
+      <h3>
+        {title}
+      </h3>
+
+      <p>
+        {description}
+      </p>
 
       {actionLabel && (
         <button
@@ -92,7 +118,9 @@ export function LandingPage({
   return (
     <div className="landing-page">
       <div className="landing-background-grid" />
+
       <div className="landing-orb landing-orb-one" />
+
       <div className="landing-orb landing-orb-two" />
 
       <header className="landing-header">
@@ -103,7 +131,9 @@ export function LandingPage({
             navigate("/")
           }
         >
-          <span>TG</span>
+          <span>
+            TG
+          </span>
 
           <div>
             <strong>
@@ -152,6 +182,7 @@ export function LandingPage({
 
             <h1>
               Corporate travel planning,
+
               <em>
                 governed by policy.
               </em>
@@ -179,7 +210,10 @@ export function LandingPage({
                 }
               >
                 Run the live agent
-                <span>↗</span>
+
+                <span>
+                  ↗
+                </span>
               </button>
 
               <button
@@ -222,12 +256,22 @@ export function LandingPage({
             </div>
 
             <div className="preview-request-card">
-              <span>Travel request</span>
+              <span>
+                Travel request
+              </span>
 
               <div>
-                <strong>HYD</strong>
-                <i>→</i>
-                <strong>BLR</strong>
+                <strong>
+                  HYD
+                </strong>
+
+                <i>
+                  →
+                </i>
+
+                <strong>
+                  BLR
+                </strong>
               </div>
 
               <p>
@@ -237,24 +281,33 @@ export function LandingPage({
             </div>
 
             <div className="preview-agent-steps">
-              {workflow.slice(
-                0,
-                5,
-              ).map(
-                (step, index) => (
-                  <div key={step}>
-                    <span>✓</span>
+              {workflow
+                .slice(
+                  0,
+                  5,
+                )
+                .map(
+                  (
+                    step,
+                    index,
+                  ) => (
+                    <div key={step}>
+                      <span>
+                        ✓
+                      </span>
 
-                    <p>{step}</p>
+                      <p>
+                        {step}
+                      </p>
 
-                    <small>
-                      {index === 4
-                        ? "12 options"
-                        : "Completed"}
-                    </small>
-                  </div>
-                ),
-              )}
+                      <small>
+                        {index === 4
+                          ? "12 options"
+                          : "Completed"}
+                      </small>
+                    </div>
+                  ),
+                )}
             </div>
 
             <div className="preview-decision-card">
@@ -288,15 +341,23 @@ export function LandingPage({
 
           <div className="landing-workflow-grid">
             {workflow.map(
-              (step, index) => (
+              (
+                step,
+                index,
+              ) => (
                 <article key={step}>
                   <span>
                     {String(
                       index + 1,
-                    ).padStart(2, "0")}
+                    ).padStart(
+                      2,
+                      "0",
+                    )}
                   </span>
 
-                  <h3>{step}</h3>
+                  <h3>
+                    {step}
+                  </h3>
 
                   <p>
                     {
@@ -346,7 +407,10 @@ export function LandingPage({
             }
           >
             Open TripGuard
-            <span>↗</span>
+
+            <span>
+              ↗
+            </span>
           </button>
         </section>
       </main>
@@ -369,11 +433,15 @@ export function LandingPage({
 export function DashboardPage({
   navigate,
 }) {
-  const [runs, setRuns] =
-    useState([]);
+  const [
+    runs,
+    setRuns,
+  ] = useState([]);
 
-  const [approvals, setApprovals] =
-    useState([]);
+  const [
+    approvals,
+    setApprovals,
+  ] = useState([]);
 
   const [
     policySummary,
@@ -386,7 +454,10 @@ export function DashboardPage({
   ] = useState(false);
 
   useEffect(() => {
-    setRuns(getAgentRuns());
+    setRuns(
+      getAgentRuns(),
+    );
+
     setApprovals(
       getApprovalDecisions(),
     );
@@ -403,9 +474,13 @@ export function DashboardPage({
         const policy =
           await getCurrentPolicy();
 
-        setPolicySummary(policy);
+        setPolicySummary(
+          policy,
+        );
       } catch {
-        setPolicySummary(null);
+        setPolicySummary(
+          null,
+        );
       }
     }
 
@@ -419,14 +494,27 @@ export function DashboardPage({
         "approved",
     ).length;
 
-  const pendingCount =
+  const pendingApprovalCount =
+    approvals.filter(
+      (item) =>
+        item.status ===
+        "pending",
+    ).length;
+
+  const pendingRunCount =
     runs.filter(
       (run) =>
         run.approval_status ===
         "pending",
     ).length;
 
-  const latestRun = runs[0];
+  const pendingCount = Math.max(
+    pendingApprovalCount,
+    pendingRunCount,
+  );
+
+  const latestRun =
+    runs[0];
 
   return (
     <div className="page-stack">
@@ -455,7 +543,10 @@ export function DashboardPage({
             }
           >
             Plan a new trip
-            <span>↗</span>
+
+            <span>
+              ↗
+            </span>
           </button>
         </div>
 
@@ -516,7 +607,7 @@ export function DashboardPage({
           </strong>
 
           <small>
-            Runs requiring approval
+            Requests requiring approval
           </small>
         </article>
 
@@ -589,10 +680,15 @@ export function DashboardPage({
                 </span>
 
                 <strong>
-                  {formatCurrency(
-                    policySummary.policy
-                      .maximum_round_trip_flight_price,
-                  )}
+                  {policySummary
+                    .policy
+                    .maximum_round_trip_flight_price
+                    ? formatCurrency(
+                        policySummary
+                          .policy
+                          .maximum_round_trip_flight_price,
+                      )
+                    : "Not specified"}
                 </strong>
               </div>
 
@@ -602,10 +698,15 @@ export function DashboardPage({
                 </span>
 
                 <strong>
-                  {formatCurrency(
-                    policySummary.policy
-                      .maximum_hotel_price_per_night,
-                  )}
+                  {policySummary
+                    .policy
+                    .maximum_hotel_price_per_night
+                    ? formatCurrency(
+                        policySummary
+                          .policy
+                          .maximum_hotel_price_per_night,
+                      )
+                    : "Not specified"}
                 </strong>
               </div>
 
@@ -615,10 +716,15 @@ export function DashboardPage({
                 </span>
 
                 <strong>
-                  {formatCurrency(
-                    policySummary.policy
-                      .manager_approval_above,
-                  )}
+                  {policySummary
+                    .policy
+                    .manager_approval_above
+                    ? formatCurrency(
+                        policySummary
+                          .policy
+                          .manager_approval_above,
+                      )
+                    : "Not specified"}
                 </strong>
               </div>
             </div>
@@ -659,33 +765,38 @@ export function DashboardPage({
               <div>
                 <span>
                   {
-                    latestRun.result
+                    latestRun
+                      .result
                       ?.status
                   }
                 </span>
 
                 <h4>
                   {
-                    latestRun.request
+                    latestRun
+                      .request
                       ?.origin
-                  }{" "}
-                  →{" "}
+                  }
+                  {" → "}
                   {
-                    latestRun.request
+                    latestRun
+                      .request
                       ?.destination
                   }
                 </h4>
 
                 <p>
                   {formatDate(
-                    latestRun.created_at,
+                    latestRun
+                      .created_at,
                   )}
                 </p>
               </div>
 
               <strong>
                 {formatCurrency(
-                  latestRun.result
+                  latestRun
+                    .result
                     ?.cost_summary
                     ?.total_cost,
                 )}
@@ -756,6 +867,7 @@ export function PoliciesPage() {
               <strong>
                 Travel class
               </strong>
+
               Domestic flight class
               permitted by the company.
             </p>
@@ -764,6 +876,7 @@ export function PoliciesPage() {
               <strong>
                 Price limits
               </strong>
+
               Maximum flight and nightly
               hotel prices.
             </p>
@@ -772,6 +885,7 @@ export function PoliciesPage() {
               <strong>
                 Location controls
               </strong>
+
               Maximum hotel distance from
               the workplace.
             </p>
@@ -780,6 +894,7 @@ export function PoliciesPage() {
               <strong>
                 Approval threshold
               </strong>
+
               Total trip cost requiring
               manager review.
             </p>
@@ -788,13 +903,16 @@ export function PoliciesPage() {
               <strong>
                 Advance booking
               </strong>
+
               Minimum recommended booking
               period.
             </p>
           </div>
 
           <div className="information-callout">
-            <span>!</span>
+            <span>
+              !
+            </span>
 
             <p>
               Scanned image-only PDFs
@@ -809,134 +927,647 @@ export function PoliciesPage() {
 }
 
 
+function buildResultFromApproval(
+  approval,
+) {
+  const trip =
+    approval?.trip || {
+      origin:
+        approval?.origin
+        || null,
+
+      destination:
+        approval?.destination
+        || null,
+
+      destination_city:
+        approval
+          ?.destination_city
+        || null,
+
+      departure_date:
+        approval
+          ?.departure_date
+        || null,
+
+      return_date:
+        approval
+          ?.return_date
+        || null,
+
+      purpose:
+        approval?.purpose
+        || null,
+    };
+
+  const costSummary =
+    approval?.cost_summary || {
+      flight_cost:
+        Number(
+          approval
+            ?.flight_cost
+          || 0,
+        ),
+
+      hotel_cost:
+        Number(
+          approval
+            ?.hotel_cost
+          || 0,
+        ),
+
+      transport_budget:
+        Number(
+          approval
+            ?.transport_budget
+          || 0,
+        ),
+
+      total_cost:
+        Number(
+          approval
+            ?.total_cost
+          || 0,
+        ),
+
+      traveller_budget:
+        Number(
+          approval
+            ?.traveller_budget
+          || 0,
+        ),
+
+      budget_remaining:
+        Number(
+          approval
+            ?.budget_remaining
+          || 0,
+        ),
+
+      exception_amount:
+        Number(
+          approval
+            ?.exception_amount
+          || 0,
+        ),
+    };
+
+  const compliance =
+    approval?.compliance
+    || {};
+
+  return {
+    status:
+      approval
+        ?.recommendation_status
+      || (
+        compliance.is_compliant
+          ? "compliant_recommendation"
+          : "exception_required"
+      ),
+
+    trip,
+
+    selected_flight:
+      approval
+        ?.selected_flight
+      || {},
+
+    selected_hotel:
+      approval
+        ?.selected_hotel
+      || {},
+
+    cost_summary:
+      costSummary,
+
+    compliance,
+
+    policy_coverage:
+      approval
+        ?.policy_coverage
+      || {},
+
+    explanation:
+      approval?.explanation
+      || approval
+        ?.recommendation_explanation
+      || "",
+
+    approval_request: {
+      prepared:
+        true,
+
+      reason:
+        approval
+          ?.approval_reason
+        || (
+          "This trip requires "
+          + "manager review."
+        ),
+    },
+  };
+}
+
+
 export function ApprovalsPage({
   navigate,
 }) {
-  const [approvals, setApprovals] =
-    useState(
-      getApprovalDecisions(),
+  const [
+    approvals,
+    setApprovals,
+  ] = useState(
+    getApprovalDecisions(),
+  );
+
+  const [
+    selectedApproval,
+    setSelectedApproval,
+  ] = useState(null);
+
+  useEffect(() => {
+    function refreshApprovals() {
+      setApprovals(
+        getApprovalDecisions(),
+      );
+    }
+
+    refreshApprovals();
+
+    window.addEventListener(
+      "storage",
+      refreshApprovals,
+    );
+
+    window.addEventListener(
+      "focus",
+      refreshApprovals,
+    );
+
+    return () => {
+      window.removeEventListener(
+        "storage",
+        refreshApprovals,
+      );
+
+      window.removeEventListener(
+        "focus",
+        refreshApprovals,
+      );
+    };
+  }, []);
+
+  const pendingApprovals =
+    approvals.filter(
+      (approval) =>
+        approval.status ===
+        "pending",
+    );
+
+  const completedApprovals =
+    approvals.filter(
+      (approval) =>
+        approval.status !==
+        "pending",
     );
 
   function clearHistory() {
     clearApprovalDecisions();
+
     setApprovals([]);
+
+    setSelectedApproval(
+      null,
+    );
+  }
+
+  function handleApprovalCompleted(
+    approval,
+  ) {
+    const currentRequest =
+      selectedApproval;
+
+    const storedApproval =
+      saveApprovalDecision(
+        approval,
+        {
+          route:
+            currentRequest
+              ?.route
+            || approval?.route
+            || null,
+
+          total_cost:
+            currentRequest
+              ?.total_cost
+            || currentRequest
+              ?.cost_summary
+              ?.total_cost
+            || approval
+              ?.cost_summary
+              ?.total_cost
+            || 0,
+
+          trip_run_id:
+            currentRequest
+              ?.trip_run_id
+            || approval
+              ?.trip_run_id
+            || null,
+        },
+      );
+
+    const tripRunId =
+      storedApproval
+        .trip_run_id;
+
+    if (tripRunId) {
+      updateAgentRunApproval(
+        tripRunId,
+        storedApproval,
+      );
+    }
+
+    setApprovals(
+      getApprovalDecisions(),
+    );
+
+    setSelectedApproval(
+      null,
+    );
   }
 
   return (
-    <div className="page-stack">
-      <div className="page-introduction page-introduction-actions">
-        <div>
-          <span>
-            Human-in-the-loop
-          </span>
+    <>
+      <div className="page-stack">
+        <div className="page-introduction page-introduction-actions">
+          <div>
+            <span>
+              Manager workspace
+            </span>
 
-          <h2>
-            Approval decisions
-          </h2>
+            <h2>
+              Travel approval queue
+            </h2>
 
-          <p>
-            Review the auditable decisions
-            created after manager approval
-            or rejection.
-          </p>
+            <p>
+              Review pending employee
+              travel requests, inspect
+              policy exceptions and record
+              an auditable approval or
+              rejection decision.
+            </p>
+          </div>
+
+          {approvals.length > 0 && (
+            <button
+              type="button"
+              className="secondary-action-button"
+              onClick={
+                clearHistory
+              }
+            >
+              Clear local history
+            </button>
+          )}
         </div>
 
-        {approvals.length > 0 && (
-          <button
-            type="button"
-            className="secondary-action-button"
-            onClick={clearHistory}
-          >
-            Clear local history
-          </button>
-        )}
+        <section className="page-surface">
+          <div className="page-surface-heading">
+            <div>
+              <span>
+                Awaiting manager review
+              </span>
+
+              <h3>
+                Pending requests
+              </h3>
+            </div>
+
+            <span>
+              {
+                pendingApprovals
+                  .length
+              }
+              {" pending"}
+            </span>
+          </div>
+
+          {pendingApprovals.length ===
+          0 ? (
+            <EmptyList
+              icon="✓"
+              title="No pending approvals"
+              description="Employee travel requests requiring manager review will appear here."
+              actionLabel="Open employee workspace"
+              onAction={() =>
+                navigate(
+                  "/app/trips/new",
+                )
+              }
+            />
+          ) : (
+            <div className="records-list">
+              {pendingApprovals.map(
+                (approval) => {
+                  const compliance =
+                    approval
+                      .compliance
+                    || {};
+
+                  const violations =
+                    compliance
+                      .violations
+                    || [];
+
+                  const route =
+                    approval.route
+                    || (
+                      approval.trip
+                        ?.origin
+                      && approval.trip
+                        ?.destination
+                        ? (
+                            `${approval.trip.origin}`
+                            + " → "
+                            + `${approval.trip.destination}`
+                          )
+                        : "Business trip"
+                    );
+
+                  return (
+                    <article
+                      key={
+                        approval.id
+                      }
+                      className="record-row"
+                    >
+                      <div className="record-status-icon pending">
+                        …
+                      </div>
+
+                      <div className="record-main">
+                        <div>
+                          <span className="record-status pending">
+                            Pending review
+                          </span>
+
+                          <h3>
+                            {route}
+                          </h3>
+                        </div>
+
+                        <p>
+                          Submitted{" "}
+
+                          {formatDate(
+                            approval
+                              .created_at
+                            || approval
+                              .stored_at,
+                          )}
+                        </p>
+
+                        {violations.length >
+                          0 && (
+                          <blockquote>
+                            {
+                              violations[0]
+                            }
+
+                            {violations.length >
+                            1
+                              ? (
+                                  ` +${
+                                    violations.length
+                                    - 1
+                                  } more`
+                                )
+                              : ""}
+                          </blockquote>
+                        )}
+
+                        {violations.length ===
+                          0
+                          && approval
+                            .compliance
+                            ?.manual_policy_review_required
+                          && (
+                            <blockquote>
+                              Manual policy
+                              review required.
+                            </blockquote>
+                          )}
+                      </div>
+
+                      <div className="record-meta">
+                        <strong>
+                          {formatCurrency(
+                            approval
+                              .total_cost
+                            || approval
+                              .cost_summary
+                              ?.total_cost,
+                          )}
+                        </strong>
+
+                        <span>
+                          {approval.id}
+                        </span>
+
+                        <button
+                          type="button"
+                          className="secondary-action-button"
+                          onClick={() => {
+                            setSelectedApproval(
+                              approval,
+                            );
+                          }}
+                        >
+                          Review request
+                        </button>
+                      </div>
+                    </article>
+                  );
+                },
+              )}
+            </div>
+          )}
+        </section>
+
+        <section className="page-surface">
+          <div className="page-surface-heading">
+            <div>
+              <span>
+                Audit history
+              </span>
+
+              <h3>
+                Completed decisions
+              </h3>
+            </div>
+
+            <span>
+              {
+                completedApprovals
+                  .length
+              }
+              {" decisions"}
+            </span>
+          </div>
+
+          {completedApprovals.length ===
+          0 ? (
+            <EmptyList
+              icon="◷"
+              title="No completed decisions"
+              description="Approved and rejected travel requests will appear here."
+            />
+          ) : (
+            <div className="records-list">
+              {completedApprovals.map(
+                (approval) => {
+                  const route =
+                    approval.route
+                    || (
+                      approval.trip
+                        ?.origin
+                      && approval.trip
+                        ?.destination
+                        ? (
+                            `${approval.trip.origin}`
+                            + " → "
+                            + `${approval.trip.destination}`
+                          )
+                        : "Business trip"
+                    );
+
+                  return (
+                    <article
+                      key={
+                        approval.id
+                      }
+                      className="record-row"
+                    >
+                      <div
+                        className={
+                          `record-status-icon ${
+                            approval.status
+                          }`
+                        }
+                      >
+                        {approval.status ===
+                        "approved"
+                          ? "✓"
+                          : "!"}
+                      </div>
+
+                      <div className="record-main">
+                        <div>
+                          <span
+                            className={
+                              `record-status ${
+                                approval.status
+                              }`
+                            }
+                          >
+                            {
+                              approval.status
+                            }
+                          </span>
+
+                          <h3>
+                            {route}
+                          </h3>
+                        </div>
+
+                        <p>
+                          Reviewed by{" "}
+
+                          {approval
+                            .reviewer_name
+                            || "Manager"}
+
+                          {" · "}
+
+                          {formatDate(
+                            approval
+                              .decision_at
+                            || approval
+                              .updated_at
+                            || approval
+                              .stored_at,
+                          )}
+                        </p>
+
+                        {approval
+                          .review_note
+                          && (
+                            <blockquote>
+                              {
+                                approval
+                                  .review_note
+                              }
+                            </blockquote>
+                          )}
+                      </div>
+
+                      <div className="record-meta">
+                        <strong>
+                          {formatCurrency(
+                            approval
+                              .total_cost
+                            || approval
+                              .cost_summary
+                              ?.total_cost,
+                          )}
+                        </strong>
+
+                        <span>
+                          {approval.id}
+                        </span>
+                      </div>
+                    </article>
+                  );
+                },
+              )}
+            </div>
+          )}
+        </section>
       </div>
 
-      <section className="page-surface">
-        {approvals.length === 0 ? (
-          <EmptyList
-            icon="✓"
-            title="No approval decisions"
-            description="Trips requiring manager approval will appear here after review."
-            actionLabel="Run a trip"
-            onAction={() =>
-              navigate(
-                "/app/trips/new",
+      <ApprovalModal
+        open={
+          Boolean(
+            selectedApproval,
+          )
+        }
+        result={
+          selectedApproval
+            ? buildResultFromApproval(
+                selectedApproval,
               )
-            }
-          />
-        ) : (
-          <div className="records-list">
-            {approvals.map(
-              (approval) => (
-                <article
-                  key={approval.id}
-                  className="record-row"
-                >
-                  <div
-                    className={`record-status-icon ${approval.status}`}
-                  >
-                    {approval.status ===
-                    "approved"
-                      ? "✓"
-                      : "!"}
-                  </div>
-
-                  <div className="record-main">
-                    <div>
-                      <span
-                        className={`record-status ${approval.status}`}
-                      >
-                        {
-                          approval.status
-                        }
-                      </span>
-
-                      <h3>
-                        {approval.route ||
-                          "Business trip"}
-                      </h3>
-                    </div>
-
-                    <p>
-                      Reviewed by{" "}
-                      {
-                        approval.reviewer_name
-                      }{" "}
-                      ·{" "}
-                      {formatDate(
-                        approval.decision_at ||
-                          approval.stored_at,
-                      )}
-                    </p>
-
-                    {approval.review_note && (
-                      <blockquote>
-                        {
-                          approval.review_note
-                        }
-                      </blockquote>
-                    )}
-                  </div>
-
-                  <div className="record-meta">
-                    <strong>
-                      {formatCurrency(
-                        approval.total_cost,
-                      )}
-                    </strong>
-
-                    <span>
-                      {approval.id}
-                    </span>
-                  </div>
-                </article>
-              ),
-            )}
-          </div>
-        )}
-      </section>
-    </div>
+            : null
+        }
+        approvalRequest={
+          selectedApproval
+        }
+        apiUrl={API_URL}
+        tripRunId={
+          selectedApproval
+            ?.trip_run_id
+          || null
+        }
+        onClose={() => {
+          setSelectedApproval(
+            null,
+          );
+        }}
+        onCompleted={
+          handleApprovalCompleted
+        }
+      />
+    </>
   );
 }
 
@@ -944,11 +1575,16 @@ export function ApprovalsPage({
 export function ActivityPage({
   navigate,
 }) {
-  const [runs, setRuns] =
-    useState(getAgentRuns());
+  const [
+    runs,
+    setRuns,
+  ] = useState(
+    getAgentRuns(),
+  );
 
   function clearHistory() {
     clearAgentRuns();
+
     setRuns([]);
   }
 
@@ -975,7 +1611,9 @@ export function ActivityPage({
           <button
             type="button"
             className="secondary-action-button"
-            onClick={clearHistory}
+            onClick={
+              clearHistory
+            }
           >
             Clear local history
           </button>
@@ -997,114 +1635,127 @@ export function ActivityPage({
           />
         ) : (
           <div className="records-list">
-            {runs.map((run) => {
-              const weatherRisk =
-                run.result?.weather
-                  ?.risk_level ||
-                "unknown";
+            {runs.map(
+              (run) => {
+                const weatherRisk =
+                  run.result
+                    ?.weather
+                    ?.risk_level
+                  || "unknown";
 
-              const compliant =
-                run.result?.compliance
-                  ?.is_compliant;
+                const compliant =
+                  run.result
+                    ?.compliance
+                    ?.is_compliant;
 
-              return (
-                <article
-                  key={run.id}
-                  className="activity-card"
-                >
-                  <div className="activity-route">
-                    <span>
-                      {run.request?.origin}
-                    </span>
-
-                    <i>→</i>
-
-                    <span>
-                      {
-                        run.request
-                          ?.destination
-                      }
-                    </span>
-                  </div>
-
-                  <div className="activity-details">
-                    <div>
+                return (
+                  <article
+                    key={
+                      run.id
+                    }
+                    className="activity-card"
+                  >
+                    <div className="activity-route">
                       <span>
-                        Agent decision
-                      </span>
-
-                      <strong
-                        className={
-                          compliant
-                            ? "positive-text"
-                            : "warning-text"
-                        }
-                      >
-                        {compliant
-                          ? "Policy compliant"
-                          : "Exception required"}
-                      </strong>
-                    </div>
-
-                    <div>
-                      <span>
-                        Total cost
-                      </span>
-
-                      <strong>
-                        {formatCurrency(
-                          run.result
-                            ?.cost_summary
-                            ?.total_cost,
-                        )}
-                      </strong>
-                    </div>
-
-                    <div>
-                      <span>
-                        Weather risk
-                      </span>
-
-                      <strong className="capitalize">
-                        {weatherRisk}
-                      </strong>
-                    </div>
-
-                    <div>
-                      <span>
-                        Approval
-                      </span>
-
-                      <strong className="capitalize">
                         {
-                          run.approval_status
+                          run.request
+                            ?.origin
                         }
-                      </strong>
+                      </span>
+
+                      <i>
+                        →
+                      </i>
+
+                      <span>
+                        {
+                          run.request
+                            ?.destination
+                        }
+                      </span>
                     </div>
-                  </div>
 
-                  <div className="activity-footer">
-                    <span>
-                      {formatDate(
-                        run.created_at,
-                      )}
-                    </span>
+                    <div className="activity-details">
+                      <div>
+                        <span>
+                          Agent decision
+                        </span>
 
-                    <span>
-                      {
-                        run.trace?.length ||
-                        0
-                      }{" "}
-                      tool events
-                    </span>
+                        <strong
+                          className={
+                            compliant
+                              ? "positive-text"
+                              : "warning-text"
+                          }
+                        >
+                          {compliant
+                            ? "Policy compliant"
+                            : "Exception required"}
+                        </strong>
+                      </div>
 
-                    <span>
-                      {run.id}
-                    </span>
-                  </div>
-                </article>
-              );
-            })}
+                      <div>
+                        <span>
+                          Total cost
+                        </span>
+
+                        <strong>
+                          {formatCurrency(
+                            run.result
+                              ?.cost_summary
+                              ?.total_cost,
+                          )}
+                        </strong>
+                      </div>
+
+                      <div>
+                        <span>
+                          Weather risk
+                        </span>
+
+                        <strong className="capitalize">
+                          {weatherRisk}
+                        </strong>
+                      </div>
+
+                      <div>
+                        <span>
+                          Approval
+                        </span>
+
+                        <strong className="capitalize">
+                          {
+                            run.approval_status
+                            || "not required"
+                          }
+                        </strong>
+                      </div>
+                    </div>
+
+                    <div className="activity-footer">
+                      <span>
+                        {formatDate(
+                          run.created_at,
+                        )}
+                      </span>
+
+                      <span>
+                        {
+                          run.trace
+                            ?.length
+                          || 0
+                        }
+                        {" tool events"}
+                      </span>
+
+                      <span>
+                        {run.id}
+                      </span>
+                    </div>
+                  </article>
+                );
+              },
+            )}
           </div>
         )}
       </section>
@@ -1116,58 +1767,82 @@ export function ActivityPage({
 export function ArchitecturePage() {
   const architectureSteps = [
     {
-      number: "01",
+      number:
+        "01",
+
       title:
         "Requirement Planner",
+
       description:
         "Converts the traveller's input into structured route, date, budget, timing and purpose constraints.",
     },
     {
-      number: "02",
+      number:
+        "02",
+
       title:
         "Policy Retrieval Tool",
+
       description:
         "Loads company rules extracted from the uploaded corporate travel-policy PDF.",
     },
     {
-      number: "03",
+      number:
+        "03",
+
       title:
         "Flight Search Tool",
+
       description:
         "Retrieves matching round-trip flight inventory for the requested route.",
     },
     {
-      number: "04",
+      number:
+        "04",
+
       title:
         "Hotel Search Tool",
+
       description:
         "Finds hotels in the destination and checks price, rating and workplace distance.",
     },
     {
-      number: "05",
+      number:
+        "05",
+
       title:
         "Weather Intelligence Tool",
+
       description:
         "Calls Open-Meteo to retrieve live forecast conditions and assess disruption risk.",
     },
     {
-      number: "06",
+      number:
+        "06",
+
       title:
         "Policy Compliance Tool",
+
       description:
         "Evaluates every flight-hotel combination against traveller and company constraints.",
     },
     {
-      number: "07",
+      number:
+        "07",
+
       title:
         "Decision Agent",
+
       description:
         "Selects the best option, explains the decision and prepares an approval request.",
     },
     {
-      number: "08",
+      number:
+        "08",
+
       title:
         "Human Manager",
+
       description:
         "Retains final authority to approve or reject qualifying recommendations.",
     },
@@ -1198,37 +1873,51 @@ export function ArchitecturePage() {
 
       <section className="architecture-hero">
         <div>
-          <span>User request</span>
+          <span>
+            User request
+          </span>
+
           <strong>
             HYD → BLR
           </strong>
+
           <p>
             Dates · Budget · Purpose ·
             Arrival constraint
           </p>
         </div>
 
-        <i>→</i>
+        <i>
+          →
+        </i>
 
         <div className="architecture-agent-core">
-          <span>LangGraph</span>
+          <span>
+            LangGraph
+          </span>
+
           <strong>
             TripGuard Agent
           </strong>
+
           <p>
             Stateful multi-step workflow
           </p>
         </div>
 
-        <i>→</i>
+        <i>
+          →
+        </i>
 
         <div>
           <span>
             Human-controlled outcome
           </span>
+
           <strong>
             Approved trip
           </strong>
+
           <p>
             Explainable recommendation and
             audit ID
@@ -1238,16 +1927,26 @@ export function ArchitecturePage() {
 
       <div className="architecture-flow">
         {architectureSteps.map(
-          (step, index) => (
-            <article key={step.number}>
+          (
+            step,
+            index,
+          ) => (
+            <article
+              key={
+                step.number
+              }
+            >
               <div>
                 <span>
                   {step.number}
                 </span>
 
                 {index <
-                  architectureSteps.length -
-                    1 && <i />}
+                  architectureSteps.length
+                  - 1
+                  && (
+                    <i />
+                  )}
               </div>
 
               <section>
@@ -1256,7 +1955,9 @@ export function ArchitecturePage() {
                 </h3>
 
                 <p>
-                  {step.description}
+                  {
+                    step.description
+                  }
                 </p>
               </section>
             </article>
@@ -1266,8 +1967,14 @@ export function ArchitecturePage() {
 
       <section className="technology-grid">
         <article>
-          <span>Orchestration</span>
-          <strong>LangGraph</strong>
+          <span>
+            Orchestration
+          </span>
+
+          <strong>
+            LangGraph
+          </strong>
+
           <p>
             Stateful tool execution and
             deterministic workflow control.
@@ -1275,8 +1982,14 @@ export function ArchitecturePage() {
         </article>
 
         <article>
-          <span>Backend</span>
-          <strong>FastAPI</strong>
+          <span>
+            Backend
+          </span>
+
+          <strong>
+            FastAPI
+          </strong>
+
           <p>
             Streaming APIs, policy
             processing and approval
@@ -1285,10 +1998,14 @@ export function ArchitecturePage() {
         </article>
 
         <article>
-          <span>Intelligence</span>
+          <span>
+            Intelligence
+          </span>
+
           <strong>
             Policy + Weather
           </strong>
+
           <p>
             PDF rule extraction and live
             destination risk data.
@@ -1296,8 +2013,14 @@ export function ArchitecturePage() {
         </article>
 
         <article>
-          <span>Experience</span>
-          <strong>React</strong>
+          <span>
+            Experience
+          </span>
+
+          <strong>
+            React
+          </strong>
+
           <p>
             Responsive execution dashboard
             for mobile and desktop.
