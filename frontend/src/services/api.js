@@ -1,6 +1,15 @@
-export const API_URL =
-  import.meta.env.VITE_API_URL ||
-  "http://127.0.0.1:8000";
+const configuredApiUrl =
+  import.meta.env.VITE_API_URL
+    ?.trim();
+
+
+export const API_URL = (
+  configuredApiUrl ||
+  "http://127.0.0.1:8000"
+).replace(
+  /\/+$/,
+  "",
+);
 
 
 async function parseResponse(
@@ -14,7 +23,10 @@ async function parseResponse(
     throw new Error(
       payload?.detail ||
         payload?.message ||
-        `Request failed with HTTP ${response.status}.`,
+        (
+          `Request failed with HTTP `
+          + `${response.status}.`
+        ),
     );
   }
 
@@ -26,12 +38,19 @@ export async function apiRequest(
   path,
   options = {},
 ) {
+  const normalizedPath =
+    path.startsWith("/")
+      ? path
+      : `/${path}`;
+
   const response = await fetch(
-    `${API_URL}${path}`,
+    `${API_URL}${normalizedPath}`,
     options,
   );
 
-  return parseResponse(response);
+  return parseResponse(
+    response,
+  );
 }
 
 
@@ -41,7 +60,8 @@ export async function getSystemStatus() {
       `${API_URL}/health`,
       {
         headers: {
-          Accept: "application/json",
+          Accept:
+            "application/json",
         },
       },
     );
@@ -49,9 +69,8 @@ export async function getSystemStatus() {
     if (!response.ok) {
       return {
         online: false,
-        message: (
-          `HTTP ${response.status}`
-        ),
+        message:
+          `HTTP ${response.status}`,
       };
     }
 
@@ -68,7 +87,8 @@ export async function getSystemStatus() {
   } catch {
     return {
       online: false,
-      message: "Backend unavailable",
+      message:
+        "Backend unavailable",
     };
   }
 }

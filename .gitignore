@@ -1,20 +1,39 @@
+# Python
 .venv/
+venv/
 __pycache__/
-*.pyc
+*.py[cod]
+*.pyo
+.pytest_cache/
+.mypy_cache/
+.coverage
+
+# Environment variables
 .env
+.env.*
+!.env.example
+
+# Editor and operating system
 .vscode/
+.idea/
 .DS_Store
 
+# Logs
+*.log
+
+# Generated application data
 data/uploads/
 data/active_policy.json
 data/policy_metadata.json
+data/approvals.json
+data/trip_runs.json
 
+# Frontend
 frontend/node_modules/
 frontend/dist/
 frontend/.env
-data/approvals.json
-data/active_policy.json
-data/policy_metadata.json
-data/uploads/
-data/approvals.json
-data/trip_runs.json
+frontend/.env.*
+!frontend/.env.example
+
+# Deployment tooling
+.vercel/
