@@ -1,16 +1,78 @@
-# React + Vite
+# TripGuard AI
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+TripGuard AI is an agentic corporate-travel decision system that converts a business-trip request into an explainable, policy-aware itinerary.
 
-Currently, two official plugins are available:
+It retrieves company policy rules from an uploaded PDF, searches flight and hotel inventory, calls a live weather API, evaluates policy compliance, recommends the best option and routes qualifying trips through a human approval workflow.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Agent Workflow
 
-## React Compiler
+1. Requirement Planner
+2. Policy Retrieval Tool
+3. Flight Search Tool
+4. Hotel Search Tool
+5. Weather Intelligence Tool
+6. Policy Compliance Tool
+7. Decision Agent
+8. Human Manager Approval
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Core Capabilities
 
-## Expanding the ESLint configuration
+- Upload and parse a corporate travel-policy PDF
+- Convert policy text into structured rules
+- Search flight and hotel inventory
+- Retrieve live destination weather through Open-Meteo
+- Evaluate multiple flight-hotel combinations
+- Detect policy violations and approval requirements
+- Stream agent execution live to the dashboard
+- Generate explainable recommendations
+- Approve or reject trips through a human-in-the-loop workflow
+- Store approval decisions with unique audit IDs
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Technology Stack
+
+### Backend
+
+- Python
+- FastAPI
+- LangGraph
+- Pydantic
+- pypdf
+- HTTPX
+- Open-Meteo API
+
+### Frontend
+
+- React
+- Vite
+- JavaScript
+- CSS
+
+## Project Structure
+
+```text
+TripGuard-AI/
+├── app/
+│   ├── routes/
+│   │   ├── approvals.py
+│   │   └── policy.py
+│   ├── tools/
+│   │   ├── flight_tool.py
+│   │   ├── hotel_tool.py
+│   │   ├── pdf_policy_tool.py
+│   │   ├── policy_tool.py
+│   │   └── weather_tool.py
+│   ├── graph.py
+│   └── main.py
+├── data/
+│   ├── flights.json
+│   ├── hotels.json
+│   └── travel_policy.json
+├── frontend/
+│   └── src/
+│       ├── components/
+│       │   ├── ApprovalModal.jsx
+│       │   ├── PolicyUploadCard.jsx
+│       │   └── WeatherInsightCard.jsx
+│       ├── App.jsx
+│       └── index.css
+└── requirements.txt
