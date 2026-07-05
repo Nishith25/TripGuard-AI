@@ -2,10 +2,6 @@ import {
   useState,
 } from "react";
 
-import {
-  useNavigate,
-} from "react-router-dom";
-
 import PolicyUploadCard from "../policy/PolicyUploadCard";
 import WeatherInsightCard from "../weather/WeatherInsightCard";
 
@@ -1829,8 +1825,6 @@ function RecommendationPanel({
 
 
 function NewTripWorkspace() {
-  const navigate =
-    useNavigate();
 
   const [
     form,
