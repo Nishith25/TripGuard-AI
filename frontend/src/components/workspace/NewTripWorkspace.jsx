@@ -24,8 +24,8 @@ function getFutureDate(
   const date = new Date();
 
   date.setDate(
-    date.getDate() +
-      daysFromToday,
+    date.getDate()
+      + daysFromToday,
   );
 
   return date
@@ -37,7 +37,8 @@ function getFutureDate(
 const initialForm = {
   origin: "HYD",
   destination: "BLR",
-  destination_city: "Bengaluru",
+  destination_city:
+    "Bengaluru",
   departure_date:
     getFutureDate(4),
   return_date:
@@ -51,7 +52,9 @@ const initialForm = {
 };
 
 
-function formatCurrency(value) {
+function formatCurrency(
+  value,
+) {
   return new Intl.NumberFormat(
     "en-IN",
     {
@@ -65,7 +68,9 @@ function formatCurrency(value) {
 }
 
 
-function formatStatus(status) {
+function formatStatus(
+  status,
+) {
   const labels = {
     compliant_recommendation:
       "Policy compliant",
@@ -76,9 +81,26 @@ function formatStatus(status) {
   };
 
   return (
-    labels[status] ||
-    "Recommendation generated"
+    labels[status]
+    || "Recommendation generated"
   );
+}
+
+
+function formatPolicyField(
+  fieldName,
+) {
+  if (!fieldName) {
+    return "";
+  }
+
+  return fieldName
+    .replaceAll("_", " ")
+    .replace(
+      /\b\w/g,
+      (letter) =>
+        letter.toUpperCase(),
+    );
 }
 
 
@@ -89,8 +111,10 @@ function TripRequestForm({
   onSubmit,
 }) {
   function updateField(event) {
-    const { name, value } =
-      event.target;
+    const {
+      name,
+      value,
+    } = event.target;
 
     setForm((current) => ({
       ...current,
@@ -128,7 +152,9 @@ function TripRequestForm({
 
           <input
             name="destination"
-            value={form.destination}
+            value={
+              form.destination
+            }
             onChange={updateField}
             maxLength="3"
             required
@@ -137,7 +163,9 @@ function TripRequestForm({
       </div>
 
       <label>
-        <span>Destination city</span>
+        <span>
+          Destination city
+        </span>
 
         <input
           name="destination_city"
@@ -181,7 +209,9 @@ function TripRequestForm({
 
       <div className="form-grid-two">
         <label>
-          <span>Maximum budget</span>
+          <span>
+            Maximum budget
+          </span>
 
           <input
             type="number"
@@ -194,7 +224,9 @@ function TripRequestForm({
         </label>
 
         <label>
-          <span>Arrive before</span>
+          <span>
+            Arrive before
+          </span>
 
           <input
             type="time"
@@ -208,7 +240,9 @@ function TripRequestForm({
       </div>
 
       <label>
-        <span>Work location</span>
+        <span>
+          Work location
+        </span>
 
         <input
           name="work_location"
@@ -221,7 +255,9 @@ function TripRequestForm({
       </label>
 
       <label>
-        <span>Business purpose</span>
+        <span>
+          Business purpose
+        </span>
 
         <textarea
           name="purpose"
@@ -298,15 +334,17 @@ function AgentTimeline({
         <div className="execution-progress-track">
           <span
             style={{
-              width: `${progress}%`,
+              width:
+                `${progress}%`,
             }}
           />
         </div>
       </div>
 
       <div className="agent-timeline">
-        {!started &&
-          steps.length === 0 && (
+        {!started
+          && steps.length === 0
+          && (
             <div className="workspace-empty-state">
               <div>⌁</div>
 
@@ -315,35 +353,49 @@ function AgentTimeline({
               </h3>
 
               <p>
-                Submit a travel request to
-                watch TripGuard call its
-                tools and make an
+                Submit a travel request
+                to watch TripGuard call
+                its tools and make an
                 explainable decision.
               </p>
             </div>
           )}
 
-        {started &&
-          steps.length === 0 && (
+        {started
+          && steps.length === 0
+          && (
             <div className="agent-starting">
               <span />
-              Initialising agent workflow…
+
+              Initialising agent
+              workflow…
             </div>
           )}
 
         {steps.map(
-          (step, index) => (
+          (
+            step,
+            index,
+          ) => (
             <article
               className="agent-step"
-              key={`${step.tool}-${index}`}
+              key={
+                `${step.tool}-${index}`
+              }
             >
               <div className="agent-step-marker">
-                <span>✓</span>
+                <span>
+                  {step.status
+                    === "failed"
+                    ? "!"
+                    : "✓"}
+                </span>
 
-                {index <
-                  steps.length - 1 && (
-                  <i />
-                )}
+                {index
+                  < steps.length - 1
+                  && (
+                    <i />
+                  )}
               </div>
 
               <div className="agent-step-content">
@@ -362,10 +414,13 @@ function AgentTimeline({
                 </p>
 
                 <small>
-                  {step.status ===
-                  "warning"
+                  {step.status
+                    === "warning"
                     ? "Completed with warning"
-                    : "Completed"}
+                    : step.status
+                      === "failed"
+                      ? "Failed"
+                      : "Completed"}
                 </small>
               </div>
             </article>
@@ -423,9 +478,9 @@ function RecommendationPanel({
           </div>
 
           <p>
-            The itinerary, costs, weather
-            and policy decision will
-            appear here.
+            The itinerary, costs,
+            weather and policy decision
+            will appear here.
           </p>
         </div>
       </section>
@@ -433,8 +488,8 @@ function RecommendationPanel({
   }
 
   if (
-    result.status ===
-    "no_inventory"
+    result.status
+    === "no_inventory"
   ) {
     return (
       <section className="workspace-surface recommendation-surface">
@@ -456,8 +511,12 @@ function RecommendationPanel({
           </strong>
 
           <p>
-            {result.message ||
-              "No suitable flight and hotel options were found."}
+            {result.message
+              || (
+                "No suitable flight "
+                + "and hotel options "
+                + "were found."
+              )}
           </p>
         </div>
       </section>
@@ -476,12 +535,78 @@ function RecommendationPanel({
   const hotel =
     result.selected_hotel || {};
 
-  const approvalButtonText =
+  const policyCoverage =
+    result.policy_coverage || {};
+
+  const unsupportedRules =
+    policyCoverage
+      .unsupported_rules || [];
+
+  const enforcedFields =
+    policyCoverage
+      .enforced_fields || [];
+
+  const unspecifiedFields =
+    policyCoverage
+      .not_specified_fields || [];
+
+  const manualPolicyReviewRequired =
+    Boolean(
+      compliance
+        .manual_policy_review_required
+      || policyCoverage
+        .requires_manual_review,
+    );
+
+  let approvalButtonText =
+    "Approve recommendation";
+
+  if (
+    manualPolicyReviewRequired
+  ) {
+    approvalButtonText =
+      "Review policy";
+  } else if (
     compliance.approval_required
-      ? compliance.is_compliant
+  ) {
+    approvalButtonText =
+      compliance.is_compliant
         ? "Review approval"
-        : "Review exception"
-      : "Approve recommendation";
+        : "Review exception";
+  }
+
+  let approvalControlText =
+    "Ready for booking approval";
+
+  if (
+    manualPolicyReviewRequired
+  ) {
+    approvalControlText =
+      "Manual policy review required";
+  } else if (
+    compliance.approval_required
+  ) {
+    approvalControlText =
+      compliance.is_compliant
+        ? "Manager approval required"
+        : (
+            "Policy exception "
+            + "approval required"
+          );
+  }
+
+  const decisionClass =
+    compliance.is_compliant
+      && !manualPolicyReviewRequired
+      ? "compliant"
+      : "exception";
+
+  const decisionLabel =
+    manualPolicyReviewRequired
+      ? "Manual review required"
+      : formatStatus(
+          result.status,
+        );
 
   return (
     <section className="workspace-surface recommendation-surface">
@@ -504,24 +629,23 @@ function RecommendationPanel({
       <div className="recommendation-header">
         <div>
           <span
-            className={`decision-status ${
-              compliance.is_compliant
-                ? "compliant"
-                : "exception"
-            }`}
+            className={
+              `decision-status ${decisionClass}`
+            }
           >
             {compliance.is_compliant
+              && !manualPolicyReviewRequired
               ? "✓"
               : "!"}
 
-            {formatStatus(
-              result.status,
-            )}
+            {decisionLabel}
           </span>
 
           <h3>
             {result.trip?.origin}
+
             <span>→</span>
+
             {result.trip?.destination}
           </h3>
 
@@ -529,8 +653,8 @@ function RecommendationPanel({
             {
               result.trip
                 ?.departure_date
-            }{" "}
-            to{" "}
+            }
+            {" to "}
             {
               result.trip
                 ?.return_date
@@ -550,15 +674,21 @@ function RecommendationPanel({
       </div>
 
       <div className="decision-explanation">
-        <span>Why this option?</span>
-        <p>{result.explanation}</p>
+        <span>
+          Why this option?
+        </span>
+
+        <p>
+          {result.explanation}
+        </p>
       </div>
 
       <WeatherInsightCard
         weather={result.weather}
         advisories={
-          result.travel_advisories ||
-          []
+          result
+            .travel_advisories
+          || []
         }
       />
 
@@ -573,13 +703,16 @@ function RecommendationPanel({
           </span>
 
           <strong>
-            {flight.airline} ·{" "}
+            {flight.airline}
+            {" · "}
             {flight.id}
           </strong>
 
           <p>
-            {flight.departure_time} –{" "}
-            {flight.arrival_time} ·{" "}
+            {flight.departure_time}
+            {" – "}
+            {flight.arrival_time}
+            {" · "}
             {flight.travel_class}
           </p>
         </div>
@@ -607,9 +740,10 @@ function RecommendationPanel({
 
           <p>
             {
-              hotel.distance_from_work_location_km
-            }{" "}
-            km from work · Rating{" "}
+              hotel
+                .distance_from_work_location_km
+            }
+            {" km from work · Rating "}
             {hotel.rating}
           </p>
         </div>
@@ -619,13 +753,16 @@ function RecommendationPanel({
             hotel.price_per_night,
           )}
 
-          <small>/night</small>
+          <small>
+            /night
+          </small>
         </b>
       </div>
 
       <div className="cost-summary-grid">
         <div>
           <span>Flight</span>
+
           <strong>
             {formatCurrency(
               cost.flight_cost,
@@ -635,6 +772,7 @@ function RecommendationPanel({
 
         <div>
           <span>Hotel</span>
+
           <strong>
             {formatCurrency(
               cost.hotel_cost,
@@ -644,6 +782,7 @@ function RecommendationPanel({
 
         <div>
           <span>Transport</span>
+
           <strong>
             {formatCurrency(
               cost.transport_budget,
@@ -652,11 +791,14 @@ function RecommendationPanel({
         </div>
 
         <div>
-          <span>Budget remaining</span>
+          <span>
+            Budget remaining
+          </span>
 
           <strong
             className={
-              cost.budget_remaining >= 0
+              cost.budget_remaining
+              >= 0
                 ? "positive-text"
                 : "negative-text"
             }
@@ -676,45 +818,122 @@ function RecommendationPanel({
 
           <span>
             {
-              result.alternatives_evaluated
-            }{" "}
-            options evaluated
+              result
+                .alternatives_evaluated
+            }
+            {" options evaluated"}
           </span>
         </div>
 
-        {compliance.is_compliant && (
-          <div className="policy-message-row success">
-            <span>✓</span>
+        {compliance.is_compliant
+          && (
+            <div className="policy-message-row success">
+              <span>✓</span>
 
-            All traveller and
-            company-policy constraints
-            have been satisfied.
-          </div>
-        )}
-
-        {compliance.violations?.map(
-          (violation, index) => (
-            <div
-              className="policy-message-row error"
-              key={`violation-${index}`}
-            >
-              <span>!</span>
-              {violation}
+              All automatically
+              enforceable traveller and
+              company-policy constraints
+              have been satisfied.
             </div>
-          ),
-        )}
+          )}
 
-        {compliance.warnings?.map(
-          (warning, index) => (
+        {manualPolicyReviewRequired
+          && (
+            <div className="policy-message-row warning">
+              <span>!</span>
+
+              Some clauses require human
+              review before this trip can
+              be approved.
+            </div>
+          )}
+
+        {compliance
+          .violations
+          ?.map(
+            (
+              violation,
+              index,
+            ) => (
+              <div
+                className="policy-message-row error"
+                key={
+                  `violation-${index}`
+                }
+              >
+                <span>!</span>
+
+                {violation}
+              </div>
+            ),
+          )}
+
+        {compliance
+          .warnings
+          ?.map(
+            (
+              warning,
+              index,
+            ) => (
+              <div
+                className="policy-message-row warning"
+                key={
+                  `warning-${index}`
+                }
+              >
+                <span>•</span>
+
+                {warning}
+              </div>
+            ),
+          )}
+
+        {unsupportedRules.map(
+          (
+            rule,
+            index,
+          ) => (
             <div
               className="policy-message-row warning"
-              key={`warning-${index}`}
+              key={
+                `unsupported-rule-${index}`
+              }
             >
-              <span>•</span>
-              {warning}
+              <span>?</span>
+
+              Manual clause: {rule}
             </div>
           ),
         )}
+
+        {enforcedFields.length > 0
+          && (
+            <div className="policy-message-row success">
+              <span>✓</span>
+
+              Enforced rules:{" "}
+              {enforcedFields
+                .map(
+                  formatPolicyField,
+                )
+                .join(", ")}
+            </div>
+          )}
+
+        {unspecifiedFields.length > 0
+          && (
+            <div className="policy-message-row warning">
+              <span>•</span>
+
+              Not specified in the
+              uploaded policy:{" "}
+              {unspecifiedFields
+                .map(
+                  formatPolicyField,
+                )
+                .join(", ")}
+            </div>
+          )}
       </div>
 
       <div className="approval-control-card">
@@ -724,17 +943,15 @@ function RecommendationPanel({
           </span>
 
           <strong>
-            {compliance.approval_required
-              ? compliance.is_compliant
-                ? "Manager approval required"
-                : "Policy exception approval required"
-              : "Ready for booking approval"}
+            {approvalControlText}
           </strong>
         </div>
 
         <button
           type="button"
-          onClick={onReviewApproval}
+          onClick={
+            onReviewApproval
+          }
         >
           {approvalButtonText}
         </button>
@@ -742,11 +959,13 @@ function RecommendationPanel({
 
       {approvalOutcome && (
         <div
-          className={`approval-outcome ${approvalOutcome.status}`}
+          className={
+            `approval-outcome ${approvalOutcome.status}`
+          }
         >
           <span>
-            {approvalOutcome.status ===
-            "approved"
+            {approvalOutcome.status
+              === "approved"
               ? "✓"
               : "!"}
           </span>
@@ -760,9 +979,21 @@ function RecommendationPanel({
             <p>
               Reviewed by{" "}
               {
-                approvalOutcome.reviewer_name
+                approvalOutcome
+                  .reviewer_name
               }
             </p>
+
+            {approvalOutcome
+              .review_note
+              && (
+                <p>
+                  {
+                    approvalOutcome
+                      .review_note
+                  }
+                </p>
+              )}
 
             <p>
               Approval ID:{" "}
@@ -777,8 +1008,12 @@ function RecommendationPanel({
 
 
 function NewTripWorkspace() {
-  const [form, setForm] =
-    useState(initialForm);
+  const [
+    form,
+    setForm,
+  ] = useState(
+    initialForm,
+  );
 
   const [
     approvalOpen,
@@ -817,7 +1052,11 @@ function NewTripWorkspace() {
   ) {
     const route =
       result?.trip
-        ? `${result.trip.origin} → ${result.trip.destination}`
+        ? (
+            `${result.trip.origin}`
+            + " → "
+            + `${result.trip.destination}`
+          )
         : null;
 
     const storedApproval =
@@ -826,17 +1065,21 @@ function NewTripWorkspace() {
         {
           route,
           total_cost:
-            result?.cost_summary
-              ?.total_cost || 0,
+            result
+              ?.cost_summary
+              ?.total_cost
+            || 0,
           trip_run_id:
             currentRunId,
         },
       );
 
-    updateAgentRunApproval(
-      currentRunId,
-      storedApproval,
-    );
+    if (currentRunId) {
+      updateAgentRunApproval(
+        currentRunId,
+        storedApproval,
+      );
+    }
 
     setApprovalOutcome(
       storedApproval,
@@ -854,21 +1097,24 @@ function NewTripWorkspace() {
           </span>
 
           <h2>
-            Plan, evaluate and approve a
-            business trip
+            Plan, evaluate and approve
+            a business trip
           </h2>
 
           <p>
             TripGuard retrieves policy,
-            calls travel and weather tools,
-            evaluates alternatives and
-            explains its final decision.
+            calls travel and weather
+            tools, evaluates alternatives
+            and explains its final
+            decision.
           </p>
         </div>
 
         <div className="prototype-label">
           <span>●</span>
-          Prototype inventory · Live weather
+
+          Prototype inventory · Live
+          weather
         </div>
       </div>
 
@@ -904,7 +1150,9 @@ function NewTripWorkspace() {
             form={form}
             setForm={setForm}
             running={running}
-            onSubmit={handleSubmit}
+            onSubmit={
+              handleSubmit
+            }
           />
         </section>
 
@@ -922,9 +1170,11 @@ function NewTripWorkspace() {
           approvalOutcome={
             approvalOutcome
           }
-          onReviewApproval={() =>
-            setApprovalOpen(true)
-          }
+          onReviewApproval={() => {
+            setApprovalOpen(
+              true,
+            );
+          }}
         />
       </div>
 
@@ -932,9 +1182,14 @@ function NewTripWorkspace() {
         open={approvalOpen}
         result={result}
         apiUrl={API_URL}
-        onClose={() =>
-          setApprovalOpen(false)
+        tripRunId={
+          currentRunId
         }
+        onClose={() => {
+          setApprovalOpen(
+            false,
+          );
+        }}
         onCompleted={
           handleApprovalCompleted
         }

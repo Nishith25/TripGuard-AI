@@ -10,6 +10,8 @@ from pydantic import BaseModel, Field, field_validator, model_validator
 
 from app.graph import tripguard_graph
 from app.routes.policy import router as policy_router
+from app.routes.approvals import router as approvals_router
+from app.routes.trips import router as trips_router
 
 
 app = FastAPI(
@@ -32,7 +34,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 app.include_router(policy_router)
-
+app.include_router(approvals_router)
+app.include_router(trips_router)
 
 class TravelRequest(BaseModel):
     origin: str = Field(

@@ -12,3 +12,9 @@ data/policy_metadata.json
 frontend/node_modules/
 frontend/dist/
 frontend/.env
+data/approvals.json
+data/active_policy.json
+data/policy_metadata.json
+data/uploads/
+data/approvals.json
+data/trip_runs.json
