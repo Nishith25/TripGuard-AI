@@ -21,35 +21,52 @@ import {
 function getFutureDate(
   daysFromToday,
 ) {
-  const date = new Date();
+  const futureDate = new Date();
 
-  date.setDate(
-    date.getDate()
+  futureDate.setDate(
+    futureDate.getDate()
       + daysFromToday,
   );
 
-  return date
+  return futureDate
     .toISOString()
     .split("T")[0];
 }
 
 
-const initialForm = {
-  origin: "HYD",
-  destination: "BLR",
-  destination_city:
-    "Bengaluru",
-  departure_date:
-    getFutureDate(4),
-  return_date:
-    getFutureDate(6),
-  budget: 18000,
-  arrival_before: "10:00",
-  work_location:
-    "Embassy Tech Village",
-  purpose:
-    "Important client meeting",
-};
+function createEmptyForm() {
+  return {
+    origin: "",
+    destination: "",
+    destination_city: "",
+    departure_date: "",
+    return_date: "",
+    budget: "",
+    arrival_before: "",
+    work_location: "",
+    purpose: "",
+  };
+}
+
+
+function createDemoForm() {
+  return {
+    origin: "HYD",
+    destination: "BLR",
+    destination_city:
+      "Bengaluru",
+    departure_date:
+      getFutureDate(4),
+    return_date:
+      getFutureDate(6),
+    budget: 18000,
+    arrival_before: "10:00",
+    work_location:
+      "Embassy Tech Village",
+    purpose:
+      "Important client meeting",
+  };
+}
 
 
 function formatCurrency(
@@ -150,8 +167,12 @@ function TripRequestForm({
   setForm,
   running,
   onSubmit,
+  onLoadDemo,
+  onClearForm,
 }) {
-  function updateField(event) {
+  function updateField(
+    event,
+  ) {
     const {
       name,
       value,
@@ -161,7 +182,11 @@ function TripRequestForm({
       ...current,
       [name]:
         name === "budget"
-          ? Number(value)
+          ? (
+              value === ""
+                ? ""
+                : Number(value)
+            )
           : value,
     }));
   }
@@ -180,6 +205,8 @@ function TripRequestForm({
             value={form.origin}
             onChange={updateField}
             maxLength="3"
+            placeholder="HYD"
+            autoComplete="off"
             required
           />
         </label>
@@ -198,6 +225,8 @@ function TripRequestForm({
             }
             onChange={updateField}
             maxLength="3"
+            placeholder="BLR"
+            autoComplete="off"
             required
           />
         </label>
@@ -214,6 +243,8 @@ function TripRequestForm({
             form.destination_city
           }
           onChange={updateField}
+          placeholder="Bengaluru"
+          autoComplete="off"
           required
         />
       </label>
@@ -242,6 +273,10 @@ function TripRequestForm({
             value={
               form.return_date
             }
+            min={
+              form.departure_date
+              || undefined
+            }
             onChange={updateField}
             required
           />
@@ -260,6 +295,8 @@ function TripRequestForm({
             value={form.budget}
             onChange={updateField}
             min="1"
+            step="1"
+            placeholder="18000"
             required
           />
         </label>
@@ -292,6 +329,7 @@ function TripRequestForm({
           }
           onChange={updateField}
           placeholder="Office or meeting location"
+          autoComplete="off"
         />
       </label>
 
@@ -309,6 +347,37 @@ function TripRequestForm({
         />
       </label>
 
+      <div className="trip-form-demo-helper">
+        <div>
+          <span>
+            Demo helper
+          </span>
+
+          <p>
+            Enter the requirements manually
+            or load a prepared sample request.
+          </p>
+        </div>
+
+        <div className="trip-form-demo-actions">
+          <button
+            type="button"
+            onClick={onClearForm}
+            disabled={running}
+          >
+            Clear form
+          </button>
+
+          <button
+            type="button"
+            onClick={onLoadDemo}
+            disabled={running}
+          >
+            Load demo request
+          </button>
+        </div>
+      </div>
+
       <button
         className="primary-action-button"
         type="submit"
@@ -317,11 +386,13 @@ function TripRequestForm({
         {running ? (
           <>
             <span className="button-spinner" />
+
             Agent is working
           </>
         ) : (
           <>
             Run autonomous agent
+
             <span>↗</span>
           </>
         )}
@@ -491,15 +562,24 @@ function SelectionReasoningPanel({
   }
 
   const priorities =
-    reasoning.priority_order || [];
+    reasoning.priority_order
+    || [];
 
   const selectedReasons =
-    reasoning.selected_reasons || [];
+    reasoning.selected_reasons
+    || [];
 
   const cheaperAlternatives =
     reasoning
       .cheaper_options_rejected
     || [];
+
+  const cheaperOptionCount =
+    Number(
+      reasoning
+        .cheaper_option_count
+      || 0,
+    );
 
   return (
     <section className="selection-reasoning-panel">
@@ -515,22 +595,22 @@ function SelectionReasoningPanel({
         </div>
 
         <span className="selection-strategy-pill">
-          {reasoning
-            .cheaper_option_count
-            || 0}{" "}
-          cheaper flight
-          {reasoning
-            .cheaper_option_count
-            === 1
+          {cheaperOptionCount}
+          {" cheaper flight"}
+
+          {cheaperOptionCount === 1
             ? ""
-            : "s"}{" "}
-          reviewed
+            : "s"}
+
+          {" reviewed"}
         </span>
       </div>
 
-      <p className="selection-strategy-copy">
-        {reasoning.strategy}
-      </p>
+      {reasoning.strategy && (
+        <p className="selection-strategy-copy">
+          {reasoning.strategy}
+        </p>
+      )}
 
       {priorities.length > 0 && (
         <div className="selection-priority-flow">
@@ -540,7 +620,9 @@ function SelectionReasoningPanel({
               index,
             ) => (
               <span
-                key={priority}
+                key={
+                  `${priority}-${index}`
+                }
                 className="selection-priority-chip"
               >
                 <b>
@@ -565,11 +647,13 @@ function SelectionReasoningPanel({
               {
                 reasoning
                   .selected_airline
+                || "Airline"
               }
               {" · "}
               {
                 reasoning
                   .selected_flight_number
+                || "Flight unavailable"
               }
             </strong>
           </div>
@@ -595,6 +679,7 @@ function SelectionReasoningPanel({
                   }
                 >
                   <span>✓</span>
+
                   {reason}
                 </li>
               ),
@@ -611,8 +696,8 @@ function SelectionReasoningPanel({
             </span>
 
             <small>
-              Showing up to three distinct
-              flights
+              Showing up to three
+              distinct flights
             </small>
           </div>
 
@@ -625,7 +710,17 @@ function SelectionReasoningPanel({
                 <article
                   className="cheaper-alternative-card"
                   key={
-                    `${alternative.flight_id}-${alternative.hotel_id}-${index}`
+                    (
+                      alternative.flight_id
+                      || alternative
+                        .flight_number
+                      || `alternative-${index}`
+                    )
+                    + "-"
+                    + (
+                      alternative.hotel_id
+                      || index
+                    )
                   }
                 >
                   <div className="cheaper-alternative-top">
@@ -639,11 +734,13 @@ function SelectionReasoningPanel({
                         {
                           alternative
                             .airline
+                          || "Airline"
                         }
                         {" · "}
                         {
                           alternative
                             .flight_number
+                          || "Flight unavailable"
                         }
                       </strong>
 
@@ -655,9 +752,16 @@ function SelectionReasoningPanel({
                         {alternative
                           .arrival_time
                           || "—"}
-                        {" · "}
+
                         {alternative
-                          .hotel_name}
+                          .hotel_name
+                          ? (
+                              ` · ${
+                                alternative
+                                  .hotel_name
+                              }`
+                            )
+                          : ""}
                       </p>
                     </div>
 
@@ -679,36 +783,44 @@ function SelectionReasoningPanel({
                     </div>
                   </div>
 
-                  <div className="alternative-ranking-reason">
-                    <span>!</span>
+                  {alternative
+                    .rejection_summary
+                    && (
+                      <div className="alternative-ranking-reason">
+                        <span>!</span>
 
-                    {
-                      alternative
-                        .rejection_summary
-                    }
-                  </div>
+                        {
+                          alternative
+                            .rejection_summary
+                        }
+                      </div>
+                    )}
 
                   {alternative
                     .reasons
-                    ?.length > 0 && (
-                    <ul className="alternative-reason-list">
-                      {alternative.reasons.map(
-                        (
-                          reason,
-                          reasonIndex,
-                        ) => (
-                          <li
-                            key={
-                              `alternative-${index}-${reasonIndex}`
-                            }
-                          >
-                            <span>•</span>
-                            {reason}
-                          </li>
-                        ),
-                      )}
-                    </ul>
-                  )}
+                    ?.length > 0
+                    && (
+                      <ul className="alternative-reason-list">
+                        {alternative
+                          .reasons
+                          .map(
+                            (
+                              reason,
+                              reasonIndex,
+                            ) => (
+                              <li
+                                key={
+                                  `alternative-${index}-${reasonIndex}`
+                                }
+                              >
+                                <span>•</span>
+
+                                {reason}
+                              </li>
+                            ),
+                          )}
+                      </ul>
+                    )}
                 </article>
               ),
             )}
@@ -720,13 +832,15 @@ function SelectionReasoningPanel({
 
           <div>
             <strong>
-              No cheaper distinct flight was rejected
+              No cheaper distinct flight
+              was rejected
             </strong>
 
             <p>
-              The selected itinerary was already the
-              lowest-cost flight option after evaluating
-              the available combinations.
+              The selected itinerary was
+              already the lowest-cost flight
+              option after evaluating the
+              available combinations.
             </p>
           </div>
         </div>
@@ -1104,13 +1218,15 @@ function RecommendationPanel({
           </span>
 
           <strong>
-            {hotel.name}
+            {hotel.name
+              || "Hotel unavailable"}
           </strong>
 
           <p>
             {hotel
               .distance_from_work_location_km
               ?? "Distance unavailable"}
+
             {hotel
               .distance_from_work_location_km
               !== null
@@ -1119,7 +1235,9 @@ function RecommendationPanel({
                 !== undefined
               ? " km from work"
               : ""}
+
             {" · Rating "}
+
             {hotel.rating
               ?? "N/A"}
           </p>
@@ -1181,8 +1299,10 @@ function RecommendationPanel({
 
           <strong
             className={
-              cost.budget_remaining
-              >= 0
+              Number(
+                cost.budget_remaining
+                || 0,
+              ) >= 0
                 ? "positive-text"
                 : "negative-text"
             }
@@ -1204,6 +1324,7 @@ function RecommendationPanel({
             {
               result
                 .alternatives_evaluated
+              || 0
             }
             {" options evaluated"}
           </span>
@@ -1326,6 +1447,7 @@ function RecommendationPanel({
               <span>✓</span>
 
               Enforced rules:{" "}
+
               {enforcedFields
                 .map(
                   formatPolicyField,
@@ -1341,6 +1463,7 @@ function RecommendationPanel({
 
               Not specified in the
               uploaded policy:{" "}
+
               {unspecifiedFields
                 .map(
                   formatPolicyField,
@@ -1426,7 +1549,7 @@ function NewTripWorkspace() {
     form,
     setForm,
   ] = useState(
-    initialForm,
+    createEmptyForm,
   );
 
   const [
@@ -1455,10 +1578,62 @@ function NewTripWorkspace() {
   ) {
     event.preventDefault();
 
+    if (
+      form.return_date
+      < form.departure_date
+    ) {
+      window.alert(
+        "Return date cannot be earlier than the departure date.",
+      );
+
+      return;
+    }
+
     setApprovalOpen(false);
     setApprovalOutcome(null);
 
-    await runTrip(form);
+    await runTrip({
+      ...form,
+      origin:
+        form.origin
+          .trim()
+          .toUpperCase(),
+      destination:
+        form.destination
+          .trim()
+          .toUpperCase(),
+      destination_city:
+        form.destination_city
+          .trim(),
+      work_location:
+        form.work_location
+          .trim(),
+      purpose:
+        form.purpose
+          .trim(),
+      budget:
+        Number(
+          form.budget,
+        ),
+    });
+  }
+
+  function handleLoadDemo() {
+    setForm(
+      createDemoForm(),
+    );
+
+    setApprovalOpen(false);
+    setApprovalOutcome(null);
+  }
+
+  function handleClearForm() {
+    setForm(
+      createEmptyForm(),
+    );
+
+    setApprovalOpen(false);
+    setApprovalOutcome(null);
   }
 
   function handleApprovalCompleted(
@@ -1566,6 +1741,12 @@ function NewTripWorkspace() {
             running={running}
             onSubmit={
               handleSubmit
+            }
+            onLoadDemo={
+              handleLoadDemo
+            }
+            onClearForm={
+              handleClearForm
             }
           />
         </section>
