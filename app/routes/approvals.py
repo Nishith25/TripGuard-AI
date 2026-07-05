@@ -10,6 +10,10 @@ from uuid import uuid4
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel, Field
 
+from app.routes.trips import (
+    attach_approval_to_trip,
+)
+
 
 router = APIRouter(
     prefix="/api/approvals",
@@ -17,30 +21,54 @@ router = APIRouter(
 )
 
 
-DATA_DIR = Path(__file__).resolve().parents[2] / "data"
-APPROVALS_PATH = DATA_DIR / "approvals.json"
+DATA_DIR = (
+    Path(__file__).resolve().parents[2]
+    / "data"
+)
+
+APPROVALS_PATH = (
+    DATA_DIR / "approvals.json"
+)
 
 _STORAGE_LOCK = Lock()
 
 
-class ApprovalRequestCreate(BaseModel):
+class ApprovalRequestCreate(
+    BaseModel,
+):
     trip: dict[str, Any]
 
-    selected_flight: dict[str, Any]
-    selected_hotel: dict[str, Any]
+    selected_flight: dict[
+        str,
+        Any,
+    ]
 
-    cost_summary: dict[str, Any]
-    compliance: dict[str, Any]
+    selected_hotel: dict[
+        str,
+        Any,
+    ]
+
+    cost_summary: dict[
+        str,
+        Any,
+    ]
+
+    compliance: dict[
+        str,
+        Any,
+    ]
 
     explanation: str
 
     trip_run_id: str | None = Field(
         default=None,
-        max_length=100,
+        max_length=120,
     )
 
 
-class ApprovalDecisionRequest(BaseModel):
+class ApprovalDecisionRequest(
+    BaseModel,
+):
     decision: Literal[
         "approved",
         "rejected",
@@ -63,7 +91,8 @@ def utc_now() -> str:
     ).isoformat()
 
 
-def load_approvals_unlocked() -> list[dict[str, Any]]:
+def load_approvals_unlocked(
+) -> list[dict[str, Any]]:
     if not APPROVALS_PATH.exists():
         return []
 
@@ -72,7 +101,10 @@ def load_approvals_unlocked() -> list[dict[str, Any]]:
             "r",
             encoding="utf-8",
         ) as file:
-            stored_value = json.load(file)
+            stored_value = json.load(
+                file
+            )
+
     except (
         json.JSONDecodeError,
         OSError,
@@ -88,11 +120,15 @@ def load_approvals_unlocked() -> list[dict[str, Any]]:
     return [
         item
         for item in stored_value
-        if isinstance(item, dict)
+        if isinstance(
+            item,
+            dict,
+        )
     ]
 
 
-def load_approvals() -> list[dict[str, Any]]:
+def load_approvals(
+) -> list[dict[str, Any]]:
     with _STORAGE_LOCK:
         return (
             load_approvals_unlocked()
@@ -100,7 +136,9 @@ def load_approvals() -> list[dict[str, Any]]:
 
 
 def save_approvals_unlocked(
-    approvals: list[dict[str, Any]],
+    approvals: list[
+        dict[str, Any]
+    ],
 ) -> None:
     APPROVALS_PATH.parent.mkdir(
         parents=True,
@@ -129,6 +167,24 @@ def save_approvals_unlocked(
     )
 
 
+def find_approval_index(
+    approvals: list[
+        dict[str, Any]
+    ],
+    approval_id: str,
+) -> int | None:
+    return next(
+        (
+            index
+            for index, approval
+            in enumerate(approvals)
+            if approval.get("id")
+            == approval_id
+        ),
+        None,
+    )
+
+
 @router.get("")
 def list_approval_requests(
     limit: int = Query(
@@ -149,7 +205,9 @@ def list_approval_requests(
         approvals = [
             approval
             for approval in approvals
-            if approval.get("status")
+            if approval.get(
+                "status"
+            )
             == status
         ]
 
@@ -184,13 +242,21 @@ def create_approval_request(
 ):
     created_at = utc_now()
 
+    trip_run_id = (
+        request.trip_run_id.strip()
+        if request.trip_run_id
+        else None
+    )
+
     approval = {
         "id": (
-            f"APR-"
-            f"{uuid4().hex[:10].upper()}"
+            "APR-"
+            + uuid4()
+            .hex[:10]
+            .upper()
         ),
         "trip_run_id": (
-            request.trip_run_id
+            trip_run_id
         ),
         "status": "pending",
         "created_at": created_at,
@@ -221,7 +287,9 @@ def create_approval_request(
             load_approvals_unlocked()
         )
 
-        approvals.append(approval)
+        approvals.append(
+            approval
+        )
 
         approvals.sort(
             key=lambda item: (
@@ -266,7 +334,8 @@ def get_approval_request(
         raise HTTPException(
             status_code=404,
             detail=(
-                "Approval request was not found."
+                "Approval request "
+                "was not found."
             ),
         )
 
@@ -288,22 +357,19 @@ def decide_approval_request(
             load_approvals_unlocked()
         )
 
-        approval_index = next(
-            (
-                index
-                for index, item
-                in enumerate(approvals)
-                if item.get("id")
-                == approval_id
-            ),
-            None,
+        approval_index = (
+            find_approval_index(
+                approvals,
+                approval_id,
+            )
         )
 
         if approval_index is None:
             raise HTTPException(
                 status_code=404,
                 detail=(
-                    "Approval request was not found."
+                    "Approval request "
+                    "was not found."
                 ),
             )
 
@@ -330,12 +396,15 @@ def decide_approval_request(
         )
 
         approval["reviewer_name"] = (
-            request.reviewer_name.strip()
+            request
+            .reviewer_name
+            .strip()
         )
 
         approval["review_note"] = (
             request.note.strip()
             if request.note
+            and request.note.strip()
             else None
         )
 
@@ -355,6 +424,24 @@ def decide_approval_request(
             approvals
         )
 
+    trip_run_id = approval.get(
+        "trip_run_id"
+    )
+
+    trip_linked = False
+
+    if trip_run_id:
+        updated_trip = (
+            attach_approval_to_trip(
+                trip_run_id,
+                approval,
+            )
+        )
+
+        trip_linked = (
+            updated_trip is not None
+        )
+
     return {
         "success": True,
         "message": (
@@ -366,4 +453,7 @@ def decide_approval_request(
             )
         ),
         "approval": approval,
+        "trip_linked": (
+            trip_linked
+        ),
     }
