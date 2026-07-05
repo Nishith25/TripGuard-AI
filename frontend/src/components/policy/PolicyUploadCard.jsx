@@ -295,7 +295,7 @@ function PolicyUploadCard({
       }
 
       setMessage(
-        "Uploaded policy removed. Demo policy is active.",
+        "Uploaded policy removed. Built-in policy is active.",
       );
 
       setSelectedFile(null);
@@ -380,7 +380,7 @@ function PolicyUploadCard({
             `policy-source-badge ${
               isUploadedPolicy
                 ? "uploaded"
-                : "demo"
+                : "default"
             }`
           }
         >
@@ -388,7 +388,7 @@ function PolicyUploadCard({
             ? "Loading"
             : isUploadedPolicy
               ? "Uploaded PDF"
-              : "Demo policy"}
+              : "Built-in policy"}
         </span>
       </div>
 
@@ -571,7 +571,7 @@ function PolicyUploadCard({
 
                       <strong>
                         {metadata.filename
-                          || "Demo policy"}
+                          || "Built-in policy"}
                       </strong>
                     </div>
 
@@ -682,7 +682,7 @@ function PolicyUploadCard({
                 >
                   {resetting
                     ? "Resetting…"
-                    : "Use demo policy"}
+                    : "Use built-in policy"}
                 </button>
               )}
             </div>

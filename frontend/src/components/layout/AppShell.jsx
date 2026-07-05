@@ -112,9 +112,9 @@ function DesktopSidebar({
         )}
       </nav>
 
-      <div className="sidebar-demo-card">
+      <div className="sidebar-project-card">
         <span>
-          Public demo
+          Project safeguards
         </span>
 
         <strong>
@@ -135,7 +135,7 @@ function DesktopSidebar({
         </span>
 
         <span>
-          Internship demo · 2026
+          Active development · 2026
         </span>
       </div>
     </aside>

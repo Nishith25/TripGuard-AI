@@ -34,7 +34,7 @@ function getFutureDate(
 }
 
 
-function createDemoForm() {
+function createSampleTrip() {
   return {
     origin: "HYD",
     destination: "BLR",
@@ -1220,7 +1220,7 @@ function NewTripWorkspace() {
     form,
     setForm,
   ] = useState(
-    createDemoForm,
+    createSampleTrip,
   );
 
   const [
@@ -1277,9 +1277,9 @@ function NewTripWorkspace() {
     await runTrip(form);
   }
 
-  function loadDemoScenario() {
+  function loadSampleTrip() {
     setForm(
-      createDemoForm(),
+      createSampleTrip(),
     );
 
     setFormErrors({});
@@ -1354,16 +1354,16 @@ function NewTripWorkspace() {
         <div className="page-introduction-side">
           <button
             type="button"
-            className="demo-data-button"
+            className="sample-trip-button"
             onClick={
-              loadDemoScenario
+              loadSampleTrip
             }
             disabled={running}
           >
-            Load demo scenario
+            Load sample trip
           </button>
 
-          <div className="prototype-label">
+          <div className="live-system-label">
             <span>●</span>
 
             Prototype inventory · Live

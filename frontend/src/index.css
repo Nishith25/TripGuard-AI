@@ -221,7 +221,7 @@ textarea {
   font-size: 15px;
 }
 
-.sidebar-demo-card {
+.sidebar-project-card {
   margin-top: auto;
   padding: 18px;
   border: 1px solid rgba(129, 112, 217, 0.18);
@@ -234,7 +234,7 @@ textarea {
     );
 }
 
-.sidebar-demo-card > span {
+.sidebar-project-card > span {
   color: #a18cf7;
   font-size: 10px;
   font-weight: 700;
@@ -242,14 +242,14 @@ textarea {
   text-transform: uppercase;
 }
 
-.sidebar-demo-card strong {
+.sidebar-project-card strong {
   display: block;
   margin-top: 9px;
   font-family: "Manrope", sans-serif;
   font-size: 14px;
 }
 
-.sidebar-demo-card p {
+.sidebar-project-card p {
   margin: 7px 0 0;
   color: #81899d;
   font-size: 12px;
@@ -417,7 +417,7 @@ textarea {
   gap: 10px;
 }
 
-.prototype-label {
+.live-system-label {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -429,11 +429,11 @@ textarea {
   font-size: 12px;
 }
 
-.prototype-label > span {
+.live-system-label > span {
   color: var(--green);
 }
 
-.demo-data-button,
+.sample-trip-button,
 .secondary-action-button {
   min-height: 42px;
   border: 1px solid var(--border);
@@ -445,7 +445,7 @@ textarea {
   font-weight: 700;
 }
 
-.demo-data-button:hover,
+.sample-trip-button:hover,
 .secondary-action-button:hover {
   border-color: rgba(151, 132, 255, 0.32);
   color: white;
@@ -1518,7 +1518,7 @@ textarea {
   text-transform: uppercase;
 }
 
-.policy-source-badge.demo {
+.policy-source-badge.default {
   border: 1px solid rgba(130, 140, 170, 0.2);
   color: #99a1b4;
   background: rgba(100, 110, 140, 0.09);

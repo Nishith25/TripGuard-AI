@@ -137,7 +137,7 @@ export function LandingPage({
               )
             }
           >
-            Launch demo
+            Open workspace
           </button>
         </nav>
       </header>
@@ -320,7 +320,7 @@ export function LandingPage({
         <section className="landing-final-cta">
           <div>
             <span>
-              Production-minded prototype
+              Agentic travel platform
             </span>
 
             <h2>
@@ -579,7 +579,7 @@ export function DashboardPage({
                   {policySummary.source ===
                   "uploaded_pdf"
                     ? "Uploaded PDF"
-                    : "Demo policy"}
+                    : "Built-in policy"}
                 </strong>
               </div>
 
@@ -799,7 +799,7 @@ export function PoliciesPage() {
             <p>
               Scanned image-only PDFs
               require OCR and are outside
-              the current prototype scope.
+              the current release scope.
             </p>
           </div>
         </aside>
