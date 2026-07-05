@@ -1153,27 +1153,45 @@ def evaluate_options_node(
                     "exceeds the uploaded policy's cost threshold."
                 )
 
-            advance_booking_days = policy.get(
-                "advance_booking_days"
+                advance_booking_days = (
+                policy.get(
+                    "advance_booking_days"
+                )
             )
 
             if (
                 advance_booking_days
                 is not None
-                and days_before_departure
-                < int(
+            ):
+                required_advance_days = int(
                     advance_booking_days
                 )
+
+                if (
+                    days_before_departure
+                    < required_advance_days
+                ):
+                    actual_advance_days = max(
+                        days_before_departure,
+                        0,
+                    )
+
+                    warnings.append(
+                        "Trip is being booked "
+                        f"{actual_advance_days} day(s) "
+                        "before departure. The active "
+                        "policy requires booking at least "
+                        f"{required_advance_days} day(s) "
+                        "in advance."
+                    )
+
+            if (
+                policy_manual_review_required
             ):
                 warnings.append(
-                    "Trip is being booked inside the advance-booking "
-                    "period specified by the uploaded policy."
-                )
-
-            if policy_manual_review_required:
-                warnings.append(
-                    "Some uploaded policy clauses could not be "
-                    "automatically enforced and require human review."
+                    "Some uploaded policy clauses "
+                    "could not be automatically "
+                    "enforced and require human review."
                 )
 
             evaluated_options.append(
