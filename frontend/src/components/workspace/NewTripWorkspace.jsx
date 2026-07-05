@@ -581,6 +581,11 @@ function SelectionReasoningPanel({
       || 0,
     );
 
+  const comparisonHeading =
+    cheaperOptionCount > 0
+      ? "Why not the cheaper flight?"
+      : "Why this flight was selected";
+
   return (
     <section className="selection-reasoning-panel">
       <div className="selection-reasoning-heading">
@@ -590,7 +595,7 @@ function SelectionReasoningPanel({
           </span>
 
           <h4>
-            Why not the cheaper flight?
+            {comparisonHeading}
           </h4>
         </div>
 
@@ -832,15 +837,15 @@ function SelectionReasoningPanel({
 
           <div>
             <strong>
-              No cheaper distinct flight
-              was rejected
+              Selected flight is already
+              the lowest-cost option
             </strong>
 
             <p>
-              The selected itinerary was
-              already the lowest-cost flight
-              option after evaluating the
-              available combinations.
+              No cheaper distinct flight
+              was found after evaluating
+              the available flight and
+              hotel combinations.
             </p>
           </div>
         </div>
