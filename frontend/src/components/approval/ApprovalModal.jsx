@@ -1,12 +1,35 @@
-import { useEffect, useState } from "react";
+import {
+  useEffect,
+  useState,
+} from "react";
 
 
-function formatCurrency(value) {
-  return new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    maximumFractionDigits: 0,
-  }).format(Number(value || 0));
+function formatCurrency(
+  value,
+) {
+  return new Intl.NumberFormat(
+    "en-IN",
+    {
+      style: "currency",
+      currency: "INR",
+      maximumFractionDigits: 0,
+    },
+  ).format(
+    Number(value || 0),
+  );
+}
+
+
+function formatPolicyField(
+  fieldName,
+) {
+  return fieldName
+    .replaceAll("_", " ")
+    .replace(
+      /\b\w/g,
+      (letter) =>
+        letter.toUpperCase(),
+    );
 }
 
 
@@ -18,14 +41,20 @@ function ApprovalModal({
   onClose,
   onCompleted,
 }) {
-  const [reviewerName, setReviewerName] =
-    useState("Travel Manager");
+  const [
+    reviewerName,
+    setReviewerName,
+  ] = useState(
+    "Travel Manager",
+  );
 
   const [note, setNote] =
     useState("");
 
-  const [submitting, setSubmitting] =
-    useState(false);
+  const [
+    submitting,
+    setSubmitting,
+  ] = useState(false);
 
   const [error, setError] =
     useState("");
@@ -39,11 +68,30 @@ function ApprovalModal({
   }, [open]);
 
   useEffect(() => {
-    function handleKeyDown(event) {
+    if (!open) {
+      return undefined;
+    }
+
+    const previousOverflow =
+      document.body.style.overflow;
+
+    document.body.style.overflow =
+      "hidden";
+
+    return () => {
+      document.body.style.overflow =
+        previousOverflow;
+    };
+  }, [open]);
+
+  useEffect(() => {
+    function handleKeyDown(
+      event,
+    ) {
       if (
-        event.key === "Escape" &&
-        open &&
-        !submitting
+        event.key === "Escape"
+        && open
+        && !submitting
       ) {
         onClose();
       }
@@ -86,24 +134,34 @@ function ApprovalModal({
     result.policy_coverage || {};
 
   const unsupportedRules =
-    policyCoverage.unsupported_rules || [];
+    policyCoverage
+      .unsupported_rules || [];
 
   const enforcedFields =
-    policyCoverage.enforced_fields || [];
+    policyCoverage
+      .enforced_fields || [];
+
+  const unspecifiedFields =
+    policyCoverage
+      .not_specified_fields || [];
 
   const violations =
     compliance.violations || [];
 
   const isException =
-    compliance.is_compliant === false;
+    compliance.is_compliant
+    === false;
 
   const requiresManualPolicyReview =
     Boolean(
-      policyCoverage.requires_manual_review,
+      policyCoverage
+        .requires_manual_review,
     );
 
   const approvalReason =
-    result.approval_request?.reason || "";
+    result
+      .approval_request
+      ?.reason || "";
 
   let modalTitle =
     "Approve recommendation";
@@ -127,7 +185,9 @@ function ApprovalModal({
     decision,
   ) {
     if (
-      reviewerName.trim().length < 2
+      reviewerName
+        .trim()
+        .length < 2
     ) {
       setError(
         "Enter the manager or reviewer name.",
@@ -152,11 +212,14 @@ function ApprovalModal({
             body: JSON.stringify({
               trip: result.trip,
               selected_flight:
-                result.selected_flight,
+                result
+                  .selected_flight,
               selected_hotel:
-                result.selected_hotel,
+                result
+                  .selected_hotel,
               cost_summary:
-                result.cost_summary,
+                result
+                  .cost_summary,
               compliance:
                 result.compliance,
               explanation:
@@ -174,13 +237,18 @@ function ApprovalModal({
 
       if (!createResponse.ok) {
         throw new Error(
-          createPayload?.detail ||
-            "Unable to create the approval request.",
+          createPayload?.detail
+          || (
+            "Unable to create "
+            + "the approval request."
+          ),
         );
       }
 
       const approvalId =
-        createPayload?.approval?.id;
+        createPayload
+          ?.approval
+          ?.id;
 
       if (!approvalId) {
         throw new Error(
@@ -202,7 +270,8 @@ function ApprovalModal({
               reviewer_name:
                 reviewerName.trim(),
               note:
-                note.trim() || null,
+                note.trim()
+                || null,
             }),
           },
         );
@@ -214,24 +283,32 @@ function ApprovalModal({
 
       if (!decisionResponse.ok) {
         throw new Error(
-          decisionPayload?.detail ||
-            "Unable to submit the approval decision.",
+          decisionPayload?.detail
+          || (
+            "Unable to submit "
+            + "the approval decision."
+          ),
         );
       }
 
       if (
-        typeof onCompleted ===
-        "function"
+        typeof onCompleted
+        === "function"
       ) {
         onCompleted(
-          decisionPayload.approval,
+          decisionPayload
+            .approval,
         );
       }
     } catch (requestError) {
       setError(
-        requestError instanceof Error
+        requestError
+        instanceof Error
           ? requestError.message
-          : "The approval workflow could not be completed.",
+          : (
+              "The approval workflow "
+              + "could not be completed."
+            ),
       );
     } finally {
       setSubmitting(false);
@@ -244,9 +321,9 @@ function ApprovalModal({
       role="presentation"
       onMouseDown={(event) => {
         if (
-          event.target ===
-            event.currentTarget &&
-          !submitting
+          event.target
+          === event.currentTarget
+          && !submitting
         ) {
           onClose();
         }
@@ -292,7 +369,9 @@ function ApprovalModal({
           </div>
 
           <div>
-            <span>Total cost</span>
+            <span>
+              Total cost
+            </span>
 
             <strong>
               {formatCurrency(
@@ -305,9 +384,11 @@ function ApprovalModal({
             <span>Flight</span>
 
             <strong>
-              {flight.airline || "N/A"}
+              {flight.airline
+                || "N/A"}
               {" · "}
-              {flight.id || "N/A"}
+              {flight.id
+                || "N/A"}
             </strong>
           </div>
 
@@ -315,7 +396,8 @@ function ApprovalModal({
             <span>Hotel</span>
 
             <strong>
-              {hotel.name || "N/A"}
+              {hotel.name
+                || "N/A"}
             </strong>
           </div>
         </div>
@@ -331,37 +413,43 @@ function ApprovalModal({
 
           {isException && (
             <div>
-              {violations.length > 0 ? (
-                violations.map(
-                  (
-                    violation,
-                    index,
-                  ) => (
-                    <p
-                      key={`violation-${index}`}
-                    >
-                      • {violation}
+              {violations.length > 0
+                ? (
+                    violations.map(
+                      (
+                        violation,
+                        index,
+                      ) => (
+                        <p
+                          key={
+                            `violation-${index}`
+                          }
+                        >
+                          • {violation}
+                        </p>
+                      ),
+                    )
+                  )
+                : (
+                    <p>
+                      The recommendation
+                      requires an exception
+                      review.
                     </p>
-                  ),
-                )
-              ) : (
-                <p>
-                  The recommendation
-                  requires an exception
-                  review.
-                </p>
-              )}
+                  )}
 
-              {requiresManualPolicyReview &&
-                unsupportedRules
-                  .slice(0, 4)
+              {requiresManualPolicyReview
+                && unsupportedRules
+                  .slice(0, 6)
                   .map(
                     (
                       rule,
                       index,
                     ) => (
                       <p
-                        key={`unsupported-exception-${index}`}
+                        key={
+                          `unsupported-exception-${index}`
+                        }
                       >
                         • Manual clause:{" "}
                         {rule}
@@ -371,29 +459,33 @@ function ApprovalModal({
             </div>
           )}
 
-          {!isException &&
-            requiresManualPolicyReview && (
+          {!isException
+            && requiresManualPolicyReview
+            && (
               <div>
                 <p>
                   The itinerary satisfies
-                  every rule TripGuard could
-                  automatically enforce, but
-                  some uploaded policy
-                  clauses still require human
+                  every rule TripGuard
+                  could automatically
+                  enforce, but some
+                  uploaded policy clauses
+                  still require human
                   review.
                 </p>
 
-                {unsupportedRules.length >
-                0 ? (
+                {unsupportedRules.length
+                > 0 ? (
                   unsupportedRules
-                    .slice(0, 4)
+                    .slice(0, 6)
                     .map(
                       (
                         rule,
                         index,
                       ) => (
                         <p
-                          key={`unsupported-${index}`}
+                          key={
+                            `unsupported-${index}`
+                          }
                         >
                           • {rule}
                         </p>
@@ -402,9 +494,10 @@ function ApprovalModal({
                 ) : (
                   <p>
                     • The policy did not
-                    contain enough supported
-                    rules for a fully
-                    automated decision.
+                    contain enough
+                    supported rules for a
+                    fully automated
+                    decision.
                   </p>
                 )}
 
@@ -416,13 +509,28 @@ function ApprovalModal({
               </div>
             )}
 
-          {!isException &&
-            !requiresManualPolicyReview && (
+          {!isException
+            && !requiresManualPolicyReview
+            && (
               <p>
-                {approvalReason ||
-                  (compliance.approval_required
-                    ? "The trip satisfies the enforceable policy rules but requires final manager approval."
-                    : "The recommendation is policy-compliant and ready for final booking approval.")}
+                {approvalReason
+                  || (
+                    compliance
+                      .approval_required
+                      ? (
+                          "The trip satisfies "
+                          + "the enforceable "
+                          + "policy rules but "
+                          + "requires final "
+                          + "manager approval."
+                        )
+                      : (
+                          "The recommendation "
+                          + "is policy-compliant "
+                          + "and ready for final "
+                          + "booking approval."
+                        )
+                  )}
               </p>
             )}
         </div>
@@ -435,33 +543,24 @@ function ApprovalModal({
 
             <p>
               {enforcedFields
-                .map((field) =>
-                  field.replaceAll(
-                    "_",
-                    " ",
-                  ),
+                .map(
+                  formatPolicyField,
                 )
                 .join(", ")}
             </p>
           </div>
         )}
 
-        {policyCoverage
-          .not_specified_fields
-          ?.length > 0 && (
+        {unspecifiedFields.length > 0 && (
           <div className="approval-reason">
             <span>
               Not specified in policy
             </span>
 
             <p>
-              {policyCoverage
-                .not_specified_fields
-                .map((field) =>
-                  field.replaceAll(
-                    "_",
-                    " ",
-                  ),
+              {unspecifiedFields
+                .map(
+                  formatPolicyField,
                 )
                 .join(", ")}
             </p>
@@ -469,7 +568,9 @@ function ApprovalModal({
         )}
 
         <label className="approval-field">
-          <span>Reviewer name</span>
+          <span>
+            Reviewer name
+          </span>
 
           <input
             value={reviewerName}
@@ -484,7 +585,9 @@ function ApprovalModal({
         </label>
 
         <label className="approval-field">
-          <span>Review note</span>
+          <span>
+            Review note
+          </span>
 
           <textarea
             value={note}
@@ -493,7 +596,7 @@ function ApprovalModal({
                 event.target.value,
               );
             }}
-            rows="3"
+            rows="4"
             placeholder="Add the reason for this decision"
             disabled={submitting}
           />

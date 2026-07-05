@@ -1,17 +1,46 @@
-function formatTemperature(value) {
+function formatTemperature(
+  value,
+) {
   if (
-    value === null ||
-    value === undefined
+    value === null
+    || value === undefined
   ) {
     return "—";
   }
 
-  return `${Math.round(Number(value))}°C`;
+  return `${Math.round(
+    Number(value),
+  )}°C`;
 }
 
 
-function formatNumber(value) {
-  return Math.round(Number(value || 0));
+function formatNumber(
+  value,
+) {
+  return Math.round(
+    Number(value || 0),
+  );
+}
+
+
+function formatForecastDate(
+  value,
+) {
+  if (!value) {
+    return "—";
+  }
+
+  return new Intl.DateTimeFormat(
+    "en-IN",
+    {
+      day: "numeric",
+      month: "short",
+    },
+  ).format(
+    new Date(
+      `${value}T00:00:00`,
+    ),
+  );
 }
 
 
@@ -40,8 +69,11 @@ function WeatherInsightCard({
           </strong>
 
           <p>
-            {weather.message ||
-              "Weather data could not be retrieved."}
+            {weather.message
+              || (
+                "Weather data "
+                + "could not be retrieved."
+              )}
           </p>
         </div>
       </div>
@@ -54,18 +86,28 @@ function WeatherInsightCard({
   const riskLevel =
     weather.risk_level || "low";
 
-  const maximumTripRain = formatNumber(
-    weather
-      .maximum_precipitation_probability_percent,
-  );
+  const maximumTripRain =
+    formatNumber(
+      weather
+        .maximum_precipitation_probability_percent,
+    );
 
-  const maximumTripWind = formatNumber(
-    weather.maximum_wind_speed_kmh,
-  );
+  const maximumTripWind =
+    formatNumber(
+      weather
+        .maximum_wind_speed_kmh,
+    );
+
+  const forecastDays =
+    weather.forecast_days
+      ?.slice(0, 3)
+    || [];
 
   return (
     <section
-      className={`weather-card risk-${riskLevel}`}
+      className={
+        `weather-card risk-${riskLevel}`
+      }
     >
       <div className="weather-card-header">
         <div>
@@ -74,23 +116,31 @@ function WeatherInsightCard({
           </span>
 
           <h4>
-            {departure.condition ||
-              "Forecast available"}
+            {departure.condition
+              || "Forecast available"}
           </h4>
 
           <p>
             {weather.location?.name}
+
             {weather.location?.country
-              ? `, ${weather.location.country}`
+              ? (
+                  `, ${weather.location.country}`
+                )
               : ""}
-            {" · "}
-            Departure forecast ·{" "}
-            {departure.date}
+
+            {" · Departure forecast · "}
+
+            {formatForecastDate(
+              departure.date,
+            )}
           </p>
         </div>
 
         <span
-          className={`weather-risk-badge ${riskLevel}`}
+          className={
+            `weather-risk-badge ${riskLevel}`
+          }
         >
           Trip {riskLevel} risk
         </span>
@@ -98,27 +148,35 @@ function WeatherInsightCard({
 
       <div className="weather-metrics">
         <div>
-          <span>Departure high</span>
+          <span>
+            Departure high
+          </span>
 
           <strong>
             {formatTemperature(
-              departure.temperature_max_c,
+              departure
+                .temperature_max_c,
             )}
           </strong>
         </div>
 
         <div>
-          <span>Departure low</span>
+          <span>
+            Departure low
+          </span>
 
           <strong>
             {formatTemperature(
-              departure.temperature_min_c,
+              departure
+                .temperature_min_c,
             )}
           </strong>
         </div>
 
         <div>
-          <span>Departure rain</span>
+          <span>
+            Departure rain
+          </span>
 
           <strong>
             {formatNumber(
@@ -130,11 +188,14 @@ function WeatherInsightCard({
         </div>
 
         <div>
-          <span>Departure wind</span>
+          <span>
+            Departure wind
+          </span>
 
           <strong>
             {formatNumber(
-              departure.wind_speed_max_kmh,
+              departure
+                .wind_speed_max_kmh,
             )}{" "}
             km/h
           </strong>
@@ -142,19 +203,69 @@ function WeatherInsightCard({
       </div>
 
       <div className="weather-trip-peak">
-        <span>Peak forecast across trip</span>
+        <span>
+          Peak forecast across trip
+        </span>
 
         <strong>
-          {maximumTripRain}% rain ·{" "}
+          {maximumTripRain}% rain
+          {" · "}
           {maximumTripWind} km/h wind
         </strong>
       </div>
 
+      {forecastDays.length > 0
+        && (
+          <div className="weather-forecast-strip">
+            {forecastDays.map(
+              (day) => (
+                <div
+                  className="weather-forecast-day"
+                  key={day.date}
+                >
+                  <span>
+                    {formatForecastDate(
+                      day.date,
+                    )}
+                  </span>
+
+                  <strong>
+                    {day.condition}
+                  </strong>
+
+                  <small>
+                    {formatTemperature(
+                      day.temperature_max_c,
+                    )}
+                    {" / "}
+                    {formatTemperature(
+                      day.temperature_min_c,
+                    )}
+                    {" · "}
+                    {formatNumber(
+                      day
+                        .precipitation_probability_percent,
+                    )}
+                    % rain
+                  </small>
+                </div>
+              ),
+            )}
+          </div>
+        )}
+
       {advisories.length > 0 && (
         <div className="weather-advisories">
           {advisories.map(
-            (advisory, index) => (
-              <p key={`${advisory}-${index}`}>
+            (
+              advisory,
+              index,
+            ) => (
+              <p
+                key={
+                  `${advisory}-${index}`
+                }
+              >
                 <span>•</span>
                 {advisory}
               </p>
@@ -164,7 +275,8 @@ function WeatherInsightCard({
       )}
 
       <div className="weather-source">
-        Live data source: {weather.source}
+        Live data source:{" "}
+        {weather.source}
       </div>
     </section>
   );

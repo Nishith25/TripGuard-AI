@@ -57,16 +57,19 @@ function DesktopSidebar({
       <button
         type="button"
         className="sidebar-brand"
-        onClick={() =>
-          navigate("/")
-        }
+        onClick={() => {
+          navigate("/");
+        }}
       >
         <span className="sidebar-brand-mark">
           TG
         </span>
 
         <span>
-          <strong>TripGuard AI</strong>
+          <strong>
+            TripGuard AI
+          </strong>
+
           <small>
             Agentic travel control
           </small>
@@ -83,15 +86,19 @@ function DesktopSidebar({
             <button
               type="button"
               key={item.path}
-              className={`sidebar-link ${
-                activePath ===
-                item.path
-                  ? "active"
-                  : ""
-              }`}
-              onClick={() =>
-                navigate(item.path)
+              className={
+                `sidebar-link ${
+                  activePath
+                  === item.path
+                    ? "active"
+                    : ""
+                }`
               }
+              onClick={() => {
+                navigate(
+                  item.path,
+                );
+              }}
             >
               <span className="sidebar-link-icon">
                 {item.icon}
@@ -106,21 +113,30 @@ function DesktopSidebar({
       </nav>
 
       <div className="sidebar-demo-card">
-        <span>Public demo</span>
+        <span>
+          Public demo
+        </span>
 
         <strong>
           Safe-by-design
         </strong>
 
         <p>
-          Recommendations require human
-          approval before booking.
+          Recommendations remain
+          explainable and require human
+          review whenever policy
+          confidence is incomplete.
         </p>
       </div>
 
       <div className="sidebar-footer">
-        <span>Built by Nishith Reddy</span>
-        <span>Internship demo · 2026</span>
+        <span>
+          Built by Nishith Reddy
+        </span>
+
+        <span>
+          Internship demo · 2026
+        </span>
       </div>
     </aside>
   );
@@ -144,11 +160,16 @@ function TopHeader({
 
       <div className="header-actions">
         <div
-          className={`backend-status ${
-            systemStatus.online
-              ? "online"
-              : "offline"
-          }`}
+          className={
+            `backend-status ${
+              systemStatus.online
+                ? "online"
+                : "offline"
+            }`
+          }
+          title={
+            systemStatus.message
+          }
         >
           <span />
 
@@ -160,11 +181,11 @@ function TopHeader({
         <button
           type="button"
           className="header-new-trip"
-          onClick={() =>
+          onClick={() => {
             navigate(
               "/app/trips/new",
-            )
-          }
+            );
+          }}
         >
           New trip
           <span>↗</span>
@@ -195,13 +216,16 @@ function MobileNavigation({
             type="button"
             key={item.path}
             className={
-              activePath === item.path
+              activePath
+              === item.path
                 ? "active"
                 : ""
             }
-            onClick={() =>
-              navigate(item.path)
-            }
+            onClick={() => {
+              navigate(
+                item.path,
+              );
+            }}
           >
             <span>
               {item.icon}
@@ -229,7 +253,8 @@ function AppShell({
     setSystemStatus,
   ] = useState({
     online: false,
-    message: "Checking backend",
+    message:
+      "Checking backend",
   });
 
   useEffect(() => {
@@ -256,6 +281,7 @@ function AppShell({
 
     return () => {
       mounted = false;
+
       window.clearInterval(
         intervalId,
       );
@@ -272,7 +298,9 @@ function AppShell({
       <div className="application-main">
         <TopHeader
           title={title}
-          systemStatus={systemStatus}
+          systemStatus={
+            systemStatus
+          }
           navigate={navigate}
         />
 
