@@ -483,6 +483,259 @@ function AgentTimeline({
 }
 
 
+function SelectionReasoningPanel({
+  reasoning,
+}) {
+  if (!reasoning) {
+    return null;
+  }
+
+  const priorities =
+    reasoning.priority_order || [];
+
+  const selectedReasons =
+    reasoning.selected_reasons || [];
+
+  const cheaperAlternatives =
+    reasoning
+      .cheaper_options_rejected
+    || [];
+
+  return (
+    <section className="selection-reasoning-panel">
+      <div className="selection-reasoning-heading">
+        <div>
+          <span>
+            Decision comparison
+          </span>
+
+          <h4>
+            Why not the cheaper flight?
+          </h4>
+        </div>
+
+        <span className="selection-strategy-pill">
+          {reasoning
+            .cheaper_option_count
+            || 0}{" "}
+          cheaper flight
+          {reasoning
+            .cheaper_option_count
+            === 1
+            ? ""
+            : "s"}{" "}
+          reviewed
+        </span>
+      </div>
+
+      <p className="selection-strategy-copy">
+        {reasoning.strategy}
+      </p>
+
+      {priorities.length > 0 && (
+        <div className="selection-priority-flow">
+          {priorities.map(
+            (
+              priority,
+              index,
+            ) => (
+              <span
+                key={priority}
+                className="selection-priority-chip"
+              >
+                <b>
+                  {index + 1}
+                </b>
+
+                {priority}
+              </span>
+            ),
+          )}
+        </div>
+      )}
+
+      <div className="selected-reason-card">
+        <div className="selected-reason-card-header">
+          <div>
+            <span>
+              Selected option wins
+            </span>
+
+            <strong>
+              {
+                reasoning
+                  .selected_airline
+              }
+              {" · "}
+              {
+                reasoning
+                  .selected_flight_number
+              }
+            </strong>
+          </div>
+
+          <strong>
+            {formatCurrency(
+              reasoning
+                .selected_total_cost,
+            )}
+          </strong>
+        </div>
+
+        {selectedReasons.length > 0 && (
+          <ul>
+            {selectedReasons.map(
+              (
+                reason,
+                index,
+              ) => (
+                <li
+                  key={
+                    `selected-reason-${index}`
+                  }
+                >
+                  <span>✓</span>
+                  {reason}
+                </li>
+              ),
+            )}
+          </ul>
+        )}
+      </div>
+
+      {cheaperAlternatives.length > 0 ? (
+        <div className="cheaper-alternatives">
+          <div className="cheaper-alternatives-heading">
+            <span>
+              Cheaper alternatives not selected
+            </span>
+
+            <small>
+              Showing up to three distinct
+              flights
+            </small>
+          </div>
+
+          <div className="cheaper-alternatives-list">
+            {cheaperAlternatives.map(
+              (
+                alternative,
+                index,
+              ) => (
+                <article
+                  className="cheaper-alternative-card"
+                  key={
+                    `${alternative.flight_id}-${alternative.hotel_id}-${index}`
+                  }
+                >
+                  <div className="cheaper-alternative-top">
+                    <div>
+                      <span>
+                        Cheaper alternative{" "}
+                        {index + 1}
+                      </span>
+
+                      <strong>
+                        {
+                          alternative
+                            .airline
+                        }
+                        {" · "}
+                        {
+                          alternative
+                            .flight_number
+                        }
+                      </strong>
+
+                      <p>
+                        {alternative
+                          .departure_time
+                          || "—"}
+                        {" – "}
+                        {alternative
+                          .arrival_time
+                          || "—"}
+                        {" · "}
+                        {alternative
+                          .hotel_name}
+                      </p>
+                    </div>
+
+                    <div className="cheaper-alternative-price">
+                      <strong>
+                        {formatCurrency(
+                          alternative
+                            .total_cost,
+                        )}
+                      </strong>
+
+                      <span>
+                        Saves{" "}
+                        {formatCurrency(
+                          alternative
+                            .savings_vs_selected,
+                        )}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="alternative-ranking-reason">
+                    <span>!</span>
+
+                    {
+                      alternative
+                        .rejection_summary
+                    }
+                  </div>
+
+                  {alternative
+                    .reasons
+                    ?.length > 0 && (
+                    <ul className="alternative-reason-list">
+                      {alternative.reasons.map(
+                        (
+                          reason,
+                          reasonIndex,
+                        ) => (
+                          <li
+                            key={
+                              `alternative-${index}-${reasonIndex}`
+                            }
+                          >
+                            <span>•</span>
+                            {reason}
+                          </li>
+                        ),
+                      )}
+                    </ul>
+                  )}
+                </article>
+              ),
+            )}
+          </div>
+        </div>
+      ) : (
+        <div className="selection-no-cheaper">
+          <span>✓</span>
+
+          <div>
+            <strong>
+              No cheaper distinct flight was rejected
+            </strong>
+
+            <p>
+              The selected itinerary was already the
+              lowest-cost flight option after evaluating
+              the available combinations.
+            </p>
+          </div>
+        </div>
+      )}
+    </section>
+  );
+}
+
+
 function RecommendationPanel({
   result,
   approvalOutcome,
@@ -623,13 +876,14 @@ function RecommendationPanel({
         .manual_inventory_review_required,
     );
 
+  const anyManualReviewRequired =
+    manualPolicyReviewRequired
+    || manualInventoryReviewRequired;
+
   let approvalButtonText =
     "Approve recommendation";
 
-  if (
-    manualPolicyReviewRequired
-    || manualInventoryReviewRequired
-  ) {
+  if (anyManualReviewRequired) {
     approvalButtonText =
       "Review details";
   } else if (
@@ -668,16 +922,32 @@ function RecommendationPanel({
 
   const decisionClass =
     compliance.is_compliant
-      && !manualPolicyReviewRequired
+      && !anyManualReviewRequired
       ? "compliant"
       : "exception";
 
-  const decisionLabel =
-    manualPolicyReviewRequired
-      ? "Manual review required"
-      : formatStatus(
-          result.status,
-        );
+  let decisionLabel =
+    formatStatus(
+      result.status,
+    );
+
+  if (
+    !compliance.is_compliant
+    && anyManualReviewRequired
+  ) {
+    decisionLabel =
+      "Exception + manual review";
+  } else if (
+    !compliance.is_compliant
+  ) {
+    decisionLabel =
+      "Exception required";
+  } else if (
+    anyManualReviewRequired
+  ) {
+    decisionLabel =
+      "Manual review required";
+  }
 
   return (
     <section className="workspace-surface recommendation-surface">
@@ -704,8 +974,8 @@ function RecommendationPanel({
               `decision-status ${decisionClass}`
             }
           >
-            {compliance.is_compliant
-              && !manualPolicyReviewRequired
+            {decisionClass
+              === "compliant"
               ? "✓"
               : "!"}
 
@@ -753,6 +1023,12 @@ function RecommendationPanel({
           {result.explanation}
         </p>
       </div>
+
+      <SelectionReasoningPanel
+        reasoning={
+          result.selection_reasoning
+        }
+      />
 
       <WeatherInsightCard
         weather={result.weather}
