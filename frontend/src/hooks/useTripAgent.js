@@ -11,6 +11,7 @@ import {
 import {
   saveAgentRun,
 } from "../services/storage";
+import { buildTravelRequest } from "../services/travelMemory";
 
 
 function createRunId() {
@@ -62,7 +63,7 @@ export default function useTripAgent() {
     setCurrentRunId,
   ] = useState(null);
 
-  const totalExpectedSteps = 7;
+  const totalExpectedSteps = 8;
 
   const progress = useMemo(() => {
     if (result) {
@@ -97,6 +98,7 @@ export default function useTripAgent() {
     setError("");
 
     try {
+      const request = buildTravelRequest(form);
       const response = await fetch(
         `${API_URL}/api/plan/stream`,
         {
@@ -106,7 +108,7 @@ export default function useTripAgent() {
               "application/json",
           },
           body: JSON.stringify(
-            form,
+            request,
           ),
         },
       );
@@ -189,7 +191,7 @@ export default function useTripAgent() {
               new Date().toISOString(),
 
             request: {
-              ...form,
+              ...request,
             },
 
             result: finalResult,

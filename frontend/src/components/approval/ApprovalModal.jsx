@@ -2,6 +2,7 @@ import {
   useEffect,
   useState,
 } from "react";
+import { buildManagerDecision } from "../../services/travelMemory";
 
 
 function formatCurrency(
@@ -96,6 +97,9 @@ function ApprovalModal({
     setNote,
   ] = useState("");
 
+  const [feedbackReason, setFeedbackReason] = useState("");
+  const [maxHotelDistance, setMaxHotelDistance] = useState("");
+
   const [
     submitting,
     setSubmitting,
@@ -113,6 +117,8 @@ function ApprovalModal({
       );
 
       setNote("");
+      setFeedbackReason("");
+      setMaxHotelDistance("");
       setError("");
       setSubmitting(false);
 
@@ -357,6 +363,13 @@ function ApprovalModal({
     setError("");
 
     try {
+      const decisionBody = buildManagerDecision({
+        decision,
+        reviewerName: cleanedReviewerName,
+        note,
+        feedbackReason,
+        maxDistance: maxHotelDistance,
+      });
       let approvalId =
         approvalRequest?.id
         || null;
@@ -383,16 +396,7 @@ function ApprovalModal({
                 "application/json",
             },
 
-            body: JSON.stringify({
-              decision,
-
-              reviewer_name:
-                cleanedReviewerName,
-
-              note:
-                note.trim()
-                || null,
-            }),
+            body: JSON.stringify(decisionBody),
           },
         );
 
@@ -426,7 +430,7 @@ function ApprovalModal({
         === "function"
       ) {
         onCompleted(
-          completedApproval,
+          {...completedApproval, memory_saved: decisionPayload.memory_saved},
         );
       }
     } catch (
@@ -845,6 +849,28 @@ function ApprovalModal({
             disabled={submitting}
           />
         </label>
+
+        {result.trip?.traveller_id && (
+          <div className="approval-reason">
+            <span>Feedback for this demo traveller</span>
+            <p>If rejecting a hotel because it is too far, save a distance preference for future trips.</p>
+            <label className="approval-field">
+              <span>Reason for rejection</span>
+              <select value={feedbackReason} onChange={(event) => setFeedbackReason(event.target.value)} disabled={submitting}>
+                <option value="">No travel memory</option>
+                <option value="hotel_too_far">Hotel too far from workplace</option>
+                <option value="other">Other reason</option>
+              </select>
+            </label>
+            {feedbackReason === "hotel_too_far" && (
+              <label className="approval-field">
+                <span>Prefer hotels within (km)</span>
+                <input type="number" min="0.5" max="20" step="0.1" value={maxHotelDistance}
+                  onChange={(event) => setMaxHotelDistance(event.target.value)} disabled={submitting} placeholder="2" />
+              </label>
+            )}
+          </div>
+        )}
 
         {error && (
           <div className="approval-modal-error">

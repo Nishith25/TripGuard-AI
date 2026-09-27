@@ -4,6 +4,14 @@
 
 TripGuard AI converts an employee’s business-travel request into a policy-aware itinerary by retrieving company rules, searching live flight and hotel inventory, checking destination weather, evaluating alternatives, explaining its recommendation, and escalating qualifying requests to a human manager.
 
+## Travel Decision Memory with Hindsight
+
+This challenge extension adds a persistent memory of reviewed travel decisions to the pre-existing TripGuard agent. A manager can reject a policy-compliant hotel as too far for a traveller's workplace and specify a preferred maximum distance. The backend stores that decision in a Hindsight bank scoped to the demo traveller ID. On a later trip, the agent recalls the relevant decision, prefers a nearer **policy-compliant** hotel, and explains the change in the existing activity timeline. Memory never overrides current company policy or the traveller's explicit constraints.
+
+For a repeatable two-trip walkthrough, setup instructions, privacy limitations and the distinction between the original project and this extension, see [Travel Decision Memory Demo](docs/travel-decision-memory-demo.md).
+
+Set `HINDSIGHT_BASE_URL=https://api.hindsight.vectorize.io` and `HINDSIGHT_API_KEY` in the **backend** environment using your own credentials from the Hindsight Cloud Connect page, or use a self-hosted Hindsight API URL. Use `TRAVEL_PROVIDER_MODE=local` for stable fictional inventory during a demo. The UI never receives the memory token. Missing Hindsight configuration or a memory service failure is reported in the agent trace and falls back to a standard policy-based trip recommendation. A demo traveller ID is not authentication; do not use real employee decisions or identities until proper access control exists.
+
 ---
 
 ## Live Application
