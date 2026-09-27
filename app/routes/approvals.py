@@ -8,7 +8,9 @@ from typing import Any, Literal
 from uuid import uuid4
 
 from fastapi import APIRouter, HTTPException, Query
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
+
+from app.integrations.travel_memory import retain_hotel_decision
 
 from app.routes.trips import (
     attach_approval_to_trip,
@@ -83,6 +85,18 @@ class ApprovalDecisionRequest(
         default=None,
         max_length=1000,
     )
+
+    feedback_reason: Literal["hotel_too_far", "other"] | None = None
+    max_hotel_distance_km: float | None = Field(default=None, ge=0.5, le=20)
+
+    @model_validator(mode="after")
+    def validate_hotel_feedback(self):
+        if self.feedback_reason == "hotel_too_far":
+            if self.decision != "rejected" or self.max_hotel_distance_km is None:
+                raise ValueError("A rejected hotel needs a maximum distance in km.")
+        elif self.max_hotel_distance_km is not None:
+            raise ValueError("Choose the hotel distance reason before setting a maximum.")
+        return self
 
 
 def utc_now() -> str:
@@ -408,6 +422,9 @@ def decide_approval_request(
             else None
         )
 
+        approval["feedback_reason"] = request.feedback_reason
+        approval["max_hotel_distance_km"] = request.max_hotel_distance_km
+
         approval["decision_at"] = (
             decision_time
         )
@@ -442,6 +459,28 @@ def decide_approval_request(
             updated_trip is not None
         )
 
+    trip = approval.get("trip") or {}
+    traveller_id = trip.get("traveller_id")
+    memory_saved = False
+    if traveller_id and request.feedback_reason == "hotel_too_far":
+        memory_saved = retain_hotel_decision(
+            traveller_id=traveller_id,
+            destination_city=str(trip.get("destination_city") or ""),
+            work_location=str(trip.get("work_location") or ""),
+            decision=request.decision,
+            max_hotel_distance_km=request.max_hotel_distance_km,
+            note=request.note or "",
+            approval_id=approval_id,
+        )
+
+    approval["memory_saved"] = memory_saved
+    with _STORAGE_LOCK:
+        reviewed = load_approvals_unlocked()
+        reviewed_index = find_approval_index(reviewed, approval_id)
+        if reviewed_index is not None:
+            reviewed[reviewed_index]["memory_saved"] = memory_saved
+            save_approvals_unlocked(reviewed)
+
     return {
         "success": True,
         "message": (
@@ -456,4 +495,5 @@ def decide_approval_request(
         "trip_linked": (
             trip_linked
         ),
+        "memory_saved": memory_saved,
     }

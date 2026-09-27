@@ -6,6 +6,7 @@ from typing import Any, TypedDict
 
 from langgraph.graph import END, START, StateGraph
 
+from app.integrations.travel_memory import recall_hotel_preference
 from app.tools.flight_tool import search_flights
 from app.tools.hotel_tool import search_hotels
 from app.tools.policy_tool import load_travel_policy
@@ -21,6 +22,7 @@ class TripGuardState(TypedDict, total=False):
     inventory_sources: dict[str, Any]
     weather: dict[str, Any]
     evaluated_options: list[dict[str, Any]]
+    decision_memory: dict[str, Any]
     result: dict[str, Any]
     trace: list[dict[str, str]]
 
@@ -669,6 +671,7 @@ def parse_requirements_node(
     )
 
     requirements = {
+        "traveller_id": request.get("traveller_id"),
         "origin":
             request[
                 "origin"
@@ -1533,6 +1536,43 @@ def evaluate_options_node(
     }
 
 
+def preference_rank(option: dict[str, Any], threshold_km: float | None) -> int:
+    if threshold_km is None:
+        return 0
+    distance = _optional_float(
+        option.get("hotel", {}).get("distance_from_work_location_km")
+    )
+    return 0 if distance is not None and distance <= threshold_km else 1
+
+
+def recall_decision_memory_node(state: TripGuardState) -> dict[str, Any]:
+    requirements = state["requirements"]
+    traveller_id = requirements.get("traveller_id")
+    if not traveller_id:
+        memory = {"status": "none", "reason": None, "max_hotel_distance_km": None}
+        message = "No demo traveller ID; planning without personal memory."
+    else:
+        try:
+            recalled = recall_hotel_preference(
+                traveller_id, requirements["destination_city"],
+                requirements.get("work_location") or "",
+            )
+            memory = ({"status": "used", **recalled} if recalled else
+                      {"status": "none", "reason": None,
+                       "max_hotel_distance_km": None})
+            message = memory.get("reason") or "No matching past manager decision."
+        except Exception:
+            memory = {"status": "unavailable", "reason": None,
+                      "max_hotel_distance_km": None}
+            message = "Hindsight unavailable; continuing without past decisions."
+    return {
+        "decision_memory": memory,
+        "trace": add_trace(state, "Hindsight Recall", message,
+                           status="warning" if memory["status"] == "unavailable"
+                           else "completed"),
+    }
+
+
 def select_recommendation_node(
     state: TripGuardState,
 ) -> dict[str, Any]:
@@ -1581,6 +1621,11 @@ def select_recommendation_node(
             {},
         )
     )
+    decision_memory = state.get("decision_memory") or {
+        "status": "none", "reason": None, "max_hotel_distance_km": None,
+    }
+    threshold = (decision_memory.get("max_hotel_distance_km")
+                 if decision_memory.get("status") == "used" else None)
 
     if not options:
         return {
@@ -1598,6 +1643,7 @@ def select_recommendation_node(
                     policy_coverage,
                 "inventory_sources":
                     inventory_sources,
+                "decision_memory": decision_memory,
             },
             "trace":
                 add_trace(
@@ -1622,6 +1668,14 @@ def select_recommendation_node(
     ]
 
     if compliant_options:
+        def standard_key(option):
+            return (
+                bool(option.get("manual_review_required")),
+                float(option["total_cost"]),
+                str(option["flight"].get("arrival_time", "23:59")),
+            )
+
+        standard_selected = min(compliant_options, key=standard_key)
         selected = min(
             compliant_options,
             key=lambda option: (
@@ -1630,6 +1684,7 @@ def select_recommendation_node(
                         "manual_review_required"
                     )
                 ),
+                preference_rank(option, threshold),
                 float(
                     option[
                         "total_cost"
@@ -1657,6 +1712,14 @@ def select_recommendation_node(
             "policy rule that TripGuard could "
             "automatically enforce."
         )
+        if threshold is not None and _option_identity(selected) != _option_identity(standard_selected):
+            explanation = (
+                "Selected a policy-compliant option using Hindsight memory "
+                "of a past manager hotel decision. " + explanation.replace(
+                    "Selected the lowest-cost option ",
+                    "The selected option ",
+                )
+            )
 
     else:
         selected = min(
@@ -1750,6 +1813,16 @@ def select_recommendation_node(
             ),
         )
     )
+    if threshold is not None and decision_memory.get("reason"):
+        selection_reasoning["selected_reasons"].append(decision_memory["reason"])
+        selection_reasoning["priority_order"].insert(
+            2, "Remembered hotel distance preference"
+        )
+        selection_reasoning["strategy"] = (
+            "TripGuard ranks options by policy and traveller compliance, "
+            "unresolved live-data verification, remembered hotel distance "
+            "preference, total cost, and arrival time."
+        )
 
     exception_amount = max(
         (
@@ -1843,6 +1916,7 @@ def select_recommendation_node(
         )
 
     result = {
+        "decision_memory": decision_memory,
         "status":
             decision_type,
         "explanation":
@@ -1850,6 +1924,8 @@ def select_recommendation_node(
         "selection_reasoning":
             selection_reasoning,
         "trip": {
+            "traveller_id": requirements.get("traveller_id"),
+            "work_location": requirements.get("work_location"),
             "origin":
                 requirements[
                     "origin"
@@ -2053,6 +2129,8 @@ def build_tripguard_graph():
         evaluate_options_node,
     )
 
+    builder.add_node("recall_decision_memory", recall_decision_memory_node)
+
     builder.add_node(
         "select_recommendation",
         select_recommendation_node,
@@ -2085,8 +2163,10 @@ def build_tripguard_graph():
 
     builder.add_edge(
         "evaluate_options",
-        "select_recommendation",
+        "recall_decision_memory",
     )
+
+    builder.add_edge("recall_decision_memory", "select_recommendation")
 
     builder.add_edge(
         "select_recommendation",

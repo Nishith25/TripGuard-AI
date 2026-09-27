@@ -125,6 +125,14 @@ app.include_router(
 
 
 class TravelRequest(BaseModel):
+    traveller_id: Optional[str] = Field(
+        default=None,
+        min_length=3,
+        max_length=32,
+        pattern=r"^[A-Za-z0-9_-]{3,32}$",
+        description="Fictional traveller ID for demo memory; not authentication.",
+    )
+
     origin: str = Field(
         min_length=3,
         max_length=3,

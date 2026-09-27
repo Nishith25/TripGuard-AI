@@ -14,6 +14,7 @@ import {
   saveApprovalDecision,
   updateAgentRunApproval,
 } from "../../services/storage";
+import { memorySummary } from "../../services/travelMemory";
 
 
 function getFutureDate(
@@ -34,6 +35,7 @@ function getFutureDate(
 
 function createEmptyForm() {
   return {
+    traveller_id: "",
     origin: "",
     destination: "",
     destination_city: "",
@@ -49,6 +51,7 @@ function createEmptyForm() {
 
 function createDemoForm() {
   return {
+    traveller_id: "DEMO_01",
     origin: "HYD",
     destination: "BLR",
     destination_city:
@@ -195,6 +198,18 @@ function TripRequestForm({
       className="trip-request-form"
       onSubmit={onSubmit}
     >
+      <label>
+        <span>Demo traveller ID</span>
+        <input
+          name="traveller_id"
+          value={form.traveller_id}
+          onChange={updateField}
+          pattern="[A-Za-z0-9_-]{3,32}"
+          placeholder="DEMO_01"
+          title="3–32 letters, numbers, _ or -"
+          autoComplete="off"
+        />
+      </label>
       <div className="route-input-row">
         <label>
           <span>From</span>
@@ -856,6 +871,7 @@ function SelectionReasoningPanel({
 
 function EmployeeApprovalHandoff({
   compliance,
+  allowOptionalReview,
   submission,
   submissionError,
   submitting,
@@ -868,7 +884,7 @@ function EmployeeApprovalHandoff({
         ?.approval_required,
     );
 
-  if (!requiresApproval) {
+  if (!requiresApproval && !allowOptionalReview) {
     return (
       <div className="approval-control-card">
         <div>
@@ -909,7 +925,9 @@ function EmployeeApprovalHandoff({
     );
 
   let reviewReason =
-    "Manager approval required";
+    requiresApproval
+      ? "Manager approval required"
+      : "Optional manager feedback";
 
   if (
     hasException
@@ -936,7 +954,9 @@ function EmployeeApprovalHandoff({
   }
 
   let actionLabel =
-    "Submit for manager review";
+    requiresApproval
+      ? "Submit for manager review"
+      : "Request manager feedback";
 
   if (submitting) {
     actionLabel =
@@ -1057,6 +1077,8 @@ function RecommendationPanel({
       </section>
     );
   }
+
+  const decisionMemory = result.decision_memory || {status: "none"};
 
   if (
     result.status
@@ -1217,6 +1239,17 @@ function RecommendationPanel({
           03
         </span>
       </div>
+
+      {result.trip?.traveller_id && (
+        <div className={`policy-message-row ${decisionMemory.status === "used" ? "success" : "warning"}`}>
+          <span>◉</span>
+          <div>
+            <strong>Hindsight decision memory</strong>
+            <p>{memorySummary(decisionMemory)}</p>
+            {decisionMemory.reason && <p>{decisionMemory.reason}</p>}
+          </div>
+        </div>
+      )}
 
       <div className="recommendation-header">
         <div>
@@ -1609,6 +1642,7 @@ function RecommendationPanel({
 
       <EmployeeApprovalHandoff
         compliance={compliance}
+        allowOptionalReview={Boolean(result.trip?.traveller_id)}
         submission={
           approvalSubmission
         }

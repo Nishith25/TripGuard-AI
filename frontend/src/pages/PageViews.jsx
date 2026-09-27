@@ -1510,6 +1510,14 @@ export function ApprovalsPage({
                               }
                             </blockquote>
                           )}
+
+                        {approval.feedback_reason === "hotel_too_far" && (
+                          <p>
+                            {approval.memory_saved === true
+                              ? "Hindsight saved this hotel-distance decision for future trips."
+                              : "Hindsight did not save this decision; check the backend memory connection."}
+                          </p>
+                        )}
                       </div>
 
                       <div className="record-meta">

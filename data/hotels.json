@@ -25,5 +25,14 @@
     "price_per_night": 5200,
     "distance_from_work_location_km": 1.2,
     "rating": 4.6
+  },
+  {
+    "id": "HT-204",
+    "name": "Outer Ring Business Hotel",
+    "city": "Bengaluru",
+    "area": "Outer Ring Road",
+    "price_per_night": 3000,
+    "distance_from_work_location_km": 4.2,
+    "rating": 4.0
   }
 ]
