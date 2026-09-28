@@ -88,7 +88,7 @@ function formatStatus(
 
 ) {
 
-  const labels = {
+  const labels= {
 
     compliant_recommendation:
 
@@ -128,13 +128,13 @@ function formatPolicyField(
 
   return fieldName
 
-    .replaceAll("\\\_", " ")
+   .replaceAll("\\\\\\\_", " ")
 
-    .replace(
+   .replace(
 
       /\b\w/g,
 
-      (letter) =>
+      (letter)=>
 
         letter.toUpperCase(),
 
@@ -148,7 +148,7 @@ function getFlightDisplayNumber(
 
 ) {
 
-  const airlineFlightNumber =
+  const airlineFlightNumber=
 
     String(
 
@@ -180,7 +180,7 @@ function hasSeparateFlightReference(
 
 ) {
 
-  const flightId = String(
+  const flightId= String(
 
     flight?.id
 
@@ -236,19 +236,19 @@ function TripRequestForm({
 
       value,
 
-    } = event.target;
+    }= event.target;
 
-    setForm((current) => ({
+    setForm((current)=> ({
 
-      ...current,
+     ...current,
 
       [name]:
 
-        name === "budget"
+        name=== "budget"
 
           ? (
 
-              value === ""
+              value=== ""
 
                 ? ""
 
@@ -266,21 +266,21 @@ function TripRequestForm({
 
   return (
 
-    <form
+   <form
 
       className="trip-request-form"
 
       onSubmit={onSubmit}
 
-    >
+   >
 
-      <div className="form-section-divider">Your details</div>
+     <div className="form-section-divider">Your details</div>
 
-      <label>
+     <label>
 
-        <span>Traveller ID</span>
+       <span>Traveller ID</span>
 
-        <input
+       <input
 
           name="traveller_id"
 
@@ -298,21 +298,21 @@ function TripRequestForm({
 
         />
 
-        <small id="traveller-id-help" className="field-hint">Use the same ID for future trips so TripGuard can remember your manager’s preferences.</small>
+       <small id="traveller-id-help" className="field-hint">Use the same ID for future trips so TripGuard can remember your manager’s preferences.</small>
 
-        {fieldErrors.traveller_id && <small id="traveller-id-error" className="field-error" role="alert">{fieldErrors.traveller_id}</small>}
+        {fieldErrors.traveller_id &&<small id="traveller-id-error" className="field-error" role="alert">{fieldErrors.traveller_id}</small>}
 
-      </label>
+     </label>
 
-      <div className="form-section-divider">Route and dates</div>
+     <div className="form-section-divider">Route and dates</div>
 
-      <div className="route-input-row">
+     <div className="route-input-row">
 
-        <label>
+       <label>
 
-          <span>From</span>
+         <span>From</span>
 
-          <input
+         <input
 
             name="origin"
 
@@ -330,19 +330,19 @@ function TripRequestForm({
 
           />
 
-        </label>
+       </label>
 
-        <div className="route-direction">
+       <div className="route-direction">
 
           →
 
-        </div>
+       </div>
 
-        <label>
+       <label>
 
-          <span>To</span>
+         <span>To</span>
 
-          <input
+         <input
 
             name="destination"
 
@@ -364,19 +364,19 @@ function TripRequestForm({
 
           />
 
-        </label>
+       </label>
 
-      </div>
+     </div>
 
-      <label>
+     <label>
 
-        <span>
+       <span>
 
           Destination city
 
-        </span>
+       </span>
 
-        <input
+       <input
 
           name="destination_city"
 
@@ -396,15 +396,15 @@ function TripRequestForm({
 
         />
 
-      </label>
+     </label>
 
-      <div className="form-grid-two">
+     <div className="form-grid-two">
 
-        <label>
+       <label>
 
-          <span>Departure</span>
+         <span>Departure</span>
 
-          <input
+         <input
 
             type="date"
 
@@ -422,13 +422,13 @@ function TripRequestForm({
 
           />
 
-        </label>
+       </label>
 
-        <label>
+       <label>
 
-          <span>Return</span>
+         <span>Return</span>
 
-          <input
+         <input
 
             type="date"
 
@@ -450,25 +450,25 @@ function TripRequestForm({
 
           />
 
-          {fieldErrors.return_date && <small id="return-date-error" className="field-error" role="alert">{fieldErrors.return_date}</small>}
+          {fieldErrors.return_date &&<small id="return-date-error" className="field-error" role="alert">{fieldErrors.return_date}</small>}
 
-        </label>
+       </label>
 
-      </div>
+     </div>
 
-      <div className="form-section-divider">Work and travel limits</div>
+     <div className="form-section-divider">Work and travel limits</div>
 
-      <div className="form-grid-two">
+     <div className="form-grid-two">
 
-        <label>
+       <label>
 
-          <span>
+         <span>
 
             Maximum budget
 
-          </span>
+         </span>
 
-          <input
+         <input
 
             type="number"
 
@@ -490,19 +490,19 @@ function TripRequestForm({
 
           />
 
-          {fieldErrors.budget && <small id="budget-error" className="field-error" role="alert">{fieldErrors.budget}</small>}
+          {fieldErrors.budget &&<small id="budget-error" className="field-error" role="alert">{fieldErrors.budget}</small>}
 
-        </label>
+       </label>
 
-        <label>
+       <label>
 
-          <span>
+         <span>
 
             Arrive before
 
-          </span>
+         </span>
 
-          <input
+         <input
 
             type="time"
 
@@ -518,19 +518,19 @@ function TripRequestForm({
 
           />
 
-        </label>
+       </label>
 
-      </div>
+     </div>
 
-      <label>
+     <label>
 
-        <span>
+       <span>
 
           Work location
 
-        </span>
+       </span>
 
-        <input
+       <input
 
           name="work_location"
 
@@ -548,17 +548,17 @@ function TripRequestForm({
 
         />
 
-      </label>
+     </label>
 
-      <label>
+     <label>
 
-        <span>
+       <span>
 
           Business purpose
 
-        </span>
+       </span>
 
-        <textarea
+       <textarea
 
           name="purpose"
 
@@ -572,9 +572,9 @@ function TripRequestForm({
 
         />
 
-      </label>
+     </label>
 
-      <button
+     <button
 
         className="primary-action-button"
 
@@ -582,33 +582,33 @@ function TripRequestForm({
 
         disabled={running}
 
-      >
+     >
 
         {running ? (
 
-          <>
+         <>
 
-            <span className="button-spinner" />
+           <span className="button-spinner" />
 
-            Running TripGuard agent…
+            Checking trip with AI…
 
-          </>
+         </>
 
         ) : (
 
-          <>
+         <>
 
-            Run TripGuard agent
+            Check trip with AI
 
-            <span>↗</span>
+           <span>↗</span>
 
-          </>
+         </>
 
         )}
 
-      </button>
+     </button>
 
-    </form>
+   </form>
 
   );
 
@@ -632,39 +632,39 @@ function AgentTimeline({
 
   return (
 
-    <section className="workspace-surface agent-execution-surface">
+   <section className="workspace-surface agent-execution-surface">
 
-      <div className="surface-heading">
+     <div className="surface-heading">
 
-        <div>
+       <div>
 
-          <span className="surface-eyebrow">
+         <span className="surface-eyebrow">
 
             Live execution
 
-          </span>
+         </span>
 
-          <h2>
+         <h2>
 
             Agent activity
 
-          </h2>
+         </h2>
 
-        </div>
+       </div>
 
-        <span className="surface-number">
+       <span className="surface-number">
 
           02
 
-        </span>
+       </span>
 
-      </div>
+     </div>
 
-      <div className="execution-progress">
+     <div className="execution-progress">
 
-        <div>
+       <div>
 
-          <span>
+         <span>
 
             {running
 
@@ -676,19 +676,19 @@ function AgentTimeline({
 
                 : "Waiting for request"}
 
-          </span>
+         </span>
 
-          <strong>
+         <strong>
 
             {progress}%
 
-          </strong>
+         </strong>
 
-        </div>
+       </div>
 
-        <div className="execution-progress-track">
+       <div className="execution-progress-track">
 
-          <span
+         <span
 
             style={{
 
@@ -700,29 +700,29 @@ function AgentTimeline({
 
           />
 
-        </div>
+       </div>
 
-      </div>
+     </div>
 
-      <div className="agent-timeline">
+     <div className="agent-timeline">
 
         {!started
 
-          && steps.length === 0
+          && steps.length=== 0
 
           && (
 
-            <div className="workspace-empty-state">
+           <div className="workspace-empty-state">
 
-              <div>⌁</div>
+             <div>⌁</div>
 
-              <h3>
+             <h3>
 
                 Ready to reason
 
-              </h3>
+             </h3>
 
-              <p>
+             <p>
 
                 Submit a travel request
 
@@ -732,27 +732,27 @@ function AgentTimeline({
 
                 explainable decision.
 
-              </p>
+             </p>
 
-            </div>
+           </div>
 
           )}
 
         {started
 
-          && steps.length === 0
+          && steps.length=== 0
 
           && (
 
-            <div className="agent-starting">
+           <div className="agent-starting">
 
-              <span />
+             <span />
 
               Initialising agent
 
               workflow…
 
-            </div>
+           </div>
 
           )}
 
@@ -764,9 +764,9 @@ function AgentTimeline({
 
             index,
 
-          ) => (
+          )=> (
 
-            <article
+           <article
 
               className="agent-step"
 
@@ -776,103 +776,103 @@ function AgentTimeline({
 
               }
 
-            >
+           >
 
-              <div className="agent-step-marker">
+             <div className="agent-step-marker">
 
-                <span>
+               <span>
 
                   {step.status
 
-                    === "failed"
+                   === "failed"
 
                     ? "!"
 
                     : "✓"}
 
-                </span>
+               </span>
 
                 {index
 
-                  < steps.length - 1
+                 < steps.length - 1
 
                   && (
 
-                    <i />
+                   <i />
 
                   )}
 
-              </div>
+             </div>
 
-              <div className="agent-step-content">
+             <div className="agent-step-content">
 
-                <div>
+               <div>
 
-                  <strong>
+                 <strong>
 
                     {step.tool}
 
-                  </strong>
+                 </strong>
 
-                  <time>
+                 <time>
 
                     {step.timestamp}
 
-                  </time>
+                 </time>
 
-                </div>
+               </div>
 
-                <p>
+               <p>
 
                   {step.message}
 
-                </p>
+               </p>
 
-                <small>
+               <small>
 
                   {step.status
 
-                    === "warning"
+                   === "warning"
 
                     ? "Completed with warning"
 
                     : step.status
 
-                      === "failed"
+                     === "failed"
 
                       ? "Failed"
 
                       : "Completed"}
 
-                </small>
+               </small>
 
-              </div>
+             </div>
 
-            </article>
+           </article>
 
           ),
 
         )}
 
-      </div>
+     </div>
 
       {error && (
 
-        <div className="inline-error">
+       <div className="inline-error">
 
-          <strong>
+         <strong>
 
             Agent error
 
-          </strong>
+         </strong>
 
-          <p>{error}</p>
+         <p>{error}</p>
 
-        </div>
+       </div>
 
       )}
 
-    </section>
+   </section>
 
   );
 
@@ -890,41 +890,41 @@ function SelectionReasoningPanel({
 
   }
 
-  const priorities =
+  const priorities=
 
     reasoning.priority_order
 
     || [];
 
-  const selectedReasons =
+  const selectedReasons=
 
     reasoning.selected_reasons
 
     || [];
 
-  const cheaperAlternatives =
+  const cheaperAlternatives=
 
     reasoning
 
-      .cheaper_options_rejected
+     .cheaper_options_rejected
 
     || [];
 
-  const cheaperOptionCount =
+  const cheaperOptionCount=
 
     Number(
 
       reasoning
 
-        .cheaper_option_count
+       .cheaper_option_count
 
       || 0,
 
     );
 
-  const comparisonHeading =
+  const comparisonHeading=
 
-    cheaperOptionCount > 0
+    cheaperOptionCount> 0
 
       ? "Why not the cheaper flight?"
 
@@ -932,33 +932,33 @@ function SelectionReasoningPanel({
 
   return (
 
-    <section className="selection-reasoning-panel">
+   <section className="selection-reasoning-panel">
 
-      <div className="selection-reasoning-heading">
+     <div className="selection-reasoning-heading">
 
-        <div>
+       <div>
 
-          <span>
+         <span>
 
             Decision comparison
 
-          </span>
+         </span>
 
-          <h4>
+         <h4>
 
             {comparisonHeading}
 
-          </h4>
+         </h4>
 
-        </div>
+       </div>
 
-        <span className="selection-strategy-pill">
+       <span className="selection-strategy-pill">
 
           {cheaperOptionCount}
 
           {" cheaper flight"}
 
-          {cheaperOptionCount === 1
+          {cheaperOptionCount=== 1
 
             ? ""
 
@@ -966,23 +966,23 @@ function SelectionReasoningPanel({
 
           {" reviewed"}
 
-        </span>
+       </span>
 
-      </div>
+     </div>
 
       {reasoning.strategy && (
 
-        <p className="selection-strategy-copy">
+       <p className="selection-strategy-copy">
 
           {reasoning.strategy}
 
-        </p>
+       </p>
 
       )}
 
-      {priorities.length > 0 && (
+      {priorities.length> 0 && (
 
-        <div className="selection-priority-flow">
+       <div className="selection-priority-flow">
 
           {priorities.map(
 
@@ -992,9 +992,9 @@ function SelectionReasoningPanel({
 
               index,
 
-            ) => (
+            )=> (
 
-              <span
+             <span
 
                 key={
 
@@ -1004,45 +1004,45 @@ function SelectionReasoningPanel({
 
                 className="selection-priority-chip"
 
-              >
+             >
 
-                <b>
+               <b>
 
-                  {index + 1}
+                  {index+ 1}
 
-                </b>
+               </b>
 
                 {priority}
 
-              </span>
+             </span>
 
             ),
 
           )}
 
-        </div>
+       </div>
 
       )}
 
-      <div className="selected-reason-card">
+     <div className="selected-reason-card">
 
-        <div className="selected-reason-card-header">
+       <div className="selected-reason-card-header">
 
-          <div>
+         <div>
 
-            <span>
+           <span>
 
               Selected option wins
 
-            </span>
+           </span>
 
-            <strong>
+           <strong>
 
               {
 
                 reasoning
 
-                  .selected_airline
+                 .selected_airline
 
                 || "Airline"
 
@@ -1054,33 +1054,33 @@ function SelectionReasoningPanel({
 
                 reasoning
 
-                  .selected_flight_number
+                 .selected_flight_number
 
                 || "Flight unavailable"
 
               }
 
-            </strong>
+           </strong>
 
-          </div>
+         </div>
 
-          <strong>
+         <strong>
 
             {formatCurrency(
 
               reasoning
 
-                .selected_total_cost,
+               .selected_total_cost,
 
             )}
 
-          </strong>
+         </strong>
 
-        </div>
+       </div>
 
-        {selectedReasons.length > 0 && (
+        {selectedReasons.length> 0 && (
 
-          <ul>
+         <ul>
 
             {selectedReasons.map(
 
@@ -1090,9 +1090,9 @@ function SelectionReasoningPanel({
 
                 index,
 
-              ) => (
+              )=> (
 
-                <li
+               <li
 
                   key={
 
@@ -1100,47 +1100,47 @@ function SelectionReasoningPanel({
 
                   }
 
-                >
+               >
 
-                  <span>✓</span>
+                 <span>✓</span>
 
                   {reason}
 
-                </li>
+               </li>
 
               ),
 
             )}
 
-          </ul>
+         </ul>
 
         )}
 
-      </div>
+     </div>
 
-      {cheaperAlternatives.length > 0 ? (
+      {cheaperAlternatives.length> 0 ? (
 
-        <div className="cheaper-alternatives">
+       <div className="cheaper-alternatives">
 
-          <div className="cheaper-alternatives-heading">
+         <div className="cheaper-alternatives-heading">
 
-            <span>
+           <span>
 
               Cheaper alternatives not selected
 
-            </span>
+           </span>
 
-            <small>
+           <small>
 
               Showing up to three
 
               distinct flights
 
-            </small>
+           </small>
 
-          </div>
+         </div>
 
-          <div className="cheaper-alternatives-list">
+         <div className="cheaper-alternatives-list">
 
             {cheaperAlternatives.map(
 
@@ -1150,9 +1150,9 @@ function SelectionReasoningPanel({
 
                 index,
 
-              ) => (
+              )=> (
 
-                <article
+               <article
 
                   className="cheaper-alternative-card"
 
@@ -1164,7 +1164,7 @@ function SelectionReasoningPanel({
 
                       || alternative
 
-                        .flight_number
+                       .flight_number
 
                       || `alternative-${index}`
 
@@ -1182,27 +1182,27 @@ function SelectionReasoningPanel({
 
                   }
 
-                >
+               >
 
-                  <div className="cheaper-alternative-top">
+                 <div className="cheaper-alternative-top">
 
-                    <div>
+                   <div>
 
-                      <span>
+                     <span>
 
                         Cheaper alternative{" "}
 
-                        {index + 1}
+                        {index+ 1}
 
-                      </span>
+                     </span>
 
-                      <strong>
+                     <strong>
 
                         {
 
                           alternative
 
-                            .airline
+                           .airline
 
                           || "Airline"
 
@@ -1214,19 +1214,19 @@ function SelectionReasoningPanel({
 
                           alternative
 
-                            .flight_number
+                           .flight_number
 
                           || "Flight unavailable"
 
                         }
 
-                      </strong>
+                     </strong>
 
-                      <p>
+                     <p>
 
                         {alternative
 
-                          .departure_time
+                         .departure_time
 
                           || "—"}
 
@@ -1234,13 +1234,13 @@ function SelectionReasoningPanel({
 
                         {alternative
 
-                          .arrival_time
+                         .arrival_time
 
                           || "—"}
 
                         {alternative
 
-                          .hotel_name
+                         .hotel_name
 
                           ? (
 
@@ -1248,7 +1248,7 @@ function SelectionReasoningPanel({
 
                                 alternative
 
-                                  .hotel_name
+                                 .hotel_name
 
                               }`
 
@@ -1256,25 +1256,25 @@ function SelectionReasoningPanel({
 
                           : ""}
 
-                      </p>
+                     </p>
 
-                    </div>
+                   </div>
 
-                    <div className="cheaper-alternative-price">
+                   <div className="cheaper-alternative-price">
 
-                      <strong>
+                     <strong>
 
                         {formatCurrency(
 
                           alternative
 
-                            .total_cost,
+                           .total_cost,
 
                         )}
 
-                      </strong>
+                     </strong>
 
-                      <span>
+                     <span>
 
                         Saves{" "}
 
@@ -1282,53 +1282,53 @@ function SelectionReasoningPanel({
 
                           alternative
 
-                            .savings_vs_selected,
+                           .savings_vs_selected,
 
                         )}
 
-                      </span>
+                     </span>
 
-                    </div>
+                   </div>
 
-                  </div>
+                 </div>
 
                   {alternative
 
-                    .rejection_summary
+                   .rejection_summary
 
                     && (
 
-                      <div className="alternative-ranking-reason">
+                     <div className="alternative-ranking-reason">
 
-                        <span>!</span>
+                       <span>!</span>
 
                         {
 
                           alternative
 
-                            .rejection_summary
+                           .rejection_summary
 
                         }
 
-                      </div>
+                     </div>
 
                     )}
 
                   {alternative
 
-                    .reasons
+                   .reasons
 
-                    ?.length > 0
+                    ?.length> 0
 
                     && (
 
-                      <ul className="alternative-reason-list">
+                     <ul className="alternative-reason-list">
 
                         {alternative
 
-                          .reasons
+                         .reasons
 
-                          .map(
+                         .map(
 
                             (
 
@@ -1336,9 +1336,9 @@ function SelectionReasoningPanel({
 
                               reasonIndex,
 
-                            ) => (
+                            )=> (
 
-                              <li
+                             <li
 
                                 key={
 
@@ -1346,49 +1346,49 @@ function SelectionReasoningPanel({
 
                                 }
 
-                              >
+                             >
 
-                                <span>•</span>
+                               <span>•</span>
 
                                 {reason}
 
-                              </li>
+                             </li>
 
                             ),
 
                           )}
 
-                      </ul>
+                     </ul>
 
                     )}
 
-                </article>
+               </article>
 
               ),
 
             )}
 
-          </div>
+         </div>
 
-        </div>
+       </div>
 
       ) : (
 
-        <div className="selection-no-cheaper">
+       <div className="selection-no-cheaper">
 
-          <span>✓</span>
+         <span>✓</span>
 
-          <div>
+         <div>
 
-            <strong>
+           <strong>
 
               Selected flight is already
 
               the lowest-cost option
 
-            </strong>
+           </strong>
 
-            <p>
+           <p>
 
               No cheaper distinct flight
 
@@ -1398,15 +1398,15 @@ function SelectionReasoningPanel({
 
               hotel combinations.
 
-            </p>
+           </p>
 
-          </div>
+         </div>
 
-        </div>
+       </div>
 
       )}
 
-    </section>
+   </section>
 
   );
 
@@ -1430,7 +1430,7 @@ function EmployeeApprovalHandoff({
 
 }) {
 
-  const requiresApproval =
+  const requiresApproval=
 
     Boolean(
 
@@ -1444,51 +1444,51 @@ function EmployeeApprovalHandoff({
 
     return (
 
-      <div className="approval-control-card">
+     <div className="approval-control-card">
 
-        <div>
+       <div>
 
-          <span>
+         <span>
 
             Employee workflow complete
 
-          </span>
+         </span>
 
-          <strong>
+         <strong>
 
             No manager approval required
 
-          </strong>
+         </strong>
 
-        </div>
+       </div>
 
-        <button
+       <button
 
           type="button"
 
           disabled
 
-        >
+       >
 
           Recommendation ready
 
-        </button>
+       </button>
 
-      </div>
+     </div>
 
     );
 
   }
 
-  const hasException =
+  const hasException=
 
     compliance
 
       ?.is_compliant
 
-    === false;
+   === false;
 
-  const manualPolicyReview =
+  const manualPolicyReview=
 
     Boolean(
 
@@ -1498,7 +1498,7 @@ function EmployeeApprovalHandoff({
 
     );
 
-  const manualInventoryReview =
+  const manualInventoryReview=
 
     Boolean(
 
@@ -1508,7 +1508,7 @@ function EmployeeApprovalHandoff({
 
     );
 
-  let reviewReason =
+  let reviewReason=
 
     requiresApproval
 
@@ -1530,13 +1530,13 @@ function EmployeeApprovalHandoff({
 
   ) {
 
-    reviewReason =
+    reviewReason=
 
-      "Policy exception + manual review required";
+      "Policy exception+ manual review required";
 
   } else if (hasException) {
 
-    reviewReason =
+    reviewReason=
 
       "Policy exception approval required";
 
@@ -1546,7 +1546,7 @@ function EmployeeApprovalHandoff({
 
   ) {
 
-    reviewReason =
+    reviewReason=
 
       "Manual policy review required";
 
@@ -1556,23 +1556,23 @@ function EmployeeApprovalHandoff({
 
   ) {
 
-    reviewReason =
+    reviewReason=
 
       "Inventory verification required";
 
   }
 
-  let actionLabel = "Send for manager review";
+  let actionLabel= "Send for manager review";
 
   if (submitting) {
 
-    actionLabel =
+    actionLabel=
 
       "Submitting…";
 
   } else if (submission) {
 
-    actionLabel =
+    actionLabel=
 
       "Open manager approvals";
 
@@ -1580,19 +1580,19 @@ function EmployeeApprovalHandoff({
 
   return (
 
-    <>
+   <>
 
-      <div className="approval-control-card">
+     <div className="approval-control-card">
 
-        <div>
+       <div>
 
-          <span>
+         <span>
 
             Employee submission
 
-          </span>
+         </span>
 
-          <strong>
+         <strong>
 
             {submission
 
@@ -1606,11 +1606,11 @@ function EmployeeApprovalHandoff({
 
               : reviewReason}
 
-          </strong>
+         </strong>
 
-        </div>
+       </div>
 
-        <button
+       <button
 
           type="button"
 
@@ -1626,63 +1626,63 @@ function EmployeeApprovalHandoff({
 
           disabled={submitting}
 
-        >
+       >
 
           {actionLabel}
 
-        </button>
+       </button>
 
-      </div>
+     </div>
 
       {submission && (
 
-        <div className="policy-message-row success" role="status">
+       <div className="policy-message-row success" role="status">
 
-          <span>✓</span>
+         <span>✓</span>
 
-          <div>
+         <div>
 
-            <strong>
+           <strong>
 
               Approval request submitted
 
-            </strong>
+           </strong>
 
-            <p>
+           <p>
 
               Request ID:{" "}
 
               {submission.id}
 
-            </p>
+           </p>
 
-          </div>
+         </div>
 
-        </div>
+       </div>
 
       )}
 
       {submissionError && (
 
-        <div className="inline-error" role="alert">
+       <div className="inline-error" role="alert">
 
-          <strong>
+         <strong>
 
             Approval submission failed
 
-          </strong>
+         </strong>
 
-          <p>
+         <p>
 
             {submissionError}
 
-          </p>
+         </p>
 
-        </div>
+       </div>
 
       )}
 
-    </>
+   </>
 
   );
 
@@ -1708,49 +1708,49 @@ function RecommendationPanel({
 
   if (!result) return null;
 
-  const decisionMemory = result.decision_memory || {status: "none"};
+  const decisionMemory= result.decision_memory || {status: "none"};
 
   if (
 
     result.status
 
-    === "no_inventory"
+   === "no_inventory"
 
   ) {
 
     return (
 
-      <section className="workspace-surface recommendation-surface">
+     <section className="workspace-surface recommendation-surface">
 
-        <div className="surface-heading">
+       <div className="surface-heading">
 
-          <div>
+         <div>
 
-            <span className="surface-eyebrow">
+           <span className="surface-eyebrow">
 
               Decision output
 
-            </span>
+           </span>
 
-            <h2>
+           <h2>
 
               No recommendation
 
-            </h2>
+           </h2>
 
-          </div>
+         </div>
 
-        </div>
+       </div>
 
-        <div className="inline-error">
+       <div className="inline-error">
 
-          <strong>
+         <strong>
 
             No matching inventory
 
-          </strong>
+         </strong>
 
-          <p>
+         <p>
 
             {result.message
 
@@ -1764,63 +1764,89 @@ function RecommendationPanel({
 
               )}
 
-          </p>
+         </p>
 
-        </div>
+       </div>
 
-      </section>
+     </section>
 
     );
 
   }
 
-  const compliance =
+  const compliance=
 
     result.compliance || {};
 
-  const cost =
+  const cost=
 
     result.cost_summary || {};
 
-  const flight =
+  const travellerBudget=
+
+    cost.traveller_budget
+
+    ?? result.trip?.budget;
+
+  const budgetSummary= getBudgetSummary(
+
+    cost.total_cost,
+
+    travellerBudget,
+
+  );
+
+  const budgetTone=
+
+    travellerBudget
+
+      && Number(cost.total_cost)
+
+       > Number(travellerBudget)
+
+      ? "negative-text"
+
+      : "positive-text";
+
+  const flight=
 
     result.selected_flight || {};
 
-  const hotel =
+  const hotel=
 
     result.selected_hotel || {};
 
-  const policyCoverage =
+  const policyCoverage=
 
     result.policy_coverage || {};
 
-  const unsupportedRules =
+  const unsupportedRules=
 
     policyCoverage
 
-      .unsupported_rules || [];
+     .unsupported_rules || [];
 
-  const enforcedFields =
-
-    policyCoverage
-
-      .enforced_fields || [];
-
-  const unspecifiedFields =
+  const enforcedFields=
 
     policyCoverage
 
-      .not_specified_fields || [];
+     .enforced_fields || [];
 
-  const rawWarnings =
+  const unspecifiedFields=
+
+    policyCoverage
+
+     .not_specified_fields || [];
+
+  const rawWarnings=
 
     compliance.warnings || [];
 
-  const visibleWarnings =
+  const visibleWarnings=
 
     rawWarnings.filter(
 
-      (warning) =>
+      (warning)=>
 
         warning !==
 
@@ -1836,7 +1862,7 @@ function RecommendationPanel({
 
     );
 
-  const flightDisplayNumber =
+  const flightDisplayNumber=
 
     getFlightDisplayNumber(
 
@@ -1844,7 +1870,7 @@ function RecommendationPanel({
 
     );
 
-  const showFlightReference =
+  const showFlightReference=
 
     hasSeparateFlightReference(
 
@@ -1852,49 +1878,49 @@ function RecommendationPanel({
 
     );
 
-  const isLiveFlight =
+  const isLiveFlight=
 
     flight.data_source
 
-    === "live";
+   === "live";
 
-  const isLiveHotel =
+  const isLiveHotel=
 
     hotel.data_source
 
-    === "live";
+   === "live";
 
-  const manualPolicyReviewRequired =
+  const manualPolicyReviewRequired=
 
     Boolean(
 
       compliance
 
-        .manual_policy_review_required
+       .manual_policy_review_required
 
       || policyCoverage
 
-        .requires_manual_review,
+       .requires_manual_review,
 
     );
 
-  const manualInventoryReviewRequired =
+  const manualInventoryReviewRequired=
 
     Boolean(
 
       compliance
 
-        .manual_inventory_review_required,
+       .manual_inventory_review_required,
 
     );
 
-  const anyManualReviewRequired =
+  const anyManualReviewRequired=
 
     manualPolicyReviewRequired
 
     || manualInventoryReviewRequired;
 
-  const decisionClass =
+  const decisionClass=
 
     compliance.is_compliant
 
@@ -1904,7 +1930,7 @@ function RecommendationPanel({
 
       : "exception";
 
-  let decisionLabel =
+  let decisionLabel=
 
     formatStatus(
 
@@ -1920,9 +1946,9 @@ function RecommendationPanel({
 
   ) {
 
-    decisionLabel =
+    decisionLabel=
 
-      "Exception + manual review";
+      "Exception+ manual review";
 
   } else if (
 
@@ -1930,7 +1956,7 @@ function RecommendationPanel({
 
   ) {
 
-    decisionLabel =
+    decisionLabel=
 
       "Exception required";
 
@@ -1940,7 +1966,7 @@ function RecommendationPanel({
 
   ) {
 
-    decisionLabel =
+    decisionLabel=
 
       "Manual review required";
 
@@ -1948,33 +1974,33 @@ function RecommendationPanel({
 
   return (
 
-    <section className="workspace-surface recommendation-surface">
+   <section className="workspace-surface recommendation-surface">
 
-      <div className="surface-heading">
+     <div className="surface-heading">
 
-        <div>
+       <div>
 
-          <span className="surface-eyebrow">
+         <span className="surface-eyebrow">
 
             Step 2 · Recommendation
 
-          </span>
+         </span>
 
-          <h2>
+         <h2>
 
             Recommended trip
 
-          </h2>
+         </h2>
 
-        </div>
+       </div>
 
-      </div>
+     </div>
 
-      <div className="recommendation-header">
+     <div className="recommendation-header">
 
-        <div>
+       <div>
 
-          <span
+         <span
 
             className={
 
@@ -1982,11 +2008,11 @@ function RecommendationPanel({
 
             }
 
-          >
+         >
 
             {decisionClass
 
-              === "compliant"
+             === "compliant"
 
               ? "✓"
 
@@ -1994,19 +2020,19 @@ function RecommendationPanel({
 
             {decisionLabel}
 
-          </span>
+         </span>
 
-          <h3>
+         <h3>
 
             {result.trip?.origin}
 
-            <span>→</span>
+           <span>→</span>
 
             {result.trip?.destination}
 
-          </h3>
+         </h3>
 
-          <p>
+         <p>
 
             {
 
@@ -2026,15 +2052,15 @@ function RecommendationPanel({
 
             }
 
-          </p>
+         </p>
 
-        </div>
+       </div>
 
-        <div className="recommendation-total">
+       <div className="recommendation-total">
 
-          <span>Total</span>
+         <span>Total</span>
 
-          <strong>
+         <strong>
 
             {formatCurrency(
 
@@ -2042,47 +2068,47 @@ function RecommendationPanel({
 
             )}
 
-          </strong>
+         </strong>
 
-          <small className={Number(cost.total_cost) > Number(result.trip?.budget) ? "negative-text" : "positive-text"}>
+         <small className={budgetTone}>
 
-            {getBudgetSummary(cost.total_cost, result.trip?.budget)}
+            {budgetSummary}
 
-          </small>
+         </small>
 
-        </div>
+       </div>
 
-      </div>
+     </div>
 
       {describeDecisionMemory(decisionMemory) && (
 
-        <div className="policy-message-row success remembered-preference">
+       <div className="policy-message-row success remembered-preference">
 
-          <span>✓</span>
+         <span>✓</span>
 
-          <div>
+         <div>
 
-            <strong>A preference from your manager was used</strong>
+           <strong>A preference from your manager was used</strong>
 
-            <p>{describeDecisionMemory(decisionMemory)}</p>
+           <p>{describeDecisionMemory(decisionMemory)}</p>
 
-          </div>
+         </div>
 
-        </div>
+       </div>
 
       )}
 
-      <div className="itinerary-selection-card">
+     <div className="itinerary-selection-card">
 
-        <div className="itinerary-icon">
+       <div className="itinerary-icon">
 
           ✈
 
-        </div>
+       </div>
 
-        <div>
+       <div>
 
-          <span>
+         <span>
 
             {isLiveFlight
 
@@ -2090,9 +2116,9 @@ function RecommendationPanel({
 
               : "Selected flight"}
 
-          </span>
+         </span>
 
-          <strong>
+         <strong>
 
             {flight.airline
 
@@ -2102,9 +2128,9 @@ function RecommendationPanel({
 
             {flightDisplayNumber}
 
-          </strong>
+         </strong>
 
-          <p>
+         <p>
 
             {flight.departure_time
 
@@ -2122,35 +2148,35 @@ function RecommendationPanel({
 
               || "Class unavailable"}
 
-          </p>
+         </p>
 
           {showFlightReference && (
 
-            <p>
+           <p>
 
               TripGuard reference:{" "}
 
               {flight.id}
 
-            </p>
+           </p>
 
           )}
 
           {flight.provider && (
 
-            <p>
+           <p>
 
               Source:{" "}
 
               {flight.provider}
 
-            </p>
+           </p>
 
           )}
 
-        </div>
+       </div>
 
-        <b>
+       <b>
 
           {formatCurrency(
 
@@ -2158,21 +2184,21 @@ function RecommendationPanel({
 
           )}
 
-        </b>
+       </b>
 
-      </div>
+     </div>
 
-      <div className="itinerary-selection-card">
+     <div className="itinerary-selection-card">
 
-        <div className="itinerary-icon">
+       <div className="itinerary-icon">
 
           ⌂
 
-        </div>
+       </div>
 
-        <div>
+       <div>
 
-          <span>
+         <span>
 
             {isLiveHotel
 
@@ -2180,33 +2206,33 @@ function RecommendationPanel({
 
               : "Selected hotel"}
 
-          </span>
+         </span>
 
-          <strong>
+         <strong>
 
             {hotel.name
 
               || "Hotel unavailable"}
 
-          </strong>
+         </strong>
 
-          <p>
+         <p>
 
             {hotel
 
-              .distance_from_work_location_km
+             .distance_from_work_location_km
 
               ?? "Distance unavailable"}
 
             {hotel
 
-              .distance_from_work_location_km
+             .distance_from_work_location_km
 
               !== null
 
               && hotel
 
-                .distance_from_work_location_km
+               .distance_from_work_location_km
 
                 !== undefined
 
@@ -2220,23 +2246,23 @@ function RecommendationPanel({
 
               ?? "N/A"}
 
-          </p>
+         </p>
 
           {hotel.provider && (
 
-            <p>
+           <p>
 
               Source:{" "}
 
               {hotel.provider}
 
-            </p>
+           </p>
 
           )}
 
-        </div>
+       </div>
 
-        <b>
+       <b>
 
           {formatCurrency(
 
@@ -2244,27 +2270,27 @@ function RecommendationPanel({
 
           )}
 
-          <small>
+         <small>
 
             /night
 
-          </small>
+         </small>
 
-        </b>
+       </b>
 
-      </div>
+     </div>
 
-      <details className="booking-details">
+     <details className="booking-details">
 
-        <summary>Trip details and cost breakdown</summary>
+       <summary>Cost breakdown and live weather</summary>
 
-      <div className="cost-summary-grid">
+     <div className="cost-summary-grid">
 
-        <div>
+       <div>
 
-          <span>Flight</span>
+         <span>Flight</span>
 
-          <strong>
+         <strong>
 
             {formatCurrency(
 
@@ -2272,15 +2298,15 @@ function RecommendationPanel({
 
             )}
 
-          </strong>
+         </strong>
 
-        </div>
+       </div>
 
-        <div>
+       <div>
 
-          <span>Hotel</span>
+         <span>Hotel</span>
 
-          <strong>
+         <strong>
 
             {formatCurrency(
 
@@ -2288,15 +2314,15 @@ function RecommendationPanel({
 
             )}
 
-          </strong>
+         </strong>
 
-        </div>
+       </div>
 
-        <div>
+       <div>
 
-          <span>Transport</span>
+         <span>Transport</span>
 
-          <strong>
+         <strong>
 
             {formatCurrency(
 
@@ -2304,19 +2330,19 @@ function RecommendationPanel({
 
             )}
 
-          </strong>
+         </strong>
 
-        </div>
+       </div>
 
-        <div>
+       <div>
 
-          <span>
+         <span>
 
             Budget remaining
 
-          </span>
+         </span>
 
-          <strong
+         <strong
 
             className={
 
@@ -2326,7 +2352,7 @@ function RecommendationPanel({
 
                 || 0,
 
-              ) >= 0
+              )>= 0
 
                 ? "positive-text"
 
@@ -2334,7 +2360,7 @@ function RecommendationPanel({
 
             }
 
-          >
+         >
 
             {formatCurrency(
 
@@ -2342,33 +2368,33 @@ function RecommendationPanel({
 
             )}
 
-          </strong>
+         </strong>
 
-        </div>
+       </div>
 
-      </div>
+     </div>
 
-      <WeatherInsightCard weather={result.weather} advisories={result.travel_advisories || []} />
+     <WeatherInsightCard weather={result.weather} advisories={result.travel_advisories || []} />
 
-      </details>
+     </details>
 
-      <div className="policy-assessment">
+     <div className="policy-assessment">
 
-        <div className="policy-assessment-heading">
+       <div className="policy-assessment-heading">
 
-          <h4>
+         <h4>
 
             Policy assessment
 
-          </h4>
+         </h4>
 
-          <span>
+         <span>
 
             {
 
               result
 
-                .alternatives_evaluated
+               .alternatives_evaluated
 
               || 0
 
@@ -2376,17 +2402,17 @@ function RecommendationPanel({
 
             {" options evaluated"}
 
-          </span>
+         </span>
 
-        </div>
+       </div>
 
         {compliance.is_compliant
 
           && (
 
-            <div className="policy-message-row success">
+           <div className="policy-message-row success">
 
-              <span>✓</span>
+             <span>✓</span>
 
               All mandatory traveller and
 
@@ -2394,7 +2420,7 @@ function RecommendationPanel({
 
               been satisfied.
 
-            </div>
+           </div>
 
           )}
 
@@ -2402,9 +2428,9 @@ function RecommendationPanel({
 
           && (
 
-            <div className="policy-message-row warning">
+           <div className="policy-message-row warning">
 
-              <span>!</span>
+             <span>!</span>
 
               Some clauses require human
 
@@ -2412,7 +2438,7 @@ function RecommendationPanel({
 
               be approved.
 
-            </div>
+           </div>
 
           )}
 
@@ -2420,21 +2446,21 @@ function RecommendationPanel({
 
           && (
 
-            <div className="policy-message-row warning">
+           <div className="policy-message-row warning">
 
-              <span>!</span>
+             <span>!</span>
 
               Some live inventory details
 
               require manual verification.
 
-            </div>
+           </div>
 
           )}
 
         {compliance
 
-          .manual_inventory_review_reasons
+         .manual_inventory_review_reasons
 
           ?.map(
 
@@ -2444,9 +2470,9 @@ function RecommendationPanel({
 
               index,
 
-            ) => (
+            )=> (
 
-              <div
+             <div
 
                 className="policy-message-row warning"
 
@@ -2456,13 +2482,13 @@ function RecommendationPanel({
 
                 }
 
-              >
+             >
 
-                <span>•</span>
+               <span>•</span>
 
                 {reason}
 
-              </div>
+             </div>
 
             ),
 
@@ -2470,7 +2496,7 @@ function RecommendationPanel({
 
         {compliance
 
-          .violations
+         .violations
 
           ?.map(
 
@@ -2480,9 +2506,9 @@ function RecommendationPanel({
 
               index,
 
-            ) => (
+            )=> (
 
-              <div
+             <div
 
                 className="policy-message-row error"
 
@@ -2492,13 +2518,13 @@ function RecommendationPanel({
 
                 }
 
-              >
+             >
 
-                <span>!</span>
+               <span>!</span>
 
                 {violation}
 
-              </div>
+             </div>
 
             ),
 
@@ -2512,9 +2538,9 @@ function RecommendationPanel({
 
             index,
 
-          ) => (
+          )=> (
 
-            <div
+           <div
 
               className="policy-message-row warning"
 
@@ -2524,13 +2550,13 @@ function RecommendationPanel({
 
               }
 
-            >
+           >
 
-              <span>•</span>
+             <span>•</span>
 
               {warning}
 
-            </div>
+           </div>
 
           ),
 
@@ -2544,9 +2570,9 @@ function RecommendationPanel({
 
             index,
 
-          ) => (
+          )=> (
 
-            <div
+           <div
 
               className="policy-message-row warning"
 
@@ -2556,53 +2582,53 @@ function RecommendationPanel({
 
               }
 
-            >
+           >
 
-              <span>?</span>
+             <span>?</span>
 
               Manual clause: {rule}
 
-            </div>
+           </div>
 
           ),
 
         )}
 
-        {(enforcedFields.length > 0 || unspecifiedFields.length > 0) && <details className="booking-details policy-details">
+        {(enforcedFields.length> 0 || unspecifiedFields.length> 0) &&<details className="booking-details policy-details">
 
-          <summary>Policy checks and fields</summary>
+         <summary>Policy checks and fields</summary>
 
-        {enforcedFields.length > 0
+        {enforcedFields.length> 0
 
           && (
 
-            <div className="policy-message-row success">
+           <div className="policy-message-row success">
 
-              <span>✓</span>
+             <span>✓</span>
 
               Enforced rules:{" "}
 
               {enforcedFields
 
-                .map(
+               .map(
 
                   formatPolicyField,
 
                 )
 
-                .join(", ")}
+               .join(", ")}
 
-            </div>
+           </div>
 
           )}
 
-        {unspecifiedFields.length > 0
+        {unspecifiedFields.length> 0
 
           && (
 
-            <div className="policy-message-row warning">
+           <div className="policy-message-row warning">
 
-              <span>•</span>
+             <span>•</span>
 
               Not specified in the
 
@@ -2610,23 +2636,23 @@ function RecommendationPanel({
 
               {unspecifiedFields
 
-                .map(
+               .map(
 
                   formatPolicyField,
 
                 )
 
-                .join(", ")}
+               .join(", ")}
 
-            </div>
+           </div>
 
           )}
 
-        </details>}
+       </details>}
 
-      </div>
+     </div>
 
-      <EmployeeApprovalHandoff
+     <EmployeeApprovalHandoff
 
         compliance={compliance}
 
@@ -2664,25 +2690,25 @@ function RecommendationPanel({
 
       />
 
-      <details className="booking-details">
+     <details className="booking-details">
 
-        <summary>How TripGuard decided</summary>
+       <summary>How TripGuard decided</summary>
 
-        <div className="decision-explanation">
+       <div className="decision-explanation">
 
-          <span>Why this option?</span>
+         <span>Why this option?</span>
 
-          <p>{result.explanation}</p>
+         <p>{result.explanation}</p>
 
-        </div>
+       </div>
 
-        <SelectionReasoningPanel reasoning={result.selection_reasoning} />
+       <SelectionReasoningPanel reasoning={result.selection_reasoning} />
 
-        <AgentTimeline steps={steps} running={false} started={true} result={result} progress={100} error={""} />
+       <AgentTimeline steps={steps} running={false} started={true} result={result} progress={100} error={""} />
 
-      </details>
+     </details>
 
-    </section>
+   </section>
 
   );
 
@@ -2696,13 +2722,13 @@ function NewTripWorkspace() {
 
     setForm,
 
-  ] = useState(
+  ]= useState(
 
     createEmptyForm,
 
   );
 
-  const [fieldErrors, setFieldErrors] = useState({});
+  const [fieldErrors, setFieldErrors]= useState({});
 
   const [
 
@@ -2710,7 +2736,7 @@ function NewTripWorkspace() {
 
     setApprovalSubmission,
 
-  ] = useState(null);
+  ]= useState(null);
 
   const [
 
@@ -2718,7 +2744,7 @@ function NewTripWorkspace() {
 
     setApprovalSubmissionError,
 
-  ] = useState("");
+  ]= useState("");
 
   const [
 
@@ -2726,7 +2752,7 @@ function NewTripWorkspace() {
 
     setSubmittingForApproval,
 
-  ] = useState(false);
+  ]= useState(false);
 
   const {
 
@@ -2746,7 +2772,7 @@ function NewTripWorkspace() {
 
     runTrip,
 
-  } = useTripAgent();
+  }= useTripAgent();
 
   async function handleSubmit(
 
@@ -2756,7 +2782,7 @@ function NewTripWorkspace() {
 
     event.preventDefault();
 
-    const errors = validateTripRequest(form);
+    const errors= validateTripRequest(form);
 
     setFieldErrors(errors);
 
@@ -2782,41 +2808,41 @@ function NewTripWorkspace() {
 
     await runTrip({
 
-      ...form,
+     ...form,
 
       origin:
 
         form.origin
 
-          .trim()
+         .trim()
 
-          .toUpperCase(),
+         .toUpperCase(),
 
       destination:
 
         form.destination
 
-          .trim()
+         .trim()
 
-          .toUpperCase(),
+         .toUpperCase(),
 
       destination_city:
 
         form.destination_city
 
-          .trim(),
+         .trim(),
 
       work_location:
 
         form.work_location
 
-          .trim(),
+         .trim(),
 
       purpose:
 
         form.purpose
 
-          .trim(),
+         .trim(),
 
       budget:
 
@@ -2858,7 +2884,7 @@ function NewTripWorkspace() {
 
     try {
 
-      const response = await fetch(
+      const response= await fetch(
 
         `${API_URL}/api/approvals`,
 
@@ -2910,11 +2936,11 @@ function NewTripWorkspace() {
 
       );
 
-      const payload = await response
+      const payload= await response
 
-        .json()
+       .json()
 
-        .catch(() => null);
+       .catch(()=> null);
 
       if (!response.ok) {
 
@@ -2934,7 +2960,7 @@ function NewTripWorkspace() {
 
       }
 
-      const approval =
+      const approval=
 
         payload?.approval;
 
@@ -2948,7 +2974,7 @@ function NewTripWorkspace() {
 
       }
 
-      const route =
+      const route=
 
         result?.trip
 
@@ -2964,7 +2990,7 @@ function NewTripWorkspace() {
 
           : null;
 
-      const storedApproval =
+      const storedApproval=
 
         saveApprovalDecision(
 
@@ -3048,11 +3074,11 @@ function NewTripWorkspace() {
 
   function handleOpenApprovals() {
 
-    const approvalsPath =
+    const approvalsPath=
 
       "/app/approvals";
 
-    const currentHashPath =
+    const currentHashPath=
 
       window.location.hash.replace(
 
@@ -3066,7 +3092,7 @@ function NewTripWorkspace() {
 
       currentHashPath
 
-      === approvalsPath
+     === approvalsPath
 
     ) {
 
@@ -3084,7 +3110,7 @@ function NewTripWorkspace() {
 
     }
 
-    window.location.hash =
+    window.location.hash=
 
       approvalsPath;
 
@@ -3092,55 +3118,55 @@ function NewTripWorkspace() {
 
   return (
 
-    <>
+   <>
 
-      <div className="page-introduction">
+     <div className="page-introduction">
 
-        <div>
+       <div>
 
-          <span>
+         <span>
 
             Employee request
 
-          </span>
+         </span>
 
-          <h2>
+         <h2>
 
             Create a trip request
 
-          </h2>
+         </h2>
 
-          <p>
+         <p>
 
             Enter the trip details. TripGuard checks policy, compares options and uses manager memory.
 
-          </p>
+         </p>
 
-        </div>
+       </div>
 
-      </div>
+     </div>
 
-      <div className="trip-workspace-grid employee-booking-flow">
+     <div className="trip-workspace-grid employee-booking-flow">
 
-        <section className="workspace-surface trip-request-surface">
+       <section className="workspace-surface trip-request-surface">
 
-          <div className="surface-heading">
+         <div className="surface-heading">
 
-            <div>
+           <div>
 
-              <span className="surface-eyebrow">Trip details</span>
+             <span className="surface-eyebrow">Trip details</span>
 
-              <h2>
+             <h2>
 
                 What needs approval?
 
-              </h2>
+             </h2>
 
-            </div>
+           </div>
 
-          </div>
+         </div>
 
-          <TripRequestForm
+         <TripRequestForm
 
             form={form}
 
@@ -3156,11 +3182,11 @@ function NewTripWorkspace() {
 
             fieldErrors={fieldErrors}
 
-            onFieldChange={(name) => setFieldErrors((current) => {
+            onFieldChange={(name)=> setFieldErrors((current)=> {
 
               if (!current[name]) return current;
 
-              const next = { ...current };
+              const next= {...current };
 
               delete next[name];
 
@@ -3170,19 +3196,19 @@ function NewTripWorkspace() {
 
           />
 
-        </section>
+       </section>
 
-        {shouldShowPlanningStatus({ running, started, error, result }) && <div className="booking-progress" role={error ? "alert" : "status"} aria-live="polite">
+        {shouldShowPlanningStatus({ running, started, error, result }) &&<div className="booking-progress" role={error ? "alert" : "status"} aria-live="polite">
 
-          <strong>{running ? 'Checking policy, options and memory…' : error ? 'Could not find trip options' : 'Preparing recommendation…'}</strong>
+         <strong>{running ? 'Checking policy, options and memory…' : error ? 'Could not find trip options' : 'Preparing recommendation…'}</strong>
 
-          {error && <p>{error} Check your connection and try again. Your request is still here.</p>}
+          {error &&<p>{error} Check your connection and try again. Your request is still here.</p>}
 
-          <details><summary>Agent steps</summary><AgentTimeline steps={steps} running={running} started={started} result={result} progress={progress} error={error} /></details>
+         <details><summary>Agent steps</summary><AgentTimeline steps={steps} running={running} started={started} result={result} progress={progress} error={error} /></details>
 
-        </div>}
+       </div>}
 
-        {result && <RecommendationPanel
+        {result &&<RecommendationPanel
 
           result={result}
 
@@ -3220,9 +3246,9 @@ function NewTripWorkspace() {
 
         />}
 
-      </div>
+     </div>
 
-    </>
+   </>
 
   );
 
