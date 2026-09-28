@@ -1763,6 +1763,165 @@ function buildResultFromApproval(
 
 }
 
+export function ManagerLoginPage({
+
+  onLogin,
+  navigate,
+
+}) {
+
+  const [
+    username,
+    setUsername,
+  ] = useState("");
+
+  const [
+    password,
+    setPassword,
+  ] = useState("");
+
+  const [
+    error,
+    setError,
+  ] = useState("");
+
+  function handleSubmit(event) {
+
+    event.preventDefault();
+
+    setError("");
+
+    if (
+      username === "admin"
+      && password === "admin"
+    ) {
+      onLogin();
+      return;
+    }
+
+    setError(
+      "Invalid username or password.",
+    );
+
+  }
+
+  return (
+
+    <div className="manager-login-page">
+
+      <div className="manager-login-shell">
+
+        <button
+          type="button"
+          className="manager-login-brand"
+          onClick={() => navigate("/")}
+        >
+          <span>
+            TG
+          </span>
+
+          <div>
+            <strong>
+              TripGuard AI
+            </strong>
+
+            <small>
+              Manager Portal
+            </small>
+          </div>
+        </button>
+
+        <section className="manager-login-card">
+
+          <div className="manager-login-heading">
+            <h1>
+              Manager sign in
+            </h1>
+
+            <p>
+              Sign in to manage travel approvals,
+              policy and decision memory.
+            </p>
+          </div>
+
+          <form onSubmit={handleSubmit}>
+
+            <label>
+              <span>
+                Username
+              </span>
+
+              <input
+                type="text"
+                value={username}
+                onChange={(event) =>
+                  setUsername(
+                    event.target.value,
+                  )
+                }
+                placeholder="Username"
+                autoComplete="username"
+                autoFocus
+              />
+            </label>
+
+            <label>
+              <span>
+                Password
+              </span>
+
+              <input
+                type="password"
+                value={password}
+                onChange={(event) =>
+                  setPassword(
+                    event.target.value,
+                  )
+                }
+                placeholder="Password"
+                autoComplete="current-password"
+              />
+            </label>
+
+            {error && (
+              <div
+                className="manager-login-error"
+                role="alert"
+              >
+                {error}
+              </div>
+            )}
+
+            <button
+              type="submit"
+              className="manager-login-submit"
+            >
+              Sign in
+            </button>
+
+          </form>
+
+          <button
+            type="button"
+            className="manager-login-employee"
+            onClick={() =>
+              navigate("/app")
+            }
+          >
+            Continue as employee
+          </button>
+
+        </section>
+
+      </div>
+
+    </div>
+
+  );
+
+}
+
+
 export function ManagerOverviewPage({
 
   navigate,

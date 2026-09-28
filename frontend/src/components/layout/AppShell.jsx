@@ -67,6 +67,8 @@ const MANAGER_PATHS = new Set([
 function DesktopSidebar({
   activePath,
   navigate,
+  managerAuthenticated,
+  onManagerLogout,
 }) {
   return (
     <aside className="desktop-sidebar">
@@ -93,58 +95,106 @@ function DesktopSidebar({
       </button>
 
       <nav className="sidebar-navigation">
-        <span className="sidebar-section-label">
-          Employee
-        </span>
-
-        {employeeNavigationItems.map((item) => (
-          <button
-            type="button"
-            key={item.path}
-            className={`sidebar-link ${
-              activePath === item.path
-                ? "active"
-                : ""
-            }`}
-            onClick={() => {
-              navigate(item.path);
-            }}
-          >
-            <span className="sidebar-link-icon">
-              {item.icon}
+        {managerAuthenticated ? (
+          <>
+            <span className="sidebar-section-label">
+              Manager
             </span>
 
-            <span>{item.label}</span>
-          </button>
-        ))}
+            {managerNavigationItems.map(
+              (item) => (
+                <button
+                  type="button"
+                  key={item.path}
+                  className={`sidebar-link ${
+                    activePath === item.path
+                      ? "active"
+                      : ""
+                  }`}
+                  onClick={() => {
+                    navigate(item.path);
+                  }}
+                >
+                  <span className="sidebar-link-icon">
+                    {item.icon}
+                  </span>
 
-        <span
-          className="sidebar-section-label"
-          style={{ marginTop: "22px" }}
-        >
-          Manager
-        </span>
+                  <span>
+                    {item.label}
+                  </span>
+                </button>
+              ),
+            )}
 
-        {managerNavigationItems.map((item) => (
-          <button
-            type="button"
-            key={item.path}
-            className={`sidebar-link ${
-              activePath === item.path
-                ? "active"
-                : ""
-            }`}
-            onClick={() => {
-              navigate(item.path);
-            }}
-          >
-            <span className="sidebar-link-icon">
-              {item.icon}
+            <button
+              type="button"
+              className="sidebar-link"
+              onClick={onManagerLogout}
+            >
+              <span className="sidebar-link-icon">
+                ↪
+              </span>
+
+              <span>
+                Logout
+              </span>
+            </button>
+          </>
+        ) : (
+          <>
+            <span className="sidebar-section-label">
+              Employee
             </span>
 
-            <span>{item.label}</span>
-          </button>
-        ))}
+            {employeeNavigationItems.map(
+              (item) => (
+                <button
+                  type="button"
+                  key={item.path}
+                  className={`sidebar-link ${
+                    activePath === item.path
+                      ? "active"
+                      : ""
+                  }`}
+                  onClick={() => {
+                    navigate(item.path);
+                  }}
+                >
+                  <span className="sidebar-link-icon">
+                    {item.icon}
+                  </span>
+
+                  <span>
+                    {item.label}
+                  </span>
+                </button>
+              ),
+            )}
+
+            <span
+              className="sidebar-section-label"
+              style={{ marginTop: "22px" }}
+            >
+              Manager access
+            </span>
+
+            <button
+              type="button"
+              className="sidebar-link"
+              onClick={() => {
+                navigate("/manager/login");
+              }}
+            >
+              <span className="sidebar-link-icon">
+                ◈
+              </span>
+
+              <span>
+                Manager Login
+              </span>
+            </button>
+          </>
+        )}
       </nav>
     </aside>
   );
@@ -221,10 +271,19 @@ function TopHeader({
 function MobileNavigation({
   activePath,
   navigate,
+  managerAuthenticated,
 }) {
   return (
     <nav className="mobile-navigation">
-      {mobileNavigationItems.map((item) => (
+      {(managerAuthenticated
+        ? [
+            managerNavigationItems[0],
+            managerNavigationItems[1],
+            managerNavigationItems[2],
+            managerNavigationItems[3],
+          ]
+        : mobileNavigationItems
+      ).map((item) => (
         <button
           type="button"
           key={item.path}
@@ -261,6 +320,8 @@ function AppShell({
   activePath,
   title,
   navigate,
+  managerAuthenticated,
+  onManagerLogout,
   children,
 }) {
   const [
@@ -302,6 +363,12 @@ function AppShell({
       <DesktopSidebar
         activePath={activePath}
         navigate={navigate}
+        managerAuthenticated={
+          managerAuthenticated
+        }
+        onManagerLogout={
+          onManagerLogout
+        }
       />
 
       <div className="application-main">
@@ -320,6 +387,9 @@ function AppShell({
       <MobileNavigation
         activePath={activePath}
         navigate={navigate}
+        managerAuthenticated={
+          managerAuthenticated
+        }
       />
     </div>
   );

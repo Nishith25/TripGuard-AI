@@ -10,6 +10,7 @@ import {
   ApprovalsPage,
   DashboardPage,
   LandingPage,
+  ManagerLoginPage,
   ManagerOverviewPage,
   MemoryPage,
   PoliciesPage,
@@ -23,6 +24,7 @@ import {
 const PAGE_TITLES = {
   "/app": "Home",
   "/app/trips/new": "Trip Request",
+  "/manager/login": "Manager Login",
   "/app/manager": "Manager Overview",
   "/app/approvals": "Pending Reviews",
   "/app/memory": "Decision Memory",
@@ -73,6 +75,26 @@ function getCurrentPath() {
 }
 
 
+const MANAGER_AUTH_KEY =
+  "tripguard_manager_authenticated";
+
+const MANAGER_PATHS = new Set([
+  "/app/manager",
+  "/app/approvals",
+  "/app/memory",
+  "/app/policies",
+]);
+
+
+function getManagerAuthenticated() {
+  return (
+    window.sessionStorage.getItem(
+      MANAGER_AUTH_KEY,
+    ) === "true"
+  );
+}
+
+
 function App() {
   const [
     currentPath,
@@ -83,6 +105,13 @@ function App() {
     persistenceReady,
     setPersistenceReady,
   ] = useState(false);
+
+  const [
+    managerAuthenticated,
+    setManagerAuthenticated,
+  ] = useState(
+    getManagerAuthenticated,
+  );
 
   useEffect(() => {
     if (!window.location.hash) {
@@ -153,8 +182,18 @@ function App() {
   }, [currentPath]);
 
   function navigate(path) {
-    const normalizedPath =
+    let normalizedPath =
       normalizePath(path);
+
+    if (
+      MANAGER_PATHS.has(
+        normalizedPath,
+      )
+      && !managerAuthenticated
+    ) {
+      normalizedPath =
+        "/manager/login";
+    }
 
     if (
       normalizedPath ===
@@ -179,6 +218,39 @@ function App() {
         navigate={navigate}
       />
     );
+  }
+
+  if (
+    currentPath === "/manager/login"
+  ) {
+    return (
+      <ManagerLoginPage
+        onLogin={() => {
+          window.sessionStorage.setItem(
+            MANAGER_AUTH_KEY,
+            "true",
+          );
+
+          setManagerAuthenticated(
+            true,
+          );
+
+          window.location.hash =
+            "/app/manager";
+        }}
+        navigate={navigate}
+      />
+    );
+  }
+
+  if (
+    MANAGER_PATHS.has(currentPath)
+    && !managerAuthenticated
+  ) {
+    window.location.hash =
+      "/manager/login";
+
+    return null;
   }
 
   if (!persistenceReady) {
@@ -259,6 +331,20 @@ function App() {
         || "Home"
       }
       navigate={navigate}
+      managerAuthenticated={
+        managerAuthenticated
+      }
+      onManagerLogout={() => {
+        window.sessionStorage.removeItem(
+          MANAGER_AUTH_KEY,
+        );
+
+        setManagerAuthenticated(
+          false,
+        );
+
+        window.location.hash = "/app";
+      }}
     >
       {pageContent}
     </AppShell>

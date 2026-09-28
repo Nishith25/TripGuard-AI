@@ -4821,3 +4821,164 @@ path,
     font-size: 15px;
   }
 }
+
+/* Manager authentication */
+
+.manager-login-page {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 32px 20px;
+  background: #090b10;
+}
+
+.manager-login-shell {
+  width: min(100%, 420px);
+}
+
+.manager-login-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 24px;
+  border: 0;
+  padding: 0;
+  color: #ffffff;
+  background: transparent;
+  text-align: left;
+}
+
+.manager-login-brand > span {
+  display: grid;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  border-radius: 10px;
+  color: #111318;
+  background: #ffffff;
+  font-family: "Manrope", sans-serif;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.manager-login-brand strong,
+.manager-login-brand small {
+  display: block;
+}
+
+.manager-login-brand strong {
+  font-family: "Manrope", sans-serif;
+  font-size: 16px;
+}
+
+.manager-login-brand small {
+  margin-top: 2px;
+  color: #747b89;
+  font-size: 11px;
+}
+
+.manager-login-card {
+  border: 1px solid #23262e;
+  border-radius: 16px;
+  padding: 30px;
+  background: #101218;
+}
+
+.manager-login-heading {
+  margin-bottom: 28px;
+}
+
+.manager-login-heading h1 {
+  margin: 0 0 8px;
+  font-family: "Manrope", sans-serif;
+  font-size: 28px;
+  letter-spacing: -0.8px;
+}
+
+.manager-login-heading p {
+  margin: 0;
+  color: #8d94a3;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.manager-login-card form {
+  display: grid;
+  gap: 18px;
+}
+
+.manager-login-card label {
+  display: grid;
+  gap: 7px;
+}
+
+.manager-login-card label > span {
+  color: #b5bac5;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.manager-login-card input {
+  width: 100%;
+  min-height: 46px;
+  border: 1px solid #2b2e36;
+  border-radius: 9px;
+  padding: 0 13px;
+  color: #ffffff;
+  outline: none;
+  background: #0b0d12;
+  font: inherit;
+}
+
+.manager-login-card input::placeholder {
+  color: #606674;
+}
+
+.manager-login-card input:focus {
+  border-color: #777e8d;
+}
+
+.manager-login-submit {
+  min-height: 46px;
+  margin-top: 3px;
+  border: 0;
+  border-radius: 9px;
+  color: #101218;
+  background: #ffffff;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.manager-login-submit:hover {
+  background: #e8e9ec;
+}
+
+.manager-login-error {
+  border: 1px solid rgba(227, 91, 108, 0.25);
+  border-radius: 8px;
+  padding: 10px 12px;
+  color: #ef9ca8;
+  background: rgba(146, 37, 51, 0.08);
+  font-size: 12px;
+}
+
+.manager-login-employee {
+  width: 100%;
+  margin-top: 20px;
+  border: 0;
+  padding: 4px;
+  color: #858c99;
+  background: transparent;
+  font-size: 12px;
+}
+
+.manager-login-employee:hover {
+  color: #ffffff;
+}
+
+@media (max-width: 600px) {
+  .manager-login-card {
+    padding: 24px 20px;
+  }
+}
+
