@@ -1,4 +1,7 @@
-export function describeDecisionMemory(memory) {
+export function describeDecisionMemory(
+  memory,
+  selectedHotel = {},
+) {
   if (memory?.status !== "used") {
     return null;
   }
@@ -11,10 +14,39 @@ export function describeDecisionMemory(memory) {
     Number.isFinite(limit)
     && limit > 0
   ) {
+    const selectedDistance = Number(
+      selectedHotel
+        ?.distance_from_work_location_km,
+    );
+
+    if (
+      Number.isFinite(selectedDistance)
+    ) {
+      if (
+        selectedDistance <= limit
+      ) {
+        return (
+          `Your manager previously preferred hotels within `
+          + `${limit} km of this workplace. `
+          + `The selected hotel is ${selectedDistance} km away `
+          + `and satisfies that remembered preference.`
+        );
+      }
+
+      return (
+        `Your manager previously preferred hotels within `
+        + `${limit} km of this workplace. `
+        + `The selected hotel is ${selectedDistance} km away, `
+        + `so the preference was recalled but is not satisfied `
+        + `by the current recommendation.`
+      );
+    }
+
     return (
-      `Your manager previously preferred a hotel within `
+      `Your manager previously preferred hotels within `
       + `${limit} km of this workplace. `
-      + `This recommendation takes that into account.`
+      + `TripGuard recalled that preference, but the current `
+      + `hotel distance could not be verified.`
     );
   }
 
@@ -25,8 +57,7 @@ export function describeDecisionMemory(memory) {
 
   const preference =
     preferences.find(
-      (item) =>
-        item?.reason,
+      (item) => item?.reason,
     );
 
   if (!preference) {

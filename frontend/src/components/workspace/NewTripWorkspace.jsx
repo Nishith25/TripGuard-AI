@@ -2080,7 +2080,7 @@ function RecommendationPanel({
 
      </div>
 
-      {describeDecisionMemory(decisionMemory) && (
+      {describeDecisionMemory(decisionMemory, hotel) && (
 
        <div className="policy-message-row success remembered-preference">
 
@@ -2088,9 +2088,9 @@ function RecommendationPanel({
 
          <div>
 
-           <strong>A preference from your manager was used</strong>
+           <strong>Manager memory recalled</strong>
 
-           <p>{describeDecisionMemory(decisionMemory)}</p>
+           <p>{describeDecisionMemory(decisionMemory, hotel)}</p>
 
          </div>
 
