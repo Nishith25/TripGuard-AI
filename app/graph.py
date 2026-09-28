@@ -1550,7 +1550,7 @@ def recall_decision_memory_node(state: TripGuardState) -> dict[str, Any]:
     traveller_id = requirements.get("traveller_id")
     if not traveller_id:
         memory = {"status": "none", "reason": None, "max_hotel_distance_km": None}
-        message = "No demo traveller ID; planning without personal memory."
+        message = "No traveller ID; planning without personal decision memory."
     else:
         try:
             recalled = recall_hotel_preference(

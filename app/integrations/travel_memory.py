@@ -17,7 +17,7 @@ _TRAVELLER_ID = re.compile(r"^[A-Za-z0-9_-]{3,32}$", re.ASCII)
 
 def bank_id_for(traveller_id: str) -> str:
     if not isinstance(traveller_id, str) or not _TRAVELLER_ID.fullmatch(traveller_id):
-        raise ValueError("Use a 3–32 character demo traveller ID (letters, digits, _ or -).")
+        raise ValueError("Use a 3–32 character traveller ID (letters, digits, _ or -).")
     return "tripguard-traveller-" + traveller_id.lower()
 
 

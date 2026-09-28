@@ -852,7 +852,7 @@ function ApprovalModal({
 
         {result.trip?.traveller_id && (
           <div className="approval-reason">
-            <span>Feedback for this demo traveller</span>
+            <span>Feedback for this traveller</span>
             <p>If rejecting a hotel because it is too far, save a distance preference for future trips.</p>
             <label className="approval-field">
               <span>Reason for rejection</span>

@@ -1,9 +1,9 @@
-const DEMO_ID = /^[A-Za-z0-9_-]{3,32}$/;
+const TRAVELLER_ID = /^[A-Za-z0-9_-]{3,32}$/;
 
 export function buildTravelRequest(form) {
   const travellerId = form.traveller_id?.trim() || "";
-  if (travellerId && !DEMO_ID.test(travellerId)) {
-    throw new Error("Use 3–32 letters, numbers, _ or - for the demo traveller ID.");
+  if (travellerId && !TRAVELLER_ID.test(travellerId)) {
+    throw new Error("Use 3–32 letters, numbers, _ or - for the traveller ID.");
   }
   return {...form, traveller_id: travellerId || null};
 }
