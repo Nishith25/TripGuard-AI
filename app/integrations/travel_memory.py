@@ -180,7 +180,12 @@ def retain_manager_preference(
             is True
         )
 
-    except Exception:
+    except Exception as exc:
+        print(
+            "Hindsight manager preference retain failed:",
+            repr(exc),
+            flush=True,
+        )
         return False
 
 def recall_hotel_preference(
