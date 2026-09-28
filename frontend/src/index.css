@@ -4120,3 +4120,332 @@ textarea {
   .employee-booking-flow .itinerary-selection-card strong { overflow-wrap: anywhere; }
   .employee-booking-flow .booking-details { padding: 14px; }
 }
+
+
+/* Dark monochrome theme - full final override */
+
+:root {
+  --background: #050505;
+  --surface: #101010;
+  --surface-soft: #151515;
+  --surface-raised: #1c1c1c;
+  --border: rgba(255, 255, 255, 0.12);
+  --border-strong: rgba(255, 255, 255, 0.28);
+  --text: #f7f7f7;
+  --text-secondary: #b8b8b8;
+  --text-muted: #7a7a7a;
+  --purple: #ffffff;
+  --purple-bright: #ffffff;
+  --green: #d8d8d8;
+  --orange: #cfcfcf;
+  --red: #eeeeee;
+}
+
+html,
+body,
+#root {
+  background: #050505 !important;
+  color: #f7f7f7 !important;
+}
+
+body::before {
+  background:
+    radial-gradient(circle at top left, rgba(255, 255, 255, 0.06), transparent 34rem),
+    radial-gradient(circle at bottom right, rgba(255, 255, 255, 0.04), transparent 32rem),
+    #050505 !important;
+}
+
+.application-shell,
+.app-shell,
+.main-shell,
+.workspace-shell,
+.page-shell,
+.dashboard-shell,
+.app-main,
+.main-content,
+.desktop-sidebar,
+.mobile-navigation,
+.application-header {
+  background: #050505 !important;
+  color: #f7f7f7 !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.desktop-sidebar,
+.mobile-navigation,
+.application-header {
+  background: #070707 !important;
+}
+
+.sidebar-brand,
+.landing-brand {
+  background: #ffffff !important;
+  color: #050505 !important;
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+  box-shadow: none !important;
+}
+
+.sidebar-brand *,
+.landing-brand * {
+  color: #050505 !important;
+}
+
+.sidebar-brand-mark,
+.landing-brand > span,
+.logo-mark,
+.brand-mark,
+.sidebar-brand-avatar,
+.sidebar-brand-icon {
+  background: #ededed !important;
+  color: #050505 !important;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+  box-shadow: none !important;
+}
+
+.sidebar-section-label,
+.sidebar-secondary-label,
+.application-header-eyebrow,
+.surface-eyebrow,
+.weather-eyebrow,
+.approval-modal-eyebrow,
+.policy-card-eyebrow,
+.landing-kicker,
+.trip-page-eyebrow,
+.trip-form-step,
+.employee-booking-flow .form-section-divider,
+.employee-booking-flow [class*="eyebrow"],
+.employee-booking-flow [class*="kicker"],
+.employee-booking-flow [class*="step"],
+.employee-booking-flow [class*="label"] {
+  color: #ffffff !important;
+}
+
+.sidebar-link,
+.mobile-navigation button,
+.mobile-more > summary {
+  background: transparent !important;
+  color: #b8b8b8 !important;
+  border-color: rgba(255, 255, 255, 0.14) !important;
+  box-shadow: none !important;
+}
+
+.sidebar-link *,
+.mobile-navigation button *,
+.mobile-more > summary * {
+  color: inherit !important;
+}
+
+.sidebar-link:hover,
+.mobile-navigation button:hover,
+.mobile-more > summary:hover {
+  background: #161616 !important;
+  color: #ffffff !important;
+}
+
+.sidebar-link.active,
+.mobile-navigation button.active,
+.mobile-more[open] > summary {
+  background: #ffffff !important;
+  color: #050505 !important;
+  border-color: #ffffff !important;
+}
+
+.sidebar-project-card,
+.trip-form-demo-helper,
+.trip-request-surface,
+.trip-request-form,
+.employee-booking-flow,
+.booking-details,
+.booking-progress,
+.approval-workspace,
+.recommendation-surface,
+.policy-assessment,
+.remembered-preference,
+.agent-execution-surface,
+.agent-timeline,
+.policy-details,
+.cost-summary-grid,
+.selection-reasoning-panel,
+.selected-reason-card,
+.cheaper-alternative-card,
+.alternative-ranking-reason,
+.selection-no-cheaper,
+[class*="card"],
+[class*="panel"],
+[class*="section"],
+[class*="workspace"],
+[class*="modal"],
+[class*="form"],
+[class*="summary"],
+[class*="timeline"],
+[class*="result"],
+[class*="recommendation"] {
+  background: #101010 !important;
+  color: #f7f7f7 !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.42) !important;
+}
+
+.trip-request-form section,
+.trip-request-form fieldset,
+.booking-details,
+.booking-progress,
+.employee-booking-flow .trip-request-surface,
+.employee-booking-flow .trip-request-form {
+  background: #111111 !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+[class*="soft"],
+[class*="muted"],
+[class*="helper"],
+[class*="note"],
+.field-hint {
+  background: #151515 !important;
+  color: #b8b8b8 !important;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+strong,
+legend {
+  color: #ffffff !important;
+}
+
+p,
+li,
+span,
+small,
+label {
+  color: inherit;
+}
+
+a {
+  color: #ffffff !important;
+}
+
+button,
+.button,
+.primary-action-button,
+.trip-form-demo-helper button,
+.approval-control-card button,
+[class*="button"],
+[class*="cta"] {
+  background: #ffffff !important;
+  color: #050505 !important;
+  border-color: rgba(255, 255, 255, 0.22) !important;
+  box-shadow: none !important;
+}
+
+button *,
+.button *,
+.primary-action-button *,
+[class*="button"] * {
+  color: inherit !important;
+}
+
+button:hover:not(:disabled),
+.button:hover,
+.primary-action-button:hover,
+[class*="button"]:hover {
+  background: #e8e8e8 !important;
+  color: #050505 !important;
+  transform: translateY(-1px);
+}
+
+button:disabled {
+  background: #2a2a2a !important;
+  color: #8d8d8d !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+input,
+select,
+textarea {
+  background: #0b0b0b !important;
+  color: #ffffff !important;
+  border-color: rgba(255, 255, 255, 0.16) !important;
+  box-shadow: none !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #777777 !important;
+}
+
+input:focus,
+select:focus,
+textarea:focus,
+.sidebar-link:focus-visible,
+.mobile-navigation button:focus-visible,
+.primary-action-button:focus-visible,
+.approval-control-card button:focus-visible,
+.booking-details summary:focus-visible,
+.booking-progress summary:focus-visible,
+.mobile-more > summary:focus-visible {
+  border-color: rgba(255, 255, 255, 0.55) !important;
+  outline: 2px solid #ffffff !important;
+  outline-offset: 3px !important;
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.08) !important;
+}
+
+.trip-request-form label > span,
+.form-error,
+.field-error,
+.booking-progress p,
+.booking-progress summary,
+.booking-details > summary {
+  color: #f1f1f1 !important;
+}
+
+[class*="badge"],
+[class*="pill"],
+[class*="tag"],
+[class*="chip"],
+[class*="status"] {
+  background: #1a1a1a !important;
+  color: #eeeeee !important;
+  border-color: rgba(255, 255, 255, 0.18) !important;
+}
+
+[class*="success"],
+[class*="approved"],
+[class*="compliant"],
+[class*="warning"],
+[class*="exception"],
+[class*="error"],
+[class*="danger"],
+[class*="failed"] {
+  background: #171717 !important;
+  color: #f1f1f1 !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+.route-direction,
+.route-input-row > div {
+  background: #181818 !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  box-shadow: none !important;
+}
+
+svg,
+[class*="icon"]:not(.logo-mark):not(.brand-mark):not(.sidebar-brand-mark),
+[class*="Icon"]:not(.logo-mark):not(.brand-mark):not(.sidebar-brand-mark) {
+  background: transparent !important;
+  color: currentColor !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #3a3a3a !important;
+}
+
+::-webkit-scrollbar-track {
+  background: #090909 !important;
+}
