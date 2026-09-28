@@ -14,7 +14,7 @@ Unlike a stateless travel assistant, TripGuard learns from reviewed trips. Manag
 - **Backend:** https://tripguard-ai-z34p.onrender.com
 - **Production Health:** https://tripguard-ai-z34p.onrender.com/api/health
 - **GitHub:** https://github.com/Nishith25/TripGuard-AI
-- **Demo Video:** Public YouTube link to be added before final submission
+- **Demo Video:** https://youtu.be/f5Ntd3-mG44?si=TxUHTgy10XDwAlBK
 
 > The Render service may require a few seconds to wake after inactivity.
 
@@ -643,4 +643,4 @@ The current production system includes:
 - **Live Application:** https://trip-guard-ai.vercel.app
 - **Backend:** https://tripguard-ai-z34p.onrender.com
 - **Health Check:** https://tripguard-ai-z34p.onrender.com/api/health
-- **Public Demo Video:** To be added after recording
+- **Public Demo Video:** https://youtu.be/f5Ntd3-mG44?si=TxUHTgy10XDwAlBK
