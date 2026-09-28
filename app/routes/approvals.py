@@ -1,8 +1,6 @@
 from __future__ import annotations
 
-import json
 from datetime import datetime, timezone
-from pathlib import Path
 from threading import Lock
 from typing import Any, Literal
 from uuid import uuid4
@@ -13,7 +11,6 @@ from pydantic import BaseModel, Field, model_validator
 from app.integrations.supabase_store import (
     fetch_rows,
     upsert_rows,
-    use_supabase,
 )
 
 from app.integrations.travel_memory import (
@@ -31,15 +28,6 @@ router = APIRouter(
     tags=["Approvals"],
 )
 
-
-DATA_DIR = (
-    Path(__file__).resolve().parents[2]
-    / "data"
-)
-
-APPROVALS_PATH = (
-    DATA_DIR / "approvals.json"
-)
 
 _STORAGE_LOCK = Lock()
 
@@ -121,43 +109,9 @@ def utc_now() -> str:
 
 def load_approvals_unlocked(
 ) -> list[dict[str, Any]]:
-    if use_supabase():
-        return fetch_rows(
-            "approvals"
-        )
-
-    if not APPROVALS_PATH.exists():
-        return []
-
-    try:
-        with APPROVALS_PATH.open(
-            "r",
-            encoding="utf-8",
-        ) as file:
-            stored_value = json.load(
-                file
-            )
-
-    except (
-        json.JSONDecodeError,
-        OSError,
-    ):
-        return []
-
-    if not isinstance(
-        stored_value,
-        list,
-    ):
-        return []
-
-    return [
-        item
-        for item in stored_value
-        if isinstance(
-            item,
-            dict,
-        )
-    ]
+    return fetch_rows(
+        "approvals"
+    )
 
 
 def load_approvals(
@@ -173,37 +127,9 @@ def save_approvals_unlocked(
         dict[str, Any]
     ],
 ) -> None:
-    if use_supabase():
-        upsert_rows(
-            "approvals",
-            approvals,
-        )
-        return
-
-    APPROVALS_PATH.parent.mkdir(
-        parents=True,
-        exist_ok=True,
-    )
-
-    temporary_path = (
-        APPROVALS_PATH.with_suffix(
-            ".json.tmp"
-        )
-    )
-
-    with temporary_path.open(
-        "w",
-        encoding="utf-8",
-    ) as file:
-        json.dump(
-            approvals,
-            file,
-            ensure_ascii=False,
-            indent=2,
-        )
-
-    temporary_path.replace(
-        APPROVALS_PATH
+    upsert_rows(
+        "approvals",
+        approvals,
     )
 
 

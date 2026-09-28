@@ -11,6 +11,22 @@ from pydantic import ValidationError
 from app.main import TravelRequest, app
 from app import graph
 from app.routes import approvals
+from app.integrations.supabase_store import (
+    reset_memory_store,
+)
+
+
+
+
+@pytest.fixture(autouse=True)
+def isolated_persistence(monkeypatch):
+    monkeypatch.setenv(
+        "TRIPGUARD_STORAGE_BACKEND",
+        "memory",
+    )
+    reset_memory_store()
+    yield
+    reset_memory_store()
 
 
 def test_traveller_id_is_optional_but_validated():
@@ -34,7 +50,6 @@ def test_memory_banks_do_not_mix_travellers():
 
 def test_manager_rejection_is_retained_once_after_approval_is_saved(monkeypatch, tmp_path):
     memory = import_module("app.integrations.travel_memory")
-    monkeypatch.setattr(approvals, "APPROVALS_PATH", tmp_path / "approvals.json")
     monkeypatch.setenv("HINDSIGHT_BASE_URL", "https://memory.example")
     calls = []
 
@@ -112,7 +127,6 @@ def test_hotel_distance_reason_requires_valid_threshold():
 
 def test_hindsight_failure_preserves_reviewed_decision(monkeypatch, tmp_path):
     memory = import_module("app.integrations.travel_memory")
-    monkeypatch.setattr(approvals, "APPROVALS_PATH", tmp_path / "approvals.json")
     monkeypatch.setenv("HINDSIGHT_BASE_URL", "https://memory.example")
 
     class FailingClient:

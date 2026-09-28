@@ -1,8 +1,6 @@
 from __future__ import annotations
 
-import json
 from datetime import datetime, timezone
-from pathlib import Path
 from threading import Lock
 from typing import Any, Literal
 from uuid import uuid4
@@ -13,7 +11,6 @@ from pydantic import BaseModel, Field
 from app.integrations.supabase_store import (
     fetch_rows,
     upsert_rows,
-    use_supabase,
 )
 
 
@@ -22,9 +19,6 @@ router = APIRouter(
     tags=["Trips"],
 )
 
-
-DATA_DIR = Path(__file__).resolve().parents[2] / "data"
-TRIP_RUNS_PATH = DATA_DIR / "trip_runs.json"
 
 _STORAGE_LOCK = Lock()
 
@@ -78,37 +72,9 @@ def utc_now() -> str:
 
 
 def load_trip_runs_unlocked() -> list[dict[str, Any]]:
-    if use_supabase():
-        return fetch_rows(
-            "trip_runs"
-        )
-
-    if not TRIP_RUNS_PATH.exists():
-        return []
-
-    try:
-        with TRIP_RUNS_PATH.open(
-            "r",
-            encoding="utf-8",
-        ) as file:
-            stored_value = json.load(file)
-    except (
-        json.JSONDecodeError,
-        OSError,
-    ):
-        return []
-
-    if not isinstance(
-        stored_value,
-        list,
-    ):
-        return []
-
-    return [
-        item
-        for item in stored_value
-        if isinstance(item, dict)
-    ]
+    return fetch_rows(
+        "trip_runs"
+    )
 
 
 def load_trip_runs() -> list[dict[str, Any]]:
@@ -119,37 +85,9 @@ def load_trip_runs() -> list[dict[str, Any]]:
 def save_trip_runs_unlocked(
     trip_runs: list[dict[str, Any]],
 ) -> None:
-    if use_supabase():
-        upsert_rows(
-            "trip_runs",
-            trip_runs,
-        )
-        return
-
-    TRIP_RUNS_PATH.parent.mkdir(
-        parents=True,
-        exist_ok=True,
-    )
-
-    temporary_path = (
-        TRIP_RUNS_PATH.with_suffix(
-            ".json.tmp"
-        )
-    )
-
-    with temporary_path.open(
-        "w",
-        encoding="utf-8",
-    ) as file:
-        json.dump(
-            trip_runs,
-            file,
-            ensure_ascii=False,
-            indent=2,
-        )
-
-    temporary_path.replace(
-        TRIP_RUNS_PATH
+    upsert_rows(
+        "trip_runs",
+        trip_runs,
     )
 
 

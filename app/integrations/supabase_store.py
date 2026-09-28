@@ -6,14 +6,30 @@ from typing import Any
 from supabase import Client, create_client
 
 
+_MEMORY_STORE: dict[
+    str,
+    list[dict[str, Any]],
+] = {
+    "trip_runs": [],
+    "approvals": [],
+}
+
+
 def storage_backend() -> str:
     return (
         os.getenv(
             "TRIPGUARD_STORAGE_BACKEND",
-            "json",
+            "supabase",
         )
         .strip()
         .lower()
+    )
+
+
+def using_memory_store() -> bool:
+    return (
+        storage_backend()
+        == "memory"
     )
 
 
@@ -30,14 +46,6 @@ def supabase_configured() -> bool:
     )
 
 
-def use_supabase() -> bool:
-    return (
-        storage_backend()
-        == "supabase"
-        and supabase_configured()
-    )
-
-
 def get_supabase() -> Client:
     url = os.getenv(
         "SUPABASE_URL",
@@ -51,7 +59,9 @@ def get_supabase() -> Client:
 
     if not url or not key:
         raise RuntimeError(
-            "Supabase persistence is not configured."
+            "Supabase persistence is not configured. "
+            "Set SUPABASE_URL and "
+            "SUPABASE_SERVICE_ROLE_KEY."
         )
 
     return create_client(
@@ -60,9 +70,34 @@ def get_supabase() -> Client:
     )
 
 
+def reset_memory_store() -> None:
+    for table in _MEMORY_STORE:
+        _MEMORY_STORE[table] = []
+
+
 def fetch_rows(
     table: str,
 ) -> list[dict[str, Any]]:
+    if using_memory_store():
+        rows = _MEMORY_STORE.setdefault(
+            table,
+            [],
+        )
+
+        return [
+            dict(item)
+            for item in sorted(
+                rows,
+                key=lambda item: (
+                    item.get(
+                        "created_at",
+                        "",
+                    )
+                ),
+                reverse=True,
+            )
+        ]
+
     client = get_supabase()
 
     response = (
@@ -90,6 +125,30 @@ def upsert_rows(
     rows: list[dict[str, Any]],
 ) -> None:
     if not rows:
+        return
+
+    if using_memory_store():
+        existing = {
+            item.get("id"): item
+            for item in _MEMORY_STORE.setdefault(
+                table,
+                [],
+            )
+            if item.get("id")
+        }
+
+        for row in rows:
+            row_id = row.get("id")
+
+            if row_id:
+                existing[row_id] = dict(
+                    row
+                )
+
+        _MEMORY_STORE[table] = list(
+            existing.values()
+        )
+
         return
 
     client = get_supabase()
