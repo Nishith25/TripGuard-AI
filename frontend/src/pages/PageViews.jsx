@@ -370,7 +370,7 @@ export function LandingPage({
 
             <span className="landing-kicker">
 
-              HackwithHyderabad 3.0 · AI agent + persistent memory
+              AI travel approval agent · persistent decision memory
 
             </span>
 
@@ -658,7 +658,7 @@ export function LandingPage({
 
             <span>
 
-              What judges should see
+              Product workflow
 
             </span>
 
@@ -666,7 +666,7 @@ export function LandingPage({
 
             <h2>
 
-              An AI agent that solves a real approval problem and improves with memory.
+              An AI travel agent that solves real business approval delays and improves with memory.
 
             </h2>
 
@@ -800,7 +800,7 @@ export function LandingPage({
 
         <span>
 
-          TripGuard AI · HackwithHyderabad 3.0
+          TripGuard AI · AI travel approval platform
 
         </span>
 
@@ -1004,7 +1004,7 @@ export function DashboardPage({
 
           <span>
 
-            Hackathon agent workspace
+            AI agent workspace
 
           </span>
 
@@ -3694,7 +3694,7 @@ export function ArchitecturePage() {
 
           <p>
 
-            The workflow is built around the hackathon goal: an AI agent that performs useful tool-based work, keeps a human in the loop and remembers feedback for future decisions.
+            The workflow is built around the product goal: an AI agent that performs useful tool-based work, keeps a human in the loop and remembers feedback for future decisions.
 
           </p>
 
@@ -3910,7 +3910,7 @@ export function ArchitecturePage() {
 
           <p>
 
-            Employee request flow, manager review screens and judge-friendly product demo.
+            Employee request flow, manager review screens and clear product experience.
 
           </p>
 
