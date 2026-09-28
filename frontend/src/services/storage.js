@@ -60,33 +60,6 @@ function writeCollection(
 }
 
 
-function mergeById(
-  primaryItems,
-  fallbackItems,
-) {
-  const mergedItems = [];
-  const knownIds = new Set();
-
-  for (const item of [
-    ...primaryItems,
-    ...fallbackItems,
-  ]) {
-    if (!item?.id) {
-      continue;
-    }
-
-    if (knownIds.has(item.id)) {
-      continue;
-    }
-
-    knownIds.add(item.id);
-    mergedItems.push(item);
-  }
-
-  return mergedItems;
-}
-
-
 function normaliseServerApproval(
   approval,
 ) {
@@ -277,24 +250,13 @@ export async function syncPersistentData() {
     getApprovalRequests(100),
   ]);
 
-  const localRuns =
-    getAgentRuns();
-
-  const localApprovals =
-    getApprovalDecisions();
-
   if (
     tripResult.status ===
     "fulfilled"
   ) {
-    const mergedRuns = mergeById(
-      tripResult.value,
-      localRuns,
-    );
-
     writeCollection(
       RUNS_KEY,
-      mergedRuns,
+      tripResult.value,
     );
   }
 
@@ -307,15 +269,9 @@ export async function syncPersistentData() {
         normaliseServerApproval,
       );
 
-    const mergedApprovals =
-      mergeById(
-        serverApprovals,
-        localApprovals,
-      );
-
     writeCollection(
       APPROVALS_KEY,
-      mergedApprovals,
+      serverApprovals,
     );
   }
 
