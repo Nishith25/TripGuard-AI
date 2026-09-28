@@ -162,3 +162,34 @@ def upsert_rows(
         )
         .execute()
     )
+
+
+def check_supabase_health() -> dict[str, Any]:
+    if using_memory_store():
+        return {
+            "status": "healthy",
+            "backend": "memory",
+        }
+
+    try:
+        client = get_supabase()
+
+        (
+            client
+            .table("trip_runs")
+            .select("id")
+            .limit(1)
+            .execute()
+        )
+
+        return {
+            "status": "healthy",
+            "backend": "supabase",
+        }
+
+    except Exception as exc:
+        return {
+            "status": "unavailable",
+            "backend": "supabase",
+            "error": type(exc).__name__,
+        }

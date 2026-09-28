@@ -389,3 +389,40 @@ def recall_manager_preferences(
         )
 
     return unique_preferences
+
+
+def check_hindsight_health() -> dict:
+    """Verify that the configured Hindsight service is reachable."""
+
+    client = _client()
+
+    if client is None:
+        return {
+            "status": "unconfigured",
+        }
+
+    try:
+        with client:
+            client.recall(
+                bank_id="tripguard-healthcheck",
+                query="TripGuard health check",
+                include_chunks=False,
+                max_tokens=50,
+            )
+
+        return {
+            "status": "healthy",
+        }
+
+    except NotFoundException:
+        # A missing health-check bank still proves that
+        # the Hindsight API is reachable and authenticated.
+        return {
+            "status": "healthy",
+        }
+
+    except Exception as exc:
+        return {
+            "status": "unavailable",
+            "error": type(exc).__name__,
+        }

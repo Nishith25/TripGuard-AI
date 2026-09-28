@@ -27,6 +27,9 @@ from app.routes.policy import (
 from app.routes.trips import (
     router as trips_router,
 )
+from app.routes.health import (
+    router as health_router,
+)
 
 
 logger = logging.getLogger(
@@ -121,6 +124,10 @@ app.include_router(
 
 app.include_router(
     trips_router
+)
+
+app.include_router(
+    health_router
 )
 
 
