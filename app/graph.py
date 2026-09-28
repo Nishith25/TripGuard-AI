@@ -6,7 +6,10 @@ from typing import Any, TypedDict
 
 from langgraph.graph import END, START, StateGraph
 
-from app.integrations.travel_memory import recall_hotel_preference
+from app.integrations.travel_memory import (
+    recall_hotel_preference,
+    recall_manager_preferences,
+)
 from app.tools.flight_tool import search_flights
 from app.tools.hotel_tool import search_hotels
 from app.tools.policy_tool import load_travel_policy
@@ -1545,32 +1548,154 @@ def preference_rank(option: dict[str, Any], threshold_km: float | None) -> int:
     return 0 if distance is not None and distance <= threshold_km else 1
 
 
-def recall_decision_memory_node(state: TripGuardState) -> dict[str, Any]:
-    requirements = state["requirements"]
-    traveller_id = requirements.get("traveller_id")
+def recall_decision_memory_node(
+    state: TripGuardState,
+) -> dict[str, Any]:
+    requirements = state[
+        "requirements"
+    ]
+
+    traveller_id = (
+        requirements.get(
+            "traveller_id"
+        )
+    )
+
+    empty_memory = {
+        "status": "none",
+        "reason": None,
+        "max_hotel_distance_km": None,
+        "preferences": [],
+    }
+
     if not traveller_id:
-        memory = {"status": "none", "reason": None, "max_hotel_distance_km": None}
-        message = "No traveller ID; planning without personal decision memory."
+        memory = empty_memory
+
+        message = (
+            "No traveller ID; planning "
+            "without personal decision memory."
+        )
+
     else:
         try:
-            recalled = recall_hotel_preference(
-                traveller_id, requirements["destination_city"],
-                requirements.get("work_location") or "",
+            hotel_memory = (
+                recall_hotel_preference(
+                    traveller_id,
+                    requirements[
+                        "destination_city"
+                    ],
+                    requirements.get(
+                        "work_location"
+                    )
+                    or "",
+                )
             )
-            memory = ({"status": "used", **recalled} if recalled else
-                      {"status": "none", "reason": None,
-                       "max_hotel_distance_km": None})
-            message = memory.get("reason") or "No matching past manager decision."
+
+            manager_preferences = (
+                recall_manager_preferences(
+                    traveller_id,
+                    requirements[
+                        "destination_city"
+                    ],
+                    requirements.get(
+                        "work_location"
+                    )
+                    or "",
+                )
+            )
+
+            memory = {
+                "status":
+                    (
+                        "used"
+                        if (
+                            hotel_memory
+                            or manager_preferences
+                        )
+                        else "none"
+                    ),
+                "reason":
+                    (
+                        hotel_memory.get(
+                            "reason"
+                        )
+                        if hotel_memory
+                        else None
+                    ),
+                "max_hotel_distance_km":
+                    (
+                        hotel_memory.get(
+                            "max_hotel_distance_km"
+                        )
+                        if hotel_memory
+                        else None
+                    ),
+                "preferences":
+                    manager_preferences,
+            }
+
+            messages = []
+
+            if memory.get("reason"):
+                messages.append(
+                    memory["reason"]
+                )
+
+            for preference in (
+                manager_preferences
+            ):
+                reason = (
+                    preference.get(
+                        "reason"
+                    )
+                )
+
+                if reason:
+                    messages.append(
+                        reason
+                    )
+
+            message = (
+                " ".join(messages)
+                if messages
+                else (
+                    "No matching past "
+                    "manager decision."
+                )
+            )
+
         except Exception:
-            memory = {"status": "unavailable", "reason": None,
-                      "max_hotel_distance_km": None}
-            message = "Hindsight unavailable; continuing without past decisions."
+            memory = {
+                **empty_memory,
+                "status":
+                    "unavailable",
+            }
+
+            message = (
+                "Hindsight unavailable; "
+                "continuing without "
+                "past decisions."
+            )
+
     return {
-        "decision_memory": memory,
-        "trace": add_trace(state, "Hindsight Recall", message,
-                           status="warning" if memory["status"] == "unavailable"
-                           else "completed"),
+        "decision_memory":
+            memory,
+        "trace":
+            add_trace(
+                state,
+                "Hindsight Recall",
+                message,
+                status=(
+                    "warning"
+                    if memory[
+                        "status"
+                    ]
+                    == "unavailable"
+                    else "completed"
+                ),
+            ),
     }
+
 
 
 def select_recommendation_node(
@@ -1822,6 +1947,40 @@ def select_recommendation_node(
             "TripGuard ranks options by policy and traveller compliance, "
             "unresolved live-data verification, remembered hotel distance "
             "preference, total cost, and arrival time."
+        )
+
+    remembered_preferences = (
+        decision_memory.get(
+            "preferences",
+            [],
+        )
+        if decision_memory.get(
+            "status"
+        )
+        == "used"
+        else []
+    )
+
+    for preference in remembered_preferences:
+        reason = preference.get(
+            "reason"
+        )
+
+        if reason:
+            selection_reasoning[
+                "selected_reasons"
+            ].append(
+                "Manager memory: "
+                + reason
+            )
+
+    if remembered_preferences:
+        explanation += (
+            " TripGuard also recalled reusable "
+            "manager context from Hindsight. "
+            "This context does not override "
+            "company policy and may still require "
+            "manager approval."
         )
 
     exception_amount = max(

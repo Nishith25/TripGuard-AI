@@ -245,3 +245,147 @@ def recall_hotel_preference(
             "source": "Hindsight manager decision",
         }
     return None
+
+
+def recall_manager_preferences(
+    traveller_id: str,
+    destination_city: str,
+    work_location: str,
+) -> list[dict]:
+    """Recall validated reusable manager context for similar trips."""
+
+    bank_id = bank_id_for(traveller_id)
+    client = _client()
+
+    if client is None:
+        raise RuntimeError("Hindsight is not configured")
+
+    destination = destination_city.strip().casefold()
+    workplace = work_location.strip().casefold()
+
+    if not destination:
+        return []
+
+    try:
+        with client:
+            response = client.recall(
+                bank_id=bank_id,
+                query=(
+                    f"Reusable manager travel preferences for "
+                    f"{destination_city} "
+                    f"workplace {work_location}"
+                ),
+                include_chunks=True,
+                max_tokens=600,
+            )
+    except NotFoundException:
+        return []
+
+    allowed_types = {
+        "urgent_short_notice",
+        "cost_exception",
+        "other",
+    }
+
+    labels = {
+        "urgent_short_notice":
+            "Past manager approved an urgent short-notice trip.",
+        "cost_exception":
+            "Past manager approved a justified cost exception.",
+        "other":
+            "Past manager saved reusable feedback for a similar trip.",
+    }
+
+    preferences = []
+
+    for item in getattr(
+        response,
+        "results",
+        (),
+    ):
+        metadata = (
+            getattr(
+                item,
+                "metadata",
+                None,
+            )
+            or {}
+        )
+
+        if not isinstance(
+            metadata,
+            dict,
+        ):
+            continue
+
+        feedback_reason = str(
+            metadata.get(
+                "feedback_reason",
+                "",
+            )
+        ).strip()
+
+        if feedback_reason not in allowed_types:
+            continue
+
+        memory_destination = str(
+            metadata.get(
+                "destination_city",
+                "",
+            )
+        ).strip().casefold()
+
+        memory_workplace = str(
+            metadata.get(
+                "work_location",
+                "",
+            )
+        ).strip().casefold()
+
+        if (
+            memory_destination
+            and memory_destination
+            != destination
+        ):
+            continue
+
+        if (
+            workplace
+            and memory_workplace
+            and memory_workplace
+            != workplace
+        ):
+            continue
+
+        preferences.append(
+            {
+                "type":
+                    feedback_reason,
+                "reason":
+                    labels[
+                        feedback_reason
+                    ],
+                "decision":
+                    metadata.get(
+                        "decision",
+                    ),
+                "source":
+                    "Hindsight manager decision",
+            }
+        )
+
+    seen = set()
+    unique_preferences = []
+
+    for preference in preferences:
+        key = preference["type"]
+
+        if key in seen:
+            continue
+
+        seen.add(key)
+        unique_preferences.append(
+            preference
+        )
+
+    return unique_preferences
