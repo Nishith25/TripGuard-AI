@@ -4534,3 +4534,303 @@ path,
   background: #080808;
 }
 
+/* Mobile professional polish */
+@media (max-width: 720px) {
+  html {
+    scroll-padding-bottom: 150px;
+  }
+
+  body {
+    background: #000000;
+  }
+
+  .application-shell {
+    padding-bottom: 148px;
+  }
+
+  .application-main {
+    min-width: 0;
+  }
+
+  .application-header {
+    position: sticky;
+    top: 0;
+    z-index: 60;
+    min-height: 68px;
+    padding: 12px 18px;
+    background: rgba(0, 0, 0, 0.92);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(18px);
+  }
+
+  .application-header > div:first-child {
+    min-width: 0;
+  }
+
+  .application-header-eyebrow {
+    font-size: 9px;
+    letter-spacing: 2px;
+    white-space: nowrap;
+  }
+
+  .application-header h1 {
+    max-width: 260px;
+    margin-top: 8px;
+    font-size: 24px;
+    line-height: 1.08;
+    letter-spacing: -0.8px;
+    white-space: normal;
+  }
+
+  .header-actions {
+    gap: 8px;
+  }
+
+  .backend-status {
+    width: 42px;
+    height: 42px;
+    min-height: 42px;
+    border-radius: 999px;
+    padding: 0;
+    justify-content: center;
+    font-size: 0;
+  }
+
+  .backend-status > span {
+    width: 9px;
+    height: 9px;
+  }
+
+  .application-content {
+    width: 100%;
+    padding: 22px 16px 176px;
+  }
+
+  .page-stack {
+    gap: 18px;
+  }
+
+  .page-introduction {
+    gap: 12px;
+    margin-bottom: 4px;
+  }
+
+  .page-introduction > div:first-child > span,
+  .surface-eyebrow,
+  .employee-booking-flow .form-section-divider {
+    font-size: 11px;
+    letter-spacing: 2.2px;
+  }
+
+  .page-introduction h2 {
+    margin: 10px 0 10px;
+    font-size: clamp(30px, 9vw, 38px);
+    line-height: 1.06;
+    letter-spacing: -1.6px;
+  }
+
+  .page-introduction p {
+    max-width: 100%;
+    font-size: 15px;
+    line-height: 1.62;
+  }
+
+  .dashboard-hero,
+  .workspace-surface,
+  .page-surface {
+    border-radius: 24px;
+    padding: 22px;
+  }
+
+  .dashboard-hero h2 {
+    font-size: clamp(32px, 10vw, 42px);
+    line-height: 1.08;
+    letter-spacing: -1.8px;
+  }
+
+  .dashboard-hero p {
+    font-size: 15px;
+    line-height: 1.65;
+  }
+
+  .dashboard-hero button,
+  .primary-action-button {
+    width: 100%;
+    justify-content: center;
+    min-height: 54px;
+    border-radius: 16px;
+    font-size: 15px;
+  }
+
+  .dashboard-hero-visual {
+    margin-top: 22px;
+    padding: 18px;
+    border-radius: 22px;
+  }
+
+  .surface-heading {
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .surface-heading h2 {
+    margin-top: 8px;
+    font-size: 28px;
+    line-height: 1.14;
+    letter-spacing: -1px;
+  }
+
+  .trip-request-form {
+    gap: 18px;
+  }
+
+  .trip-request-form label {
+    gap: 9px;
+  }
+
+  .trip-request-form label > span {
+    font-size: 13px;
+    letter-spacing: 0;
+    text-transform: none;
+  }
+
+  .trip-request-form input,
+  .trip-request-form textarea,
+  .trip-request-form select {
+    min-height: 56px;
+    border-radius: 15px;
+    padding: 0 16px;
+    font-size: 17px;
+  }
+
+  .trip-request-form textarea {
+    min-height: 108px;
+    padding-top: 14px;
+    padding-bottom: 14px;
+  }
+
+  .field-hint,
+  .field-error {
+    font-size: 13px;
+    line-height: 1.45;
+  }
+
+  .form-section-divider {
+    margin-top: 8px;
+  }
+
+  .route-input-row {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .route-direction {
+    width: 38px;
+    height: 38px;
+    min-height: 38px;
+    margin: -2px auto;
+    display: grid;
+    place-items: center;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: #111111;
+    font-size: 0;
+  }
+
+  .route-direction::before {
+    content: "↓";
+    color: #ffffff;
+    font-size: 19px;
+    line-height: 1;
+  }
+
+  .route-direction,
+  .route-input-row > div {
+    box-shadow: none;
+  }
+
+  .mobile-navigation {
+    right: 14px;
+    left: 14px;
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 76px);
+    min-height: 68px;
+    padding: 8px;
+    border-radius: 24px;
+    background: rgba(0, 0, 0, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    box-shadow: 0 20px 55px rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(22px);
+  }
+
+  .mobile-navigation button,
+  .mobile-more > summary {
+    min-height: 52px;
+    border-radius: 18px;
+  }
+
+  .mobile-navigation button small,
+  .mobile-more > summary small {
+    font-size: 11px;
+    font-weight: 600;
+  }
+
+  .mobile-navigation button > span,
+  .mobile-more > summary span {
+    width: 22px;
+    height: 22px;
+    display: grid;
+    place-items: center;
+    font-size: 17px;
+  }
+
+  .mobile-more-menu {
+    bottom: calc(100% + 12px);
+    right: 0;
+    min-width: 190px;
+    border-radius: 18px;
+    background: #101010;
+  }
+
+  .mobile-navigation button.active,
+  .mobile-more[open] > summary {
+    background: #ffffff;
+    color: #000000;
+  }
+}
+
+@media (max-width: 430px) {
+  .application-header {
+    padding-right: 14px;
+    padding-left: 14px;
+  }
+
+  .application-header h1 {
+    max-width: 230px;
+    font-size: 22px;
+  }
+
+  .application-content {
+    padding-right: 12px;
+    padding-left: 12px;
+  }
+
+  .dashboard-hero,
+  .workspace-surface,
+  .page-surface {
+    padding: 20px;
+    border-radius: 22px;
+  }
+
+  .page-introduction h2 {
+    font-size: clamp(28px, 9vw, 34px);
+  }
+
+  .dashboard-hero h2 {
+    font-size: clamp(30px, 10vw, 38px);
+  }
+
+  .surface-heading h2 {
+    font-size: 25px;
+  }
+}
