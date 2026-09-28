@@ -4449,3 +4449,251 @@ svg,
 ::-webkit-scrollbar-track {
   background: #090909 !important;
 }
+/* FINAL DARK MONOCHROME CLEANUP */
+:root {
+  --primary: #ffffff !important;
+  --accent: #ffffff !important;
+  --purple: #ffffff !important;
+  --violet: #ffffff !important;
+  --text: #f5f5f5 !important;
+  --muted: #a3a3a3 !important;
+  --bg: #000000 !important;
+  --surface: #0b0b0b !important;
+  --surface-2: #111111 !important;
+  --border: #2a2a2a !important;
+}
+
+body,
+#root,
+.app,
+.app-shell,
+.landing-page,
+.workspace-shell {
+  background: #000000 !important;
+  color: #f5f5f5 !important;
+}
+
+/* Remove purple gradients */
+* {
+  border-color: #2a2a2a !important;
+}
+
+section,
+main,
+article,
+aside,
+header,
+footer,
+[class*="hero"],
+[class*="panel"],
+[class*="card"],
+[class*="section"],
+[class*="workspace"],
+[class*="dashboard"],
+[class*="policy"],
+[class*="approval"],
+[class*="activity"],
+[class*="architecture"] {
+  background-color: #000000 !important;
+  background-image: none !important;
+  color: #f5f5f5 !important;
+}
+
+/* Cards should be dark, not purple/blue */
+[class*="card"],
+[class*="panel"],
+[class*="box"],
+[class*="tile"],
+[class*="summary"],
+[class*="queue"],
+[class*="history"],
+[class*="decision"],
+[class*="request"] {
+  background: #0b0b0b !important;
+  border: 1px solid #2a2a2a !important;
+  box-shadow: none !important;
+}
+
+/* Remove remaining purple text */
+[class*="eyebrow"],
+[class*="kicker"],
+[class*="label"],
+[class*="tag"],
+[class*="badge"],
+[class*="pill"],
+[class*="status"],
+[class*="accent"],
+h1 span,
+h2 span,
+strong,
+small {
+  color: #f5f5f5 !important;
+}
+
+/* Softer secondary text */
+p,
+li,
+span,
+label,
+input,
+textarea,
+select,
+[class*="muted"],
+[class*="caption"],
+[class*="description"],
+[class*="subtitle"],
+[class*="helper"] {
+  color: #a3a3a3 !important;
+}
+
+/* Keep main headings clean white */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: #ffffff !important;
+}
+
+/* Inputs */
+input,
+textarea,
+select {
+  background: #080808 !important;
+  border: 1px solid #2a2a2a !important;
+  color: #ffffff !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #737373 !important;
+}
+
+/* Buttons */
+button,
+a[class*="button"],
+[class*="btn"] {
+  border-color: #2a2a2a !important;
+  box-shadow: none !important;
+}
+
+button:not(:disabled),
+a[class*="button"] {
+  background: #ffffff !important;
+  color: #000000 !important;
+}
+
+button:not(:disabled):hover,
+a[class*="button"]:hover {
+  background: #e5e5e5 !important;
+  color: #000000 !important;
+}
+
+/* Dark secondary buttons */
+button[class*="secondary"],
+button[class*="ghost"],
+[class*="secondary"],
+[class*="ghost"] {
+  background: #0b0b0b !important;
+  color: #ffffff !important;
+  border: 1px solid #2a2a2a !important;
+}
+
+/* Sidebar */
+aside,
+nav,
+[class*="sidebar"] {
+  background: #000000 !important;
+  border-color: #222222 !important;
+}
+
+[class*="nav"] a,
+[class*="nav"] button,
+[class*="sidebar"] a,
+[class*="sidebar"] button {
+  background: #000000 !important;
+  color: #a3a3a3 !important;
+  border: 1px solid #222222 !important;
+}
+
+[class*="nav"] a[aria-current="page"],
+[class*="nav"] button[aria-current="page"],
+[class*="active"],
+[class*="selected"] {
+  background: #ffffff !important;
+  color: #000000 !important;
+}
+
+/* Logo block */
+[class*="brand"],
+[class*="logo"] {
+  background: #ffffff !important;
+  color: #000000 !important;
+  border-color: #d4d4d4 !important;
+}
+
+/* Arrows, icons, numbers */
+svg,
+path,
+[class*="icon"],
+[class*="arrow"],
+[class*="step"],
+[class*="number"] {
+  color: currentColor !important;
+  fill: currentColor !important;
+  stroke: currentColor !important;
+}
+
+/* Remove purple borders/glow */
+[class*="glow"],
+[class*="gradient"],
+[class*="highlight"] {
+  background: #0b0b0b !important;
+  background-image: none !important;
+  color: #ffffff !important;
+  box-shadow: none !important;
+}
+
+/* Fix the large white landing card */
+.landing-page section,
+.landing-page article,
+.landing-page [class*="card"],
+.landing-page [class*="panel"],
+.landing-page [class*="cta"] {
+  background: #0b0b0b !important;
+  color: #ffffff !important;
+  border: 1px solid #2a2a2a !important;
+}
+
+/* Route text */
+[class*="route"],
+[class*="route"] * {
+  color: #ffffff !important;
+}
+
+/* Tables/lists */
+table,
+thead,
+tbody,
+tr,
+td,
+th {
+  background: #0b0b0b !important;
+  color: #f5f5f5 !important;
+  border-color: #2a2a2a !important;
+}
+
+/* Mobile safety */
+@media (max-width: 768px) {
+  h1 {
+    font-size: clamp(2.4rem, 12vw, 4.5rem) !important;
+    line-height: 0.95 !important;
+  }
+
+  [class*="card"],
+  [class*="panel"],
+  [class*="workspace"] {
+    border-radius: 18px !important;
+  }
+}
