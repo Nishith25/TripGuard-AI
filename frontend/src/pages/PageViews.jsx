@@ -1763,6 +1763,566 @@ function buildResultFromApproval(
 
 }
 
+export function ManagerOverviewPage({
+
+  navigate,
+
+}) {
+
+  const [
+    approvals,
+    setApprovals,
+  ] = useState(
+    getApprovalDecisions(),
+  );
+
+  const [
+    policySummary,
+    setPolicySummary,
+  ] = useState(null);
+
+  useEffect(() => {
+
+    function refreshApprovals() {
+      setApprovals(
+        getApprovalDecisions(),
+      );
+    }
+
+    async function loadManagerData() {
+      refreshApprovals();
+
+      try {
+        const policy =
+          await getCurrentPolicy();
+
+        setPolicySummary(
+          policy,
+        );
+      } catch {
+        setPolicySummary(
+          null,
+        );
+      }
+    }
+
+    loadManagerData();
+
+    window.addEventListener(
+      "storage",
+      refreshApprovals,
+    );
+
+    window.addEventListener(
+      "focus",
+      refreshApprovals,
+    );
+
+    return () => {
+      window.removeEventListener(
+        "storage",
+        refreshApprovals,
+      );
+
+      window.removeEventListener(
+        "focus",
+        refreshApprovals,
+      );
+    };
+
+  }, []);
+
+  const pendingApprovals =
+    approvals.filter(
+      (approval) =>
+        approval.status === "pending",
+    );
+
+  const completedApprovals =
+    approvals.filter(
+      (approval) =>
+        approval.status !== "pending",
+    );
+
+  const approvedApprovals =
+    completedApprovals.filter(
+      (approval) =>
+        approval.status === "approved",
+    );
+
+  const rejectedApprovals =
+    completedApprovals.filter(
+      (approval) =>
+        approval.status === "rejected",
+    );
+
+  const memoryApprovals =
+    completedApprovals.filter(
+      (approval) =>
+        approval.memory_saved === true,
+    );
+
+  const recentDecisions =
+    completedApprovals.slice(0, 4);
+
+  return (
+
+    <div className="page-stack">
+
+      <div className="page-introduction page-introduction-actions">
+
+        <div>
+
+          <span>
+            Manager workspace
+          </span>
+
+          <h2>
+            Travel approval control centre
+          </h2>
+
+          <p>
+            Review employee travel requests, manage policy exceptions,
+            inspect saved decisions and control the manager preferences
+            TripGuard can recall on future trips.
+          </p>
+
+        </div>
+
+        <div className="page-introduction-side">
+
+          <button
+            type="button"
+            className="secondary-action-button"
+            onClick={() =>
+              navigate("/app/approvals")
+            }
+          >
+            Review requests
+          </button>
+
+          <button
+            type="button"
+            className="secondary-action-button"
+            onClick={() =>
+              navigate("/app/memory")
+            }
+          >
+            Decision memory
+          </button>
+
+        </div>
+
+      </div>
+
+      <div className="dashboard-metric-grid">
+
+        <article>
+
+          <span>
+            Pending reviews
+          </span>
+
+          <strong>
+            {pendingApprovals.length}
+          </strong>
+
+          <small>
+            Requests waiting for a manager decision
+          </small>
+
+        </article>
+
+        <article>
+
+          <span>
+            Approved
+          </span>
+
+          <strong>
+            {approvedApprovals.length}
+          </strong>
+
+          <small>
+            Completed manager approvals
+          </small>
+
+        </article>
+
+        <article>
+
+          <span>
+            Rejected
+          </span>
+
+          <strong>
+            {rejectedApprovals.length}
+          </strong>
+
+          <small>
+            Requests rejected by a manager
+          </small>
+
+        </article>
+
+        <article>
+
+          <span>
+            Hindsight memories
+          </span>
+
+          <strong>
+            {memoryApprovals.length}
+          </strong>
+
+          <small>
+            Decisions saved as reusable context
+          </small>
+
+        </article>
+
+      </div>
+
+      <div className="dashboard-content-grid">
+
+        <section className="page-surface">
+
+          <div className="page-surface-heading">
+
+            <div>
+
+              <span>
+                Approval queue
+              </span>
+
+              <h3>
+                Requests needing attention
+              </h3>
+
+            </div>
+
+            <button
+              type="button"
+              className="secondary-action-button"
+              onClick={() =>
+                navigate("/app/approvals")
+              }
+            >
+              Open reviews
+            </button>
+
+          </div>
+
+          {pendingApprovals.length === 0 ? (
+
+            <EmptyList
+              icon="✓"
+              title="No pending approvals"
+              description="New employee requests requiring manager approval will appear here."
+            />
+
+          ) : (
+
+            <div className="records-list">
+
+              {pendingApprovals
+                .slice(0, 3)
+                .map((approval) => {
+
+                  const route =
+                    approval.route
+                    || (
+                      approval.trip?.origin
+                      && approval.trip?.destination
+                        ? (
+                            `${approval.trip.origin}`
+                            + " → "
+                            + `${approval.trip.destination}`
+                          )
+                        : "Business trip"
+                    );
+
+                  return (
+
+                    <article
+                      key={approval.id}
+                      className="record-row"
+                    >
+
+                      <div className="record-status-icon pending">
+                        …
+                      </div>
+
+                      <div className="record-main">
+
+                        <div>
+
+                          <span className="record-status pending">
+                            Pending
+                          </span>
+
+                          <h3>
+                            {route}
+                          </h3>
+
+                        </div>
+
+                        <p>
+                          {approval.trip?.purpose
+                            || "Business travel request"}
+                        </p>
+
+                      </div>
+
+                      <div className="record-meta">
+
+                        <strong>
+                          {formatCurrency(
+                            approval.total_cost
+                            || approval.cost_summary?.total_cost,
+                          )}
+                        </strong>
+
+                        <button
+                          type="button"
+                          className="secondary-action-button"
+                          onClick={() =>
+                            navigate("/app/approvals")
+                          }
+                        >
+                          Review
+                        </button>
+
+                      </div>
+
+                    </article>
+
+                  );
+
+                })}
+
+            </div>
+
+          )}
+
+        </section>
+
+        <section className="page-surface">
+
+          <div className="page-surface-heading">
+
+            <div>
+
+              <span>
+                Manager controls
+              </span>
+
+              <h3>
+                Policy and memory
+              </h3>
+
+            </div>
+
+          </div>
+
+          <div className="policy-summary-grid">
+
+            <div>
+
+              <span>
+                Decision memory
+              </span>
+
+              <strong>
+                {memoryApprovals.length}
+                {" saved"}
+              </strong>
+
+              <button
+                type="button"
+                className="secondary-action-button"
+                onClick={() =>
+                  navigate("/app/memory")
+                }
+              >
+                Open memory
+              </button>
+
+            </div>
+
+            <div>
+
+              <span>
+                Active policy
+              </span>
+
+              <strong>
+                {policySummary?.policy
+                  ? "Available"
+                  : "Unavailable"}
+              </strong>
+
+              <button
+                type="button"
+                className="secondary-action-button"
+                onClick={() =>
+                  navigate("/app/policies")
+                }
+              >
+                Manage policy
+              </button>
+
+            </div>
+
+          </div>
+
+        </section>
+
+      </div>
+
+      <section className="page-surface">
+
+        <div className="page-surface-heading">
+
+          <div>
+
+            <span>
+              Decision history
+            </span>
+
+            <h3>
+              Recent manager decisions
+            </h3>
+
+          </div>
+
+          <span>
+            {completedApprovals.length}
+            {" total"}
+          </span>
+
+        </div>
+
+        {recentDecisions.length === 0 ? (
+
+          <EmptyList
+            icon="◷"
+            title="No manager decisions yet"
+            description="Approved and rejected requests will appear here."
+          />
+
+        ) : (
+
+          <div className="records-list">
+
+            {recentDecisions.map(
+              (approval) => {
+
+                const route =
+                  approval.route
+                  || (
+                    approval.trip?.origin
+                    && approval.trip?.destination
+                      ? (
+                          `${approval.trip.origin}`
+                          + " → "
+                          + `${approval.trip.destination}`
+                        )
+                      : "Business trip"
+                  );
+
+                return (
+
+                  <article
+                    key={approval.id}
+                    className="record-row"
+                  >
+
+                    <div
+                      className={
+                        `record-status-icon ${
+                          approval.status
+                        }`
+                      }
+                    >
+                      {approval.status === "approved"
+                        ? "✓"
+                        : "!"}
+                    </div>
+
+                    <div className="record-main">
+
+                      <div>
+
+                        <span
+                          className={
+                            `record-status ${
+                              approval.status
+                            }`
+                          }
+                        >
+                          {approval.status}
+                        </span>
+
+                        <h3>
+                          {route}
+                        </h3>
+
+                      </div>
+
+                      <p>
+                        {approval.review_note
+                          || "Manager decision completed."}
+                      </p>
+
+                      {approval.memory_saved === true && (
+
+                        <blockquote>
+                          Saved to Hindsight as reusable manager memory.
+                        </blockquote>
+
+                      )}
+
+                    </div>
+
+                    <div className="record-meta">
+
+                      <strong>
+                        {formatCurrency(
+                          approval.total_cost
+                          || approval.cost_summary?.total_cost,
+                        )}
+                      </strong>
+
+                      <span>
+                        {formatDate(
+                          approval.decision_at
+                          || approval.updated_at,
+                        )}
+                      </span>
+
+                    </div>
+
+                  </article>
+
+                );
+
+              },
+            )}
+
+          </div>
+
+        )}
+
+      </section>
+
+    </div>
+
+  );
+
+}
+
+
 export function ApprovalsPage({
 
   navigate,

@@ -10,6 +10,7 @@ import {
   ApprovalsPage,
   DashboardPage,
   LandingPage,
+  ManagerOverviewPage,
   MemoryPage,
   PoliciesPage,
 } from "./pages/PageViews";
@@ -22,7 +23,8 @@ import {
 const PAGE_TITLES = {
   "/app": "Home",
   "/app/trips/new": "Trip Request",
-  "/app/approvals": "Manager Review",
+  "/app/manager": "Manager Overview",
+  "/app/approvals": "Pending Reviews",
   "/app/memory": "Decision Memory",
   "/app/policies": "Policy",
 };
@@ -206,6 +208,14 @@ function App() {
     case "/app/trips/new":
       pageContent = (
         <NewTripWorkspace />
+      );
+      break;
+
+    case "/app/manager":
+      pageContent = (
+        <ManagerOverviewPage
+          navigate={navigate}
+        />
       );
       break;
 

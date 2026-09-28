@@ -8,7 +8,7 @@ import {
 } from "../../services/api";
 
 
-const navigationItems = [
+const employeeNavigationItems = [
   {
     path: "/app",
     label: "Home",
@@ -21,15 +21,24 @@ const navigationItems = [
     shortLabel: "Trip",
     icon: "✦",
   },
+];
+
+const managerNavigationItems = [
+  {
+    path: "/app/manager",
+    label: "Manager Overview",
+    shortLabel: "Manager",
+    icon: "◈",
+  },
   {
     path: "/app/approvals",
-    label: "Manager Review",
-    shortLabel: "Review",
+    label: "Pending Reviews",
+    shortLabel: "Reviews",
     icon: "✓",
   },
   {
     path: "/app/memory",
-    label: "Memory",
+    label: "Decision Memory",
     shortLabel: "Memory",
     icon: "◷",
   },
@@ -40,6 +49,19 @@ const navigationItems = [
     icon: "▤",
   },
 ];
+
+const mobileNavigationItems = [
+  employeeNavigationItems[0],
+  employeeNavigationItems[1],
+  managerNavigationItems[0],
+];
+
+const MANAGER_PATHS = new Set([
+  "/app/manager",
+  "/app/approvals",
+  "/app/memory",
+  "/app/policies",
+]);
 
 
 function DesktopSidebar({
@@ -72,10 +94,10 @@ function DesktopSidebar({
 
       <nav className="sidebar-navigation">
         <span className="sidebar-section-label">
-          Product flow
+          Employee
         </span>
 
-        {navigationItems.map((item) => (
+        {employeeNavigationItems.map((item) => (
           <button
             type="button"
             key={item.path}
@@ -92,9 +114,35 @@ function DesktopSidebar({
               {item.icon}
             </span>
 
-            <span>
-              {item.label}
+            <span>{item.label}</span>
+          </button>
+        ))}
+
+        <span
+          className="sidebar-section-label"
+          style={{ marginTop: "22px" }}
+        >
+          Manager
+        </span>
+
+        {managerNavigationItems.map((item) => (
+          <button
+            type="button"
+            key={item.path}
+            className={`sidebar-link ${
+              activePath === item.path
+                ? "active"
+                : ""
+            }`}
+            onClick={() => {
+              navigate(item.path);
+            }}
+          >
+            <span className="sidebar-link-icon">
+              {item.icon}
             </span>
+
+            <span>{item.label}</span>
           </button>
         ))}
       </nav>
@@ -135,18 +183,35 @@ function TopHeader({
             : "Service offline"}
         </div>
 
-        {activePath !== "/app/trips/new" && (
-          <button
-            type="button"
-            className="header-new-trip"
-            onClick={() => {
-              navigate("/app/trips/new");
-            }}
-          >
-            New request
-            <span>↗</span>
-          </button>
-        )}
+        {MANAGER_PATHS.has(activePath)
+          && activePath !== "/app/manager"
+          ? (
+            <button
+              type="button"
+              className="header-new-trip"
+              onClick={() => {
+                navigate("/app/manager");
+              }}
+            >
+              Manager overview
+              <span>↗</span>
+            </button>
+          )
+          : activePath !== "/app/trips/new"
+            && !MANAGER_PATHS.has(activePath)
+            ? (
+              <button
+                type="button"
+                className="header-new-trip"
+                onClick={() => {
+                  navigate("/app/trips/new");
+                }}
+              >
+                New request
+                <span>↗</span>
+              </button>
+            )
+            : null}
       </div>
     </header>
   );
@@ -159,14 +224,20 @@ function MobileNavigation({
 }) {
   return (
     <nav className="mobile-navigation">
-      {navigationItems.map((item) => (
+      {mobileNavigationItems.map((item) => (
         <button
           type="button"
           key={item.path}
           className={
-            activePath === item.path
-              ? "active"
-              : ""
+            item.path === "/app/manager"
+              ? (
+                  MANAGER_PATHS.has(activePath)
+                    ? "active"
+                    : ""
+                )
+              : activePath === item.path
+                ? "active"
+                : ""
           }
           onClick={() => {
             navigate(item.path);
