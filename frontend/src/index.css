@@ -4367,3 +4367,41 @@ svg {
 ::-webkit-scrollbar-track {
   background: #080808;
 }
+/* Final leftover purple cleanup */
+.sidebar-link-icon,
+.mobile-navigation button span,
+.mobile-more > summary span {
+  background: #111111 !important;
+  color: #ffffff !important;
+  border-color: rgba(255, 255, 255, 0.14) !important;
+}
+
+.sidebar-link.active .sidebar-link-icon,
+.mobile-navigation button.active span {
+  background: #f5f5f5 !important;
+  color: #000000 !important;
+}
+
+.trip-page-eyebrow,
+.trip-request-eyebrow,
+.page-eyebrow,
+.surface-eyebrow,
+.application-header-eyebrow,
+.employee-booking-flow .form-section-divider,
+[class*="eyebrow"],
+[class*="kicker"] {
+  color: #ffffff !important;
+  letter-spacing: 0.14em;
+}
+
+.route-direction,
+.route-direction *,
+.route-input-row,
+.route-input-row * {
+  color: #ffffff !important;
+}
+
+.route-direction {
+  background: #111111 !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+}
