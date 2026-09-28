@@ -200,7 +200,7 @@ function App() {
     );
   }
 
-  let pageContent = null;
+  let pageContent;
 
   switch (currentPath) {
     case "/app/trips/new":

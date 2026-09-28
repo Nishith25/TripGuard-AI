@@ -81,6 +81,108 @@ def retain_hotel_decision(
         return False
 
 
+
+def retain_manager_preference(
+    traveller_id: str,
+    destination_city: str,
+    work_location: str,
+    decision: str,
+    feedback_reason: str,
+    note: str,
+    approval_id: str,
+) -> bool:
+    """Persist reusable manager feedback in Hindsight."""
+
+    try:
+        bank_id = bank_id_for(
+            traveller_id
+        )
+
+        client = _client()
+
+        if client is None:
+            return False
+
+        cleaned_note = (
+            note.strip()[:1000]
+            if note
+            else ""
+        )
+
+        preference_labels = {
+            "urgent_short_notice": (
+                "Urgent short-notice trip preference"
+            ),
+            "cost_exception": (
+                "Cost exception preference"
+            ),
+            "other": (
+                "General manager travel preference"
+            ),
+        }
+
+        preference_label = (
+            preference_labels.get(
+                feedback_reason,
+                "Manager travel preference",
+            )
+        )
+
+        content = (
+            f"TripGuard manager decision for traveller "
+            f"{traveller_id}: {decision}. "
+            f"Destination: {destination_city}. "
+            f"Workplace: {work_location}. "
+            f"Preference type: {preference_label}. "
+        )
+
+        if cleaned_note:
+            content += (
+                f"Manager's reason and future preference: "
+                f"{cleaned_note}"
+            )
+
+        with client:
+            response = client.retain(
+                bank_id=bank_id,
+                content=content,
+                document_id=(
+                    "approval-"
+                    + approval_id
+                ),
+                metadata={
+                    "destination_city": (
+                        destination_city
+                        .strip()
+                        .casefold()
+                    ),
+                    "work_location": (
+                        work_location
+                        .strip()
+                        .casefold()
+                    ),
+                    "feedback_reason": (
+                        feedback_reason
+                    ),
+                    "decision": (
+                        decision
+                    ),
+                },
+                retain_async=False,
+            )
+
+        return (
+            getattr(
+                response,
+                "success",
+                False,
+            )
+            is True
+        )
+
+    except Exception:
+        return False
+
 def recall_hotel_preference(
     traveller_id: str,
     destination_city: str,

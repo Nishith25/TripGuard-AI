@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 import {
   useEffect,
   useState,
@@ -852,14 +853,47 @@ function ApprovalModal({
 
         {result.trip?.traveller_id && (
           <div className="approval-reason">
-            <span>Feedback for this traveller</span>
-            <p>If rejecting a hotel because it is too far, save a distance preference for future trips.</p>
+            <span>
+              Save manager preference
+            </span>
+
+            <p>
+              Save reusable feedback when this decision should influence future trips for this traveller.
+            </p>
+
             <label className="approval-field">
-              <span>Reason for rejection</span>
-              <select value={feedbackReason} onChange={(event) => setFeedbackReason(event.target.value)} disabled={submitting}>
-                <option value="">No travel memory</option>
-                <option value="hotel_too_far">Hotel too far from workplace</option>
-                <option value="other">Other reason</option>
+              <span>
+                Memory type
+              </span>
+
+              <select
+                value={feedbackReason}
+                onChange={(event) =>
+                  setFeedbackReason(
+                    event.target.value,
+                  )
+                }
+                disabled={submitting}
+              >
+                <option value="">
+                  Do not save as travel memory
+                </option>
+
+                <option value="hotel_too_far">
+                  Hotel too far from workplace
+                </option>
+
+                <option value="urgent_short_notice">
+                  Urgent trip approved on short notice
+                </option>
+
+                <option value="cost_exception">
+                  Cost exception approved
+                </option>
+
+                <option value="other">
+                  Other reusable manager preference
+                </option>
               </select>
             </label>
             {feedbackReason === "hotel_too_far" && (

@@ -128,7 +128,7 @@ function formatPolicyField(
 
   return fieldName
 
-   .replaceAll("\\\\\\\_", " ")
+   .replaceAll("_", " ")
 
    .replace(
 

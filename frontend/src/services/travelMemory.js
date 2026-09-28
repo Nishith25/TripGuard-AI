@@ -9,22 +9,48 @@ export function buildTravelRequest(form) {
 }
 
 export function buildManagerDecision({
-  decision, reviewerName, note = "", feedbackReason = "", maxDistance = "",
+  decision,
+  reviewerName,
+  note = "",
+  feedbackReason = "",
+  maxDistance = "",
 }) {
   const result = {
     decision,
     reviewer_name: reviewerName.trim(),
     note: note.trim() || null,
-    feedback_reason: decision === "rejected" ? feedbackReason || null : null,
+    feedback_reason: feedbackReason || null,
     max_hotel_distance_km: null,
   };
-  if (decision === "rejected" && feedbackReason === "hotel_too_far") {
-    const value = Number(maxDistance);
-    if (maxDistance === "" || !Number.isFinite(value) || value < 0.5 || value > 20) {
-      throw new Error("Enter a maximum hotel distance between 0.5 and 20 km.");
+
+  if (
+    feedbackReason === "hotel_too_far"
+  ) {
+    if (decision !== "rejected") {
+      throw new Error(
+        "Hotel-distance memory can only be saved for a rejected trip.",
+      );
     }
-    result.max_hotel_distance_km = value;
+
+    const value = Number(
+      maxDistance,
+    );
+
+    if (
+      maxDistance === ""
+      || !Number.isFinite(value)
+      || value < 0.5
+      || value > 20
+    ) {
+      throw new Error(
+        "Enter a maximum hotel distance between 0.5 and 20 km.",
+      );
+    }
+
+    result.max_hotel_distance_km =
+      value;
   }
+
   return result;
 }
 

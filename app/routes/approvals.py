@@ -10,7 +10,10 @@ from uuid import uuid4
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel, Field, model_validator
 
-from app.integrations.travel_memory import retain_hotel_decision
+from app.integrations.travel_memory import (
+    retain_hotel_decision,
+    retain_manager_preference,
+)
 
 from app.routes.trips import (
     attach_approval_to_trip,
@@ -86,7 +89,12 @@ class ApprovalDecisionRequest(
         max_length=1000,
     )
 
-    feedback_reason: Literal["hotel_too_far", "other"] | None = None
+    feedback_reason: Literal[
+        "hotel_too_far",
+        "urgent_short_notice",
+        "cost_exception",
+        "other",
+    ] | None = None
     max_hotel_distance_km: float | None = Field(default=None, ge=0.5, le=20)
 
     @model_validator(mode="after")
@@ -462,16 +470,64 @@ def decide_approval_request(
     trip = approval.get("trip") or {}
     traveller_id = trip.get("traveller_id")
     memory_saved = False
-    if traveller_id and request.feedback_reason == "hotel_too_far":
-        memory_saved = retain_hotel_decision(
-            traveller_id=traveller_id,
-            destination_city=str(trip.get("destination_city") or ""),
-            work_location=str(trip.get("work_location") or ""),
-            decision=request.decision,
-            max_hotel_distance_km=request.max_hotel_distance_km,
-            note=request.note or "",
-            approval_id=approval_id,
-        )
+
+    if (
+        traveller_id
+        and request.feedback_reason
+    ):
+        if (
+            request.feedback_reason
+            == "hotel_too_far"
+        ):
+            memory_saved = (
+                retain_hotel_decision(
+                    traveller_id=traveller_id,
+                    destination_city=str(
+                        trip.get(
+                            "destination_city"
+                        )
+                        or ""
+                    ),
+                    work_location=str(
+                        trip.get(
+                            "work_location"
+                        )
+                        or ""
+                    ),
+                    decision=request.decision,
+                    max_hotel_distance_km=(
+                        request
+                        .max_hotel_distance_km
+                    ),
+                    note=request.note or "",
+                    approval_id=approval_id,
+                )
+            )
+
+        else:
+            memory_saved = (
+                retain_manager_preference(
+                    traveller_id=traveller_id,
+                    destination_city=str(
+                        trip.get(
+                            "destination_city"
+                        )
+                        or ""
+                    ),
+                    work_location=str(
+                        trip.get(
+                            "work_location"
+                        )
+                        or ""
+                    ),
+                    decision=request.decision,
+                    feedback_reason=(
+                        request.feedback_reason
+                    ),
+                    note=request.note or "",
+                    approval_id=approval_id,
+                )
+            )
 
     approval["memory_saved"] = memory_saved
     with _STORAGE_LOCK:

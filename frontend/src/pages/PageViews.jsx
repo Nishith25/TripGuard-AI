@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 import {
 
   useEffect,
@@ -2665,13 +2666,47 @@ export function MemoryPage({
   const decisions = getApprovalDecisions()
     .filter((approval) => approval.status !== "pending");
 
-  const memoryDecisions = decisions.filter((approval) => (
-    approval.memory_saved === true
-    || approval.feedback_reason
-    || approval.review_note
-  ));
+  const memoryDecisions =
+    decisions.filter(
+      (approval) =>
+        approval.memory_saved === true,
+    );
 
   const latestMemory = memoryDecisions[0];
+
+  const memoryLabels = {
+    hotel_too_far: {
+      learning: "Hotel distance",
+      impact: "Prefer closer hotels",
+    },
+
+    urgent_short_notice: {
+      learning: "Short-notice urgency",
+      impact:
+        "Consider urgent trips even inside the normal advance-booking window",
+    },
+
+    cost_exception: {
+      learning: "Cost exceptions",
+      impact:
+        "Consider similar justified budget exceptions",
+    },
+
+    other: {
+      learning: "Manager preference",
+      impact:
+        "Use the manager's saved reason on similar future trips",
+    },
+  };
+
+  const latestMemoryLabel =
+    memoryLabels[
+      latestMemory?.feedback_reason
+    ] || {
+      learning: "Manager preference",
+      impact:
+        "Use saved manager feedback on future trips",
+    };
 
   return (
 
@@ -2869,9 +2904,8 @@ export function MemoryPage({
 
             <strong>
 
-              {latestMemory?.feedback_reason === "hotel_too_far"
-                ? "Hotel too far"
-                : latestMemory?.review_note || "Hotel too far from workplace"}
+              {latestMemory?.review_note
+                || latestMemoryLabel.learning}
 
             </strong>
 
@@ -2887,7 +2921,7 @@ export function MemoryPage({
 
             <strong>
 
-              Prefer closer hotels
+              {latestMemoryLabel.impact}
 
             </strong>
 
@@ -2979,7 +3013,14 @@ export function MemoryPage({
 
                     {approval.feedback_reason && (
                       <blockquote>
-                        Learned preference: {approval.feedback_reason.replaceAll("_", " ")}
+                        Learned preference:{" "}
+                        {
+                          memoryLabels[
+                            approval.feedback_reason
+                          ]?.learning
+                          || approval.feedback_reason
+                            .replaceAll("_", " ")
+                        }
                       </blockquote>
                     )}
 
