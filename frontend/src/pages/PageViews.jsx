@@ -2677,23 +2677,27 @@ export function MemoryPage({
   const memoryLabels = {
     hotel_too_far: {
       learning: "Hotel distance",
+      summary: "Closer hotels",
       impact: "Prefer closer hotels",
     },
 
     urgent_short_notice: {
       learning: "Short-notice urgency",
+      summary: "Urgent-trip context",
       impact:
         "Consider urgent trips even inside the normal advance-booking window",
     },
 
     cost_exception: {
       learning: "Cost exceptions",
+      summary: "Budget context",
       impact:
         "Consider similar justified budget exceptions",
     },
 
     other: {
       learning: "Manager preference",
+      summary: "Saved preference",
       impact:
         "Use the manager's saved reason on similar future trips",
     },
@@ -2829,7 +2833,7 @@ export function MemoryPage({
           <strong>
 
             {memoryDecisions.length > 0
-              ? latestMemoryLabel.impact
+              ? latestMemoryLabel.summary
               : "No saved preference"}
 
           </strong>
