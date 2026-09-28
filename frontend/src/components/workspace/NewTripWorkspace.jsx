@@ -14,23 +14,8 @@ import {
   saveApprovalDecision,
   updateAgentRunApproval,
 } from "../../services/storage";
-import { memorySummary } from "../../services/travelMemory";
-
-
-function getFutureDate(
-  daysFromToday,
-) {
-  const futureDate = new Date();
-
-  futureDate.setDate(
-    futureDate.getDate()
-      + daysFromToday,
-  );
-
-  return futureDate
-    .toISOString()
-    .split("T")[0];
-}
+import { validateTripRequest } from "./tripRequestValidation";
+import { describeDecisionMemory, getBudgetSummary, shouldShowPlanningStatus } from "./decisionPresentation";
 
 
 function createEmptyForm() {
@@ -45,27 +30,6 @@ function createEmptyForm() {
     arrival_before: "",
     work_location: "",
     purpose: "",
-  };
-}
-
-
-function createDemoForm() {
-  return {
-    traveller_id: "DEMO_01",
-    origin: "HYD",
-    destination: "BLR",
-    destination_city:
-      "Bengaluru",
-    departure_date:
-      getFutureDate(4),
-    return_date:
-      getFutureDate(6),
-    budget: 18000,
-    arrival_before: "10:00",
-    work_location:
-      "Embassy Tech Village",
-    purpose:
-      "Important client meeting",
   };
 }
 
@@ -168,8 +132,8 @@ function TripRequestForm({
   setForm,
   running,
   onSubmit,
-  onLoadDemo,
-  onClearForm,
+  fieldErrors,
+  onFieldChange,
 }) {
   function updateField(
     event,
@@ -191,6 +155,7 @@ function TripRequestForm({
             )
           : value,
     }));
+    onFieldChange(name);
   }
 
   return (
@@ -198,18 +163,22 @@ function TripRequestForm({
       className="trip-request-form"
       onSubmit={onSubmit}
     >
+      <div className="form-section-divider">Your details</div>
       <label>
-        <span>Demo traveller ID</span>
+        <span>Traveller ID</span>
         <input
           name="traveller_id"
           value={form.traveller_id}
           onChange={updateField}
-          pattern="[A-Za-z0-9_-]{3,32}"
-          placeholder="DEMO_01"
-          title="3–32 letters, numbers, _ or -"
+          placeholder="e.g. EMP_123"
           autoComplete="off"
+          aria-invalid={Boolean(fieldErrors.traveller_id)}
+          aria-describedby={fieldErrors.traveller_id ? "traveller-id-help traveller-id-error" : "traveller-id-help"}
         />
+        <small id="traveller-id-help" className="field-hint">Use the same ID for future trips so TripGuard can remember your manager’s preferences.</small>
+        {fieldErrors.traveller_id && <small id="traveller-id-error" className="field-error" role="alert">{fieldErrors.traveller_id}</small>}
       </label>
+      <div className="form-section-divider">Route and dates</div>
       <div className="route-input-row">
         <label>
           <span>From</span>
@@ -287,16 +256,16 @@ function TripRequestForm({
             value={
               form.return_date
             }
-            min={
-              form.departure_date
-              || undefined
-            }
             onChange={updateField}
             required
+            aria-invalid={Boolean(fieldErrors.return_date)}
+            aria-describedby={fieldErrors.return_date ? "return-date-error" : undefined}
           />
+          {fieldErrors.return_date && <small id="return-date-error" className="field-error" role="alert">{fieldErrors.return_date}</small>}
         </label>
       </div>
 
+      <div className="form-section-divider">Work and travel limits</div>
       <div className="form-grid-two">
         <label>
           <span>
@@ -308,11 +277,13 @@ function TripRequestForm({
             name="budget"
             value={form.budget}
             onChange={updateField}
-            min="1"
             step="1"
             placeholder="18000"
             required
+            aria-invalid={Boolean(fieldErrors.budget)}
+            aria-describedby={fieldErrors.budget ? "budget-error" : undefined}
           />
+          {fieldErrors.budget && <small id="budget-error" className="field-error" role="alert">{fieldErrors.budget}</small>}
         </label>
 
         <label>
@@ -361,37 +332,6 @@ function TripRequestForm({
         />
       </label>
 
-      <div className="trip-form-demo-helper">
-        <div>
-          <span>
-            Demo helper
-          </span>
-
-          <p>
-            Enter the requirements manually
-            or load a prepared sample request.
-          </p>
-        </div>
-
-        <div className="trip-form-demo-actions">
-          <button
-            type="button"
-            onClick={onClearForm}
-            disabled={running}
-          >
-            Clear form
-          </button>
-
-          <button
-            type="button"
-            onClick={onLoadDemo}
-            disabled={running}
-          >
-            Load demo request
-          </button>
-        </div>
-      </div>
-
       <button
         className="primary-action-button"
         type="submit"
@@ -401,11 +341,11 @@ function TripRequestForm({
           <>
             <span className="button-spinner" />
 
-            Agent is working
+            Finding trip options…
           </>
         ) : (
           <>
-            Run autonomous agent
+            Find trip options
 
             <span>↗</span>
           </>
@@ -901,7 +841,7 @@ function EmployeeApprovalHandoff({
           type="button"
           disabled
         >
-          Ready for booking
+          Recommendation ready
         </button>
       </div>
     );
@@ -953,10 +893,7 @@ function EmployeeApprovalHandoff({
       "Inventory verification required";
   }
 
-  let actionLabel =
-    requiresApproval
-      ? "Submit for manager review"
-      : "Request manager feedback";
+  let actionLabel = "Send for manager review";
 
   if (submitting) {
     actionLabel =
@@ -998,7 +935,7 @@ function EmployeeApprovalHandoff({
       </div>
 
       {submission && (
-        <div className="policy-message-row success">
+        <div className="policy-message-row success" role="status">
           <span>✓</span>
 
           <div>
@@ -1015,7 +952,7 @@ function EmployeeApprovalHandoff({
       )}
 
       {submissionError && (
-        <div className="inline-error">
+        <div className="inline-error" role="alert">
           <strong>
             Approval submission failed
           </strong>
@@ -1032,51 +969,14 @@ function EmployeeApprovalHandoff({
 
 function RecommendationPanel({
   result,
+  steps,
   approvalSubmission,
   approvalSubmissionError,
   submittingForApproval,
   onSubmitForApproval,
   onOpenApprovals,
 }) {
-  if (!result) {
-    return (
-      <section className="workspace-surface recommendation-surface">
-        <div className="surface-heading">
-          <div>
-            <span className="surface-eyebrow">
-              Decision output
-            </span>
-
-            <h2>
-              Recommended trip
-            </h2>
-          </div>
-
-          <span className="surface-number">
-            03
-          </span>
-        </div>
-
-        <div className="recommendation-placeholder">
-          <div>
-            <span>
-              AI recommendation
-            </span>
-
-            <i className="placeholder-large" />
-            <i />
-            <i className="placeholder-short" />
-          </div>
-
-          <p>
-            The itinerary, costs,
-            weather and policy decision
-            will appear here.
-          </p>
-        </div>
-      </section>
-    );
-  }
+  if (!result) return null;
 
   const decisionMemory = result.decision_memory || {status: "none"};
 
@@ -1227,7 +1127,7 @@ function RecommendationPanel({
       <div className="surface-heading">
         <div>
           <span className="surface-eyebrow">
-            Decision output
+            Step 2 · Recommendation
           </span>
 
           <h2>
@@ -1235,21 +1135,7 @@ function RecommendationPanel({
           </h2>
         </div>
 
-        <span className="surface-number">
-          03
-        </span>
       </div>
-
-      {result.trip?.traveller_id && (
-        <div className={`policy-message-row ${decisionMemory.status === "used" ? "success" : "warning"}`}>
-          <span>◉</span>
-          <div>
-            <strong>Hindsight decision memory</strong>
-            <p>{memorySummary(decisionMemory)}</p>
-            {decisionMemory.reason && <p>{decisionMemory.reason}</p>}
-          </div>
-        </div>
-      )}
 
       <div className="recommendation-header">
         <div>
@@ -1295,33 +1181,21 @@ function RecommendationPanel({
               cost.total_cost,
             )}
           </strong>
+          <small className={Number(cost.total_cost) > Number(result.trip?.budget) ? "negative-text" : "positive-text"}>
+            {getBudgetSummary(cost.total_cost, result.trip?.budget)}
+          </small>
         </div>
       </div>
 
-      <div className="decision-explanation">
-        <span>
-          Why this option?
-        </span>
-
-        <p>
-          {result.explanation}
-        </p>
-      </div>
-
-      <SelectionReasoningPanel
-        reasoning={
-          result.selection_reasoning
-        }
-      />
-
-      <WeatherInsightCard
-        weather={result.weather}
-        advisories={
-          result
-            .travel_advisories
-          || []
-        }
-      />
+      {describeDecisionMemory(decisionMemory) && (
+        <div className="policy-message-row success remembered-preference">
+          <span>✓</span>
+          <div>
+            <strong>A preference from your manager was used</strong>
+            <p>{describeDecisionMemory(decisionMemory)}</p>
+          </div>
+        </div>
+      )}
 
       <div className="itinerary-selection-card">
         <div className="itinerary-icon">
@@ -1431,6 +1305,8 @@ function RecommendationPanel({
         </b>
       </div>
 
+      <details className="booking-details">
+        <summary>Trip details and cost breakdown</summary>
       <div className="cost-summary-grid">
         <div>
           <span>Flight</span>
@@ -1483,6 +1359,8 @@ function RecommendationPanel({
           </strong>
         </div>
       </div>
+      <WeatherInsightCard weather={result.weather} advisories={result.travel_advisories || []} />
+      </details>
 
       <div className="policy-assessment">
         <div className="policy-assessment-heading">
@@ -1608,6 +1486,8 @@ function RecommendationPanel({
           ),
         )}
 
+        {(enforcedFields.length > 0 || unspecifiedFields.length > 0) && <details className="booking-details policy-details">
+          <summary>Policy checks and fields</summary>
         {enforcedFields.length > 0
           && (
             <div className="policy-message-row success">
@@ -1638,6 +1518,7 @@ function RecommendationPanel({
                 .join(", ")}
             </div>
           )}
+        </details>}
       </div>
 
       <EmployeeApprovalHandoff
@@ -1659,6 +1540,16 @@ function RecommendationPanel({
           onOpenApprovals
         }
       />
+
+      <details className="booking-details">
+        <summary>How TripGuard decided</summary>
+        <div className="decision-explanation">
+          <span>Why this option?</span>
+          <p>{result.explanation}</p>
+        </div>
+        <SelectionReasoningPanel reasoning={result.selection_reasoning} />
+        <AgentTimeline steps={steps} running={false} started={true} result={result} progress={100} error={""} />
+      </details>
     </section>
   );
 }
@@ -1671,6 +1562,8 @@ function NewTripWorkspace() {
   ] = useState(
     createEmptyForm,
   );
+
+  const [fieldErrors, setFieldErrors] = useState({});
 
   const [
     approvalSubmission,
@@ -1703,17 +1596,9 @@ function NewTripWorkspace() {
     event,
   ) {
     event.preventDefault();
-
-    if (
-      form.return_date
-      < form.departure_date
-    ) {
-      window.alert(
-        "Return date cannot be earlier than the departure date.",
-      );
-
-      return;
-    }
+    const errors = validateTripRequest(form);
+    setFieldErrors(errors);
+    if (Object.keys(errors).length) return;
 
     setApprovalSubmission(
       null,
@@ -1757,44 +1642,6 @@ function NewTripWorkspace() {
           form.budget,
         ),
     });
-  }
-
-
-  function handleLoadDemo() {
-    setForm(
-      createDemoForm(),
-    );
-
-    setApprovalSubmission(
-      null,
-    );
-
-    setApprovalSubmissionError(
-      "",
-    );
-
-    setSubmittingForApproval(
-      false,
-    );
-  }
-
-
-  function handleClearForm() {
-    setForm(
-      createEmptyForm(),
-    );
-
-    setApprovalSubmission(
-      null,
-    );
-
-    setApprovalSubmissionError(
-      "",
-    );
-
-    setSubmittingForApproval(
-      false,
-    );
   }
 
 
@@ -1966,63 +1813,26 @@ function NewTripWorkspace() {
           </span>
 
           <h2>
-            Plan and submit a
-            business trip
+            Plan a business trip
           </h2>
 
           <p>
-            Enter the traveller’s
-            requirements. TripGuard
-            searches live inventory,
-            checks the active company
-            policy and prepares an
-            explainable recommendation.
-            Manager decisions are handled
-            separately in Approvals.
+            Enter your travel details to find an option that fits your budget and company policy.
           </p>
-        </div>
-
-        <div className="live-system-label">
-          <span>●</span>
-
-          Employee workspace · Live
-          travel inventory
         </div>
       </div>
 
-      <div className="trip-workspace-grid">
+      <div className="trip-workspace-grid employee-booking-flow">
         <section className="workspace-surface trip-request-surface">
           <div className="surface-heading">
             <div>
-              <span className="surface-eyebrow">
-                Employee request
-              </span>
+              <span className="surface-eyebrow">Step 1 · Your request</span>
 
               <h2>
-                Trip requirements
+                Where are you going?
               </h2>
             </div>
 
-            <span className="surface-number">
-              01
-            </span>
-          </div>
-
-          <div className="information-callout">
-            <span>i</span>
-
-            <p>
-              The company policy is managed
-              separately from the employee
-              request under the Policies
-              workspace.
-            </p>
-          </div>
-
-          <div className="form-section-divider">
-            <span>
-              Traveller requirements
-            </span>
           </div>
 
           <TripRequestForm
@@ -2032,26 +1842,25 @@ function NewTripWorkspace() {
             onSubmit={
               handleSubmit
             }
-            onLoadDemo={
-              handleLoadDemo
-            }
-            onClearForm={
-              handleClearForm
-            }
+            fieldErrors={fieldErrors}
+            onFieldChange={(name) => setFieldErrors((current) => {
+              if (!current[name]) return current;
+              const next = { ...current };
+              delete next[name];
+              return next;
+            })}
           />
         </section>
 
-        <AgentTimeline
-          steps={steps}
-          running={running}
-          started={started}
-          result={result}
-          progress={progress}
-          error={error}
-        />
+        {shouldShowPlanningStatus({ running, started, error, result }) && <div className="booking-progress" role={error ? "alert" : "status"} aria-live="polite">
+          <strong>{running ? 'Finding your trip options…' : error ? 'Could not find trip options' : 'Finishing your recommendation…'}</strong>
+          {error && <p>{error} Check your connection and try again. Your request is still here.</p>}
+          <details><summary>How TripGuard is working</summary><AgentTimeline steps={steps} running={running} started={started} result={result} progress={progress} error={error} /></details>
+        </div>}
 
-        <RecommendationPanel
+        {result && <RecommendationPanel
           result={result}
+          steps={steps}
           approvalSubmission={
             approvalSubmission
           }
@@ -2067,7 +1876,7 @@ function NewTripWorkspace() {
           onOpenApprovals={
             handleOpenApprovals
           }
-        />
+        />}
       </div>
     </>
   );
