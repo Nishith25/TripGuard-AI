@@ -3983,3 +3983,140 @@ textarea {
     width: 100%;
   }
 }
+/* Employee booking flow */
+.employee-booking-flow {
+  width: min(100%, 940px);
+  margin: 0 auto;
+  gap: 24px;
+}
+
+.employee-booking-flow .trip-request-surface {
+  min-height: 0;
+}
+
+.employee-booking-flow .trip-request-form {
+  gap: 16px;
+}
+
+.employee-booking-flow .form-section-divider {
+  margin: 12px 0 0;
+  color: var(--purple-bright);
+  font-size: 12px;
+}
+
+.employee-booking-flow .field-hint {
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.employee-booking-flow .field-error {
+  font-size: 12px;
+}
+
+.booking-progress {
+  padding: 20px 24px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--surface);
+}
+
+.booking-progress p { color: var(--red); }
+.booking-progress summary { margin-top: 14px; color: var(--purple-bright); cursor: pointer; }
+.booking-progress .agent-execution-surface { min-height: 0; margin-top: 16px; }
+
+.employee-booking-flow .recommendation-surface { min-height: 0; }
+.employee-booking-flow .recommendation-header { margin-bottom: 18px; }
+.employee-booking-flow .remembered-preference { margin: 16px 0; }
+.employee-booking-flow .policy-assessment { margin-top: 22px; }
+.booking-details {
+  margin-top: 16px;
+  padding: 16px 20px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--surface-soft);
+}
+.booking-details > summary {
+  color: var(--purple-bright);
+  cursor: pointer;
+  font-weight: 700;
+  list-style-position: inside;
+}
+.booking-details[open] > summary { margin-bottom: 18px; }
+.booking-details .agent-execution-surface {
+  min-height: 0;
+  margin-top: 16px;
+}
+.booking-details .cost-summary-grid { margin: 0 0 18px; }
+.booking-details summary:focus-visible,
+.booking-progress summary:focus-visible {
+  outline: 2px solid var(--purple-bright);
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+
+.application-shell { grid-template-columns: 224px minmax(0, 1fr); }
+.sidebar-navigation { margin-top: 32px; }
+.sidebar-secondary-label {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+}
+.employee-booking-flow .agent-timeline,
+.booking-progress .agent-timeline { min-height: 0; }
+.employee-booking-flow .policy-details { width: 100%; }
+.sidebar-link:focus-visible,
+.mobile-navigation button:focus-visible,
+.primary-action-button:focus-visible,
+.approval-control-card button:focus-visible {
+  outline: 2px solid var(--purple-bright);
+  outline-offset: 3px;
+}
+@media (max-width: 1080px) {
+  .application-shell { display: block; }
+  .mobile-navigation { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .mobile-more { position: relative; min-width: 0; }
+  .mobile-more > summary {
+    display: grid;
+    height: 100%;
+    place-content: center;
+    justify-items: center;
+    gap: 4px;
+    border-radius: 12px;
+    color: #a5adbf;
+    cursor: pointer;
+    list-style: none;
+  }
+  .mobile-more > summary::-webkit-details-marker { display: none; }
+  .mobile-more > summary span { font-size: 17px; }
+  .mobile-more > summary small { font-size: 9px; }
+  .mobile-more > summary:focus-visible { outline: 2px solid var(--purple-bright); outline-offset: 2px; }
+  .mobile-more-menu {
+    position: absolute;
+    right: 0;
+    bottom: calc(100% + 16px);
+    display: grid;
+    gap: 3px;
+    width: max-content;
+    min-width: 175px;
+    padding: 8px;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: var(--surface-raised);
+    box-shadow: 0 14px 32px rgba(0,0,0,.4);
+  }
+  .mobile-navigation .mobile-more-menu button {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    text-align: left;
+  }
+}
+.employee-booking-flow .recommendation-total small { display: block; margin-top: 6px; font-size: 13px; font-weight: 700; }
+@media (max-width: 560px) {
+  .employee-booking-flow { width: 100%; }
+  .employee-booking-flow .recommendation-header h3 { overflow-wrap: anywhere; }
+  .employee-booking-flow .itinerary-selection-card { min-width: 0; }
+  .employee-booking-flow .itinerary-selection-card strong { overflow-wrap: anywhere; }
+  .employee-booking-flow .booking-details { padding: 14px; }
+}
