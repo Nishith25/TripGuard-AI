@@ -230,6 +230,9 @@ def create_approval_request(
         "reviewer_name": None,
         "review_note": None,
         "decision_at": None,
+        "feedback_reason": None,
+        "max_hotel_distance_km": None,
+        "memory_saved": False,
         "trip": request.trip,
         "selected_flight": (
             request.selected_flight
