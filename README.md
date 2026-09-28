@@ -192,6 +192,13 @@ The frontend streams these stages while the workflow executes.
 
 ### Employee Travel Workspace
 
+Employees can use TripGuard without signing in.
+
+The employee workspace includes:
+
+- Home
+- Trip Request
+
 Employees can provide:
 
 - origin and destination
@@ -202,6 +209,8 @@ Employees can provide:
 - workplace
 - business purpose
 - traveller ID for memory-enabled demonstrations
+
+Employee requests are evaluated through the same policy, inventory, weather, memory, recommendation, and approval workflow.
 
 ### Live Travel Search
 
@@ -242,16 +251,30 @@ The final result can include:
 - manager-approval requirement
 - LLM-generated explanation
 
-### Manager Review
+### Manager Workspace
+
+Manager operations are separated from the employee flow.
+
+The manager workspace includes:
+
+- Manager Overview
+- Pending Reviews
+- Decision Memory
+- Policy
+- Logout
 
 Managers can:
 
-- inspect the recommendation
-- review policy violations
-- approve or reject
-- record a decision note
+- inspect employee travel recommendations
+- review policy violations and exceptions
+- approve or reject requests
+- record a manager decision note
 - classify reusable feedback
 - store relevant feedback in Hindsight
+- review saved decision memory
+- manage the active travel policy
+
+Manager routes are protected by a frontend session gate. This improves workflow separation for the current application, but it is not a substitute for production-grade backend authentication and authorization.
 
 ### Persistent History
 
@@ -314,6 +337,17 @@ Supabase stores trip runs and approval records so they survive backend restarts 
                     │     React / Vite     │
                     │       Frontend       │
                     └──────────┬───────────┘
+                               │
+             ┌─────────────────┴─────────────────┐
+             │                                   │
+             ▼                                   ▼
+      Employee Workspace                  Manager Workspace
+      No login required                   Frontend session gate
+      Home / Trip Request                 Overview / Reviews
+                                          Memory / Policy
+             │                                   │
+             └─────────────────┬─────────────────┘
+                               │
                                │
                         REST + Streaming
                                │
@@ -557,13 +591,18 @@ TripGuard is designed to degrade safely.
 - `SUPABASE_SERVICE_ROLE_KEY` must never be exposed to the frontend.
 - Hindsight and Groq keys remain server-side.
 - Supabase tables use Row Level Security.
-- Production use should add authentication and authorization before storing real employee information.
+- Employee access does not require login in the current application.
+- Manager routes are separated behind a frontend `sessionStorage` authentication gate.
+- The current manager login is a workflow/demo access control mechanism, not production-grade security.
+- Production deployment should replace the frontend-only manager gate with backend authentication, secure credential handling, authorization, and role-based access control.
 
 ---
 
 ## Known Limitations
 
-- Authentication and role-based access control are not yet implemented.
+- Manager access currently uses a frontend-only session gate rather than secure backend authentication.
+- Production-grade authentication and role-based authorization are not yet implemented.
+- Employee users currently do not authenticate.
 - Demo traveller IDs are memory identifiers, not authentication.
 - Uploaded policy files are not stored in durable object storage.
 - Image-only/scanned policies require OCR support.
@@ -588,6 +627,10 @@ The current production system includes:
 - Groq GPT-OSS-120B explanation layer
 - Supabase persistent storage
 - human manager approval
+- separate employee and manager workspaces
+- manager overview and protected manager routes
+- decision-memory management
+- frontend manager session login/logout flow
 - production dependency health checks
 - automated backend tests
 - deployed frontend and backend
