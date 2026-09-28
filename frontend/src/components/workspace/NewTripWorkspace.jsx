@@ -4,23 +4,15 @@ import {
 
 } from "react";
 
-
-
 import WeatherInsightCard from "../weather/WeatherInsightCard";
 
-
-
 import useTripAgent from "../../hooks/useTripAgent";
-
-
 
 import {
 
   API_URL,
 
 } from "../../services/api";
-
-
 
 import {
 
@@ -33,10 +25,6 @@ import {
 import { validateTripRequest } from "./tripRequestValidation";
 
 import { describeDecisionMemory, getBudgetSummary, shouldShowPlanningStatus } from "./decisionPresentation";
-
-
-
-
 
 function createEmptyForm() {
 
@@ -66,10 +54,6 @@ function createEmptyForm() {
 
 }
 
-
-
-
-
 function formatCurrency(
 
   value,
@@ -98,10 +82,6 @@ function formatCurrency(
 
 }
 
-
-
-
-
 function formatStatus(
 
   status,
@@ -124,8 +104,6 @@ function formatStatus(
 
   };
 
-
-
   return (
 
     labels[status]
@@ -135,10 +113,6 @@ function formatStatus(
   );
 
 }
-
-
-
-
 
 function formatPolicyField(
 
@@ -152,11 +126,9 @@ function formatPolicyField(
 
   }
 
-
-
   return fieldName
 
-    .replaceAll("\_", " ")
+    .replaceAll("\\\_", " ")
 
     .replace(
 
@@ -169,10 +141,6 @@ function formatPolicyField(
     );
 
 }
-
-
-
-
 
 function getFlightDisplayNumber(
 
@@ -190,15 +158,11 @@ function getFlightDisplayNumber(
 
     ).trim();
 
-
-
   if (airlineFlightNumber) {
 
     return airlineFlightNumber;
 
   }
-
-
 
   return String(
 
@@ -209,10 +173,6 @@ function getFlightDisplayNumber(
   );
 
 }
-
-
-
-
 
 function hasSeparateFlightReference(
 
@@ -228,15 +188,11 @@ function hasSeparateFlightReference(
 
   ).trim();
 
-
-
   if (!flightId) {
 
     return false;
 
   }
-
-
 
   return (
 
@@ -251,10 +207,6 @@ function hasSeparateFlightReference(
   );
 
 }
-
-
-
-
 
 function TripRequestForm({
 
@@ -286,13 +238,9 @@ function TripRequestForm({
 
     } = event.target;
 
-
-
     setForm((current) => ({
 
       ...current,
-
-
 
       [name]:
 
@@ -315,8 +263,6 @@ function TripRequestForm({
     onFieldChange(name);
 
   }
-
-
 
   return (
 
@@ -366,8 +312,6 @@ function TripRequestForm({
 
           <span>From</span>
 
-
-
           <input
 
             name="origin"
@@ -388,21 +332,15 @@ function TripRequestForm({
 
         </label>
 
-
-
         <div className="route-direction">
 
           →
 
         </div>
 
-
-
         <label>
 
           <span>To</span>
-
-
 
           <input
 
@@ -430,8 +368,6 @@ function TripRequestForm({
 
       </div>
 
-
-
       <label>
 
         <span>
@@ -439,8 +375,6 @@ function TripRequestForm({
           Destination city
 
         </span>
-
-
 
         <input
 
@@ -464,15 +398,11 @@ function TripRequestForm({
 
       </label>
 
-
-
       <div className="form-grid-two">
 
         <label>
 
           <span>Departure</span>
-
-
 
           <input
 
@@ -494,13 +424,9 @@ function TripRequestForm({
 
         </label>
 
-
-
         <label>
 
           <span>Return</span>
-
-
 
           <input
 
@@ -530,8 +456,6 @@ function TripRequestForm({
 
       </div>
 
-
-
       <div className="form-section-divider">Work and travel limits</div>
 
       <div className="form-grid-two">
@@ -543,8 +467,6 @@ function TripRequestForm({
             Maximum budget
 
           </span>
-
-
 
           <input
 
@@ -572,8 +494,6 @@ function TripRequestForm({
 
         </label>
 
-
-
         <label>
 
           <span>
@@ -581,8 +501,6 @@ function TripRequestForm({
             Arrive before
 
           </span>
-
-
 
           <input
 
@@ -604,8 +522,6 @@ function TripRequestForm({
 
       </div>
 
-
-
       <label>
 
         <span>
@@ -613,8 +529,6 @@ function TripRequestForm({
           Work location
 
         </span>
-
-
 
         <input
 
@@ -636,8 +550,6 @@ function TripRequestForm({
 
       </label>
 
-
-
       <label>
 
         <span>
@@ -645,8 +557,6 @@ function TripRequestForm({
           Business purpose
 
         </span>
-
-
 
         <textarea
 
@@ -664,8 +574,6 @@ function TripRequestForm({
 
       </label>
 
-
-
       <button
 
         className="primary-action-button"
@@ -682,8 +590,6 @@ function TripRequestForm({
 
             <span className="button-spinner" />
 
-
-
             Running TripGuard agent…
 
           </>
@@ -693,8 +599,6 @@ function TripRequestForm({
           <>
 
             Run TripGuard agent
-
-
 
             <span>↗</span>
 
@@ -709,10 +613,6 @@ function TripRequestForm({
   );
 
 }
-
-
-
-
 
 function AgentTimeline({
 
@@ -744,8 +644,6 @@ function AgentTimeline({
 
           </span>
 
-
-
           <h2>
 
             Agent activity
@@ -754,8 +652,6 @@ function AgentTimeline({
 
         </div>
 
-
-
         <span className="surface-number">
 
           02
@@ -763,8 +659,6 @@ function AgentTimeline({
         </span>
 
       </div>
-
-
 
       <div className="execution-progress">
 
@@ -784,8 +678,6 @@ function AgentTimeline({
 
           </span>
 
-
-
           <strong>
 
             {progress}%
@@ -793,8 +685,6 @@ function AgentTimeline({
           </strong>
 
         </div>
-
-
 
         <div className="execution-progress-track">
 
@@ -814,8 +704,6 @@ function AgentTimeline({
 
       </div>
 
-
-
       <div className="agent-timeline">
 
         {!started
@@ -828,15 +716,11 @@ function AgentTimeline({
 
               <div>⌁</div>
 
-
-
               <h3>
 
                 Ready to reason
 
               </h3>
-
-
 
               <p>
 
@@ -854,8 +738,6 @@ function AgentTimeline({
 
           )}
 
-
-
         {started
 
           && steps.length === 0
@@ -866,8 +748,6 @@ function AgentTimeline({
 
               <span />
 
-
-
               Initialising agent
 
               workflow…
@@ -875,8 +755,6 @@ function AgentTimeline({
             </div>
 
           )}
-
-
 
         {steps.map(
 
@@ -914,8 +792,6 @@ function AgentTimeline({
 
                 </span>
 
-
-
                 {index
 
                   < steps.length - 1
@@ -928,8 +804,6 @@ function AgentTimeline({
 
               </div>
 
-
-
               <div className="agent-step-content">
 
                 <div>
@@ -940,8 +814,6 @@ function AgentTimeline({
 
                   </strong>
 
-
-
                   <time>
 
                     {step.timestamp}
@@ -950,15 +822,11 @@ function AgentTimeline({
 
                 </div>
 
-
-
                 <p>
 
                   {step.message}
 
                 </p>
-
-
 
                 <small>
 
@@ -988,8 +856,6 @@ function AgentTimeline({
 
       </div>
 
-
-
       {error && (
 
         <div className="inline-error">
@@ -999,8 +865,6 @@ function AgentTimeline({
             Agent error
 
           </strong>
-
-
 
           <p>{error}</p>
 
@@ -1014,10 +878,6 @@ function AgentTimeline({
 
 }
 
-
-
-
-
 function SelectionReasoningPanel({
 
   reasoning,
@@ -1030,23 +890,17 @@ function SelectionReasoningPanel({
 
   }
 
-
-
   const priorities =
 
     reasoning.priority_order
 
     || [];
 
-
-
   const selectedReasons =
 
     reasoning.selected_reasons
 
     || [];
-
-
 
   const cheaperAlternatives =
 
@@ -1055,8 +909,6 @@ function SelectionReasoningPanel({
       .cheaper_options_rejected
 
     || [];
-
-
 
   const cheaperOptionCount =
 
@@ -1070,8 +922,6 @@ function SelectionReasoningPanel({
 
     );
 
-
-
   const comparisonHeading =
 
     cheaperOptionCount > 0
@@ -1079,8 +929,6 @@ function SelectionReasoningPanel({
       ? "Why not the cheaper flight?"
 
       : "Why this flight was selected";
-
-
 
   return (
 
@@ -1096,8 +944,6 @@ function SelectionReasoningPanel({
 
           </span>
 
-
-
           <h4>
 
             {comparisonHeading}
@@ -1106,15 +952,11 @@ function SelectionReasoningPanel({
 
         </div>
 
-
-
         <span className="selection-strategy-pill">
 
           {cheaperOptionCount}
 
           {" cheaper flight"}
-
-
 
           {cheaperOptionCount === 1
 
@@ -1122,15 +964,11 @@ function SelectionReasoningPanel({
 
             : "s"}
 
-
-
           {" reviewed"}
 
         </span>
 
       </div>
-
-
 
       {reasoning.strategy && (
 
@@ -1141,8 +979,6 @@ function SelectionReasoningPanel({
         </p>
 
       )}
-
-
 
       {priorities.length > 0 && (
 
@@ -1176,8 +1012,6 @@ function SelectionReasoningPanel({
 
                 </b>
 
-
-
                 {priority}
 
               </span>
@@ -1190,8 +1024,6 @@ function SelectionReasoningPanel({
 
       )}
 
-
-
       <div className="selected-reason-card">
 
         <div className="selected-reason-card-header">
@@ -1203,8 +1035,6 @@ function SelectionReasoningPanel({
               Selected option wins
 
             </span>
-
-
 
             <strong>
 
@@ -1234,8 +1064,6 @@ function SelectionReasoningPanel({
 
           </div>
 
-
-
           <strong>
 
             {formatCurrency(
@@ -1249,8 +1077,6 @@ function SelectionReasoningPanel({
           </strong>
 
         </div>
-
-
 
         {selectedReasons.length > 0 && (
 
@@ -1278,8 +1104,6 @@ function SelectionReasoningPanel({
 
                   <span>✓</span>
 
-
-
                   {reason}
 
                 </li>
@@ -1294,8 +1118,6 @@ function SelectionReasoningPanel({
 
       </div>
 
-
-
       {cheaperAlternatives.length > 0 ? (
 
         <div className="cheaper-alternatives">
@@ -1308,8 +1130,6 @@ function SelectionReasoningPanel({
 
             </span>
 
-
-
             <small>
 
               Showing up to three
@@ -1319,8 +1139,6 @@ function SelectionReasoningPanel({
             </small>
 
           </div>
-
-
 
           <div className="cheaper-alternatives-list">
 
@@ -1378,8 +1196,6 @@ function SelectionReasoningPanel({
 
                       </span>
 
-
-
                       <strong>
 
                         {
@@ -1406,8 +1222,6 @@ function SelectionReasoningPanel({
 
                       </strong>
 
-
-
                       <p>
 
                         {alternative
@@ -1423,8 +1237,6 @@ function SelectionReasoningPanel({
                           .arrival_time
 
                           || "—"}
-
-
 
                         {alternative
 
@@ -1448,8 +1260,6 @@ function SelectionReasoningPanel({
 
                     </div>
 
-
-
                     <div className="cheaper-alternative-price">
 
                       <strong>
@@ -1463,8 +1273,6 @@ function SelectionReasoningPanel({
                         )}
 
                       </strong>
-
-
 
                       <span>
 
@@ -1484,8 +1292,6 @@ function SelectionReasoningPanel({
 
                   </div>
 
-
-
                   {alternative
 
                     .rejection_summary
@@ -1495,8 +1301,6 @@ function SelectionReasoningPanel({
                       <div className="alternative-ranking-reason">
 
                         <span>!</span>
-
-
 
                         {
 
@@ -1509,8 +1313,6 @@ function SelectionReasoningPanel({
                       </div>
 
                     )}
-
-
 
                   {alternative
 
@@ -1548,8 +1350,6 @@ function SelectionReasoningPanel({
 
                                 <span>•</span>
 
-
-
                                 {reason}
 
                               </li>
@@ -1578,8 +1378,6 @@ function SelectionReasoningPanel({
 
           <span>✓</span>
 
-
-
           <div>
 
             <strong>
@@ -1589,8 +1387,6 @@ function SelectionReasoningPanel({
               the lowest-cost option
 
             </strong>
-
-
 
             <p>
 
@@ -1615,10 +1411,6 @@ function SelectionReasoningPanel({
   );
 
 }
-
-
-
-
 
 function EmployeeApprovalHandoff({
 
@@ -1648,8 +1440,6 @@ function EmployeeApprovalHandoff({
 
     );
 
-
-
   if (!requiresApproval && !allowOptionalReview) {
 
     return (
@@ -1664,8 +1454,6 @@ function EmployeeApprovalHandoff({
 
           </span>
 
-
-
           <strong>
 
             No manager approval required
@@ -1673,8 +1461,6 @@ function EmployeeApprovalHandoff({
           </strong>
 
         </div>
-
-
 
         <button
 
@@ -1694,8 +1480,6 @@ function EmployeeApprovalHandoff({
 
   }
 
-
-
   const hasException =
 
     compliance
@@ -1703,8 +1487,6 @@ function EmployeeApprovalHandoff({
       ?.is_compliant
 
     === false;
-
-
 
   const manualPolicyReview =
 
@@ -1716,8 +1498,6 @@ function EmployeeApprovalHandoff({
 
     );
 
-
-
   const manualInventoryReview =
 
     Boolean(
@@ -1728,8 +1508,6 @@ function EmployeeApprovalHandoff({
 
     );
 
-
-
   let reviewReason =
 
     requiresApproval
@@ -1737,8 +1515,6 @@ function EmployeeApprovalHandoff({
       ? "Manager approval required"
 
       : "Optional manager feedback";
-
-
 
   if (
 
@@ -1786,11 +1562,7 @@ function EmployeeApprovalHandoff({
 
   }
 
-
-
   let actionLabel = "Send for manager review";
-
-
 
   if (submitting) {
 
@@ -1806,8 +1578,6 @@ function EmployeeApprovalHandoff({
 
   }
 
-
-
   return (
 
     <>
@@ -1821,8 +1591,6 @@ function EmployeeApprovalHandoff({
             Employee submission
 
           </span>
-
-
 
           <strong>
 
@@ -1841,8 +1609,6 @@ function EmployeeApprovalHandoff({
           </strong>
 
         </div>
-
-
 
         <button
 
@@ -1868,15 +1634,11 @@ function EmployeeApprovalHandoff({
 
       </div>
 
-
-
       {submission && (
 
         <div className="policy-message-row success" role="status">
 
           <span>✓</span>
-
-
 
           <div>
 
@@ -1885,8 +1647,6 @@ function EmployeeApprovalHandoff({
               Approval request submitted
 
             </strong>
-
-
 
             <p>
 
@@ -1902,8 +1662,6 @@ function EmployeeApprovalHandoff({
 
       )}
 
-
-
       {submissionError && (
 
         <div className="inline-error" role="alert">
@@ -1913,8 +1671,6 @@ function EmployeeApprovalHandoff({
             Approval submission failed
 
           </strong>
-
-
 
           <p>
 
@@ -1931,10 +1687,6 @@ function EmployeeApprovalHandoff({
   );
 
 }
-
-
-
-
 
 function RecommendationPanel({
 
@@ -1956,11 +1708,7 @@ function RecommendationPanel({
 
   if (!result) return null;
 
-
-
   const decisionMemory = result.decision_memory || {status: "none"};
-
-
 
   if (
 
@@ -1984,8 +1732,6 @@ function RecommendationPanel({
 
             </span>
 
-
-
             <h2>
 
               No recommendation
@@ -1996,8 +1742,6 @@ function RecommendationPanel({
 
         </div>
 
-
-
         <div className="inline-error">
 
           <strong>
@@ -2005,8 +1749,6 @@ function RecommendationPanel({
             No matching inventory
 
           </strong>
-
-
 
           <p>
 
@@ -2032,37 +1774,25 @@ function RecommendationPanel({
 
   }
 
-
-
   const compliance =
 
     result.compliance || {};
-
-
 
   const cost =
 
     result.cost_summary || {};
 
-
-
   const flight =
 
     result.selected_flight || {};
-
-
 
   const hotel =
 
     result.selected_hotel || {};
 
-
-
   const policyCoverage =
 
     result.policy_coverage || {};
-
-
 
   const unsupportedRules =
 
@@ -2070,15 +1800,11 @@ function RecommendationPanel({
 
       .unsupported_rules || [];
 
-
-
   const enforcedFields =
 
     policyCoverage
 
       .enforced_fields || [];
-
-
 
   const unspecifiedFields =
 
@@ -2086,13 +1812,9 @@ function RecommendationPanel({
 
       .not_specified_fields || [];
 
-
-
   const rawWarnings =
 
     compliance.warnings || [];
-
-
 
   const visibleWarnings =
 
@@ -2114,8 +1836,6 @@ function RecommendationPanel({
 
     );
 
-
-
   const flightDisplayNumber =
 
     getFlightDisplayNumber(
@@ -2123,8 +1843,6 @@ function RecommendationPanel({
       flight,
 
     );
-
-
 
   const showFlightReference =
 
@@ -2134,23 +1852,17 @@ function RecommendationPanel({
 
     );
 
-
-
   const isLiveFlight =
 
     flight.data_source
 
     === "live";
 
-
-
   const isLiveHotel =
 
     hotel.data_source
 
     === "live";
-
-
 
   const manualPolicyReviewRequired =
 
@@ -2166,8 +1878,6 @@ function RecommendationPanel({
 
     );
 
-
-
   const manualInventoryReviewRequired =
 
     Boolean(
@@ -2178,15 +1888,11 @@ function RecommendationPanel({
 
     );
 
-
-
   const anyManualReviewRequired =
 
     manualPolicyReviewRequired
 
     || manualInventoryReviewRequired;
-
-
 
   const decisionClass =
 
@@ -2198,8 +1904,6 @@ function RecommendationPanel({
 
       : "exception";
 
-
-
   let decisionLabel =
 
     formatStatus(
@@ -2207,8 +1911,6 @@ function RecommendationPanel({
       result.status,
 
     );
-
-
 
   if (
 
@@ -2244,8 +1946,6 @@ function RecommendationPanel({
 
   }
 
-
-
   return (
 
     <section className="workspace-surface recommendation-surface">
@@ -2260,8 +1960,6 @@ function RecommendationPanel({
 
           </span>
 
-
-
           <h2>
 
             Recommended trip
@@ -2270,11 +1968,7 @@ function RecommendationPanel({
 
         </div>
 
-
-
       </div>
-
-
 
       <div className="recommendation-header">
 
@@ -2298,29 +1992,19 @@ function RecommendationPanel({
 
               : "!"}
 
-
-
             {decisionLabel}
 
           </span>
-
-
 
           <h3>
 
             {result.trip?.origin}
 
-
-
             <span>→</span>
-
-
 
             {result.trip?.destination}
 
           </h3>
-
-
 
           <p>
 
@@ -2346,13 +2030,9 @@ function RecommendationPanel({
 
         </div>
 
-
-
         <div className="recommendation-total">
 
           <span>Total</span>
-
-
 
           <strong>
 
@@ -2374,8 +2054,6 @@ function RecommendationPanel({
 
       </div>
 
-
-
       {describeDecisionMemory(decisionMemory) && (
 
         <div className="policy-message-row success remembered-preference">
@@ -2394,8 +2072,6 @@ function RecommendationPanel({
 
       )}
 
-
-
       <div className="itinerary-selection-card">
 
         <div className="itinerary-icon">
@@ -2403,8 +2079,6 @@ function RecommendationPanel({
           ✈
 
         </div>
-
-
 
         <div>
 
@@ -2418,8 +2092,6 @@ function RecommendationPanel({
 
           </span>
 
-
-
           <strong>
 
             {flight.airline
@@ -2431,8 +2103,6 @@ function RecommendationPanel({
             {flightDisplayNumber}
 
           </strong>
-
-
 
           <p>
 
@@ -2454,8 +2124,6 @@ function RecommendationPanel({
 
           </p>
 
-
-
           {showFlightReference && (
 
             <p>
@@ -2467,8 +2135,6 @@ function RecommendationPanel({
             </p>
 
           )}
-
-
 
           {flight.provider && (
 
@@ -2484,8 +2150,6 @@ function RecommendationPanel({
 
         </div>
 
-
-
         <b>
 
           {formatCurrency(
@@ -2498,8 +2162,6 @@ function RecommendationPanel({
 
       </div>
 
-
-
       <div className="itinerary-selection-card">
 
         <div className="itinerary-icon">
@@ -2507,8 +2169,6 @@ function RecommendationPanel({
           ⌂
 
         </div>
-
-
 
         <div>
 
@@ -2522,8 +2182,6 @@ function RecommendationPanel({
 
           </span>
 
-
-
           <strong>
 
             {hotel.name
@@ -2532,8 +2190,6 @@ function RecommendationPanel({
 
           </strong>
 
-
-
           <p>
 
             {hotel
@@ -2541,8 +2197,6 @@ function RecommendationPanel({
               .distance_from_work_location_km
 
               ?? "Distance unavailable"}
-
-
 
             {hotel
 
@@ -2560,19 +2214,13 @@ function RecommendationPanel({
 
               : ""}
 
-
-
             {" · Rating "}
-
-
 
             {hotel.rating
 
               ?? "N/A"}
 
           </p>
-
-
 
           {hotel.provider && (
 
@@ -2588,8 +2236,6 @@ function RecommendationPanel({
 
         </div>
 
-
-
         <b>
 
           {formatCurrency(
@@ -2597,8 +2243,6 @@ function RecommendationPanel({
             hotel.price_per_night,
 
           )}
-
-
 
           <small>
 
@@ -2610,8 +2254,6 @@ function RecommendationPanel({
 
       </div>
 
-
-
       <details className="booking-details">
 
         <summary>Trip details and cost breakdown</summary>
@@ -2621,8 +2263,6 @@ function RecommendationPanel({
         <div>
 
           <span>Flight</span>
-
-
 
           <strong>
 
@@ -2636,13 +2276,9 @@ function RecommendationPanel({
 
         </div>
 
-
-
         <div>
 
           <span>Hotel</span>
-
-
 
           <strong>
 
@@ -2656,13 +2292,9 @@ function RecommendationPanel({
 
         </div>
 
-
-
         <div>
 
           <span>Transport</span>
-
-
 
           <strong>
 
@@ -2676,8 +2308,6 @@ function RecommendationPanel({
 
         </div>
 
-
-
         <div>
 
           <span>
@@ -2685,8 +2315,6 @@ function RecommendationPanel({
             Budget remaining
 
           </span>
-
-
 
           <strong
 
@@ -2724,8 +2352,6 @@ function RecommendationPanel({
 
       </details>
 
-
-
       <div className="policy-assessment">
 
         <div className="policy-assessment-heading">
@@ -2735,8 +2361,6 @@ function RecommendationPanel({
             Policy assessment
 
           </h4>
-
-
 
           <span>
 
@@ -2756,8 +2380,6 @@ function RecommendationPanel({
 
         </div>
 
-
-
         {compliance.is_compliant
 
           && (
@@ -2765,8 +2387,6 @@ function RecommendationPanel({
             <div className="policy-message-row success">
 
               <span>✓</span>
-
-
 
               All mandatory traveller and
 
@@ -2778,8 +2398,6 @@ function RecommendationPanel({
 
           )}
 
-
-
         {manualPolicyReviewRequired
 
           && (
@@ -2787,8 +2405,6 @@ function RecommendationPanel({
             <div className="policy-message-row warning">
 
               <span>!</span>
-
-
 
               Some clauses require human
 
@@ -2800,8 +2416,6 @@ function RecommendationPanel({
 
           )}
 
-
-
         {manualInventoryReviewRequired
 
           && (
@@ -2810,8 +2424,6 @@ function RecommendationPanel({
 
               <span>!</span>
 
-
-
               Some live inventory details
 
               require manual verification.
@@ -2819,8 +2431,6 @@ function RecommendationPanel({
             </div>
 
           )}
-
-
 
         {compliance
 
@@ -2850,8 +2460,6 @@ function RecommendationPanel({
 
                 <span>•</span>
 
-
-
                 {reason}
 
               </div>
@@ -2859,8 +2467,6 @@ function RecommendationPanel({
             ),
 
           )}
-
-
 
         {compliance
 
@@ -2890,8 +2496,6 @@ function RecommendationPanel({
 
                 <span>!</span>
 
-
-
                 {violation}
 
               </div>
@@ -2899,8 +2503,6 @@ function RecommendationPanel({
             ),
 
           )}
-
-
 
         {visibleWarnings.map(
 
@@ -2926,8 +2528,6 @@ function RecommendationPanel({
 
               <span>•</span>
 
-
-
               {warning}
 
             </div>
@@ -2935,8 +2535,6 @@ function RecommendationPanel({
           ),
 
         )}
-
-
 
         {unsupportedRules.map(
 
@@ -2962,8 +2560,6 @@ function RecommendationPanel({
 
               <span>?</span>
 
-
-
               Manual clause: {rule}
 
             </div>
@@ -2971,8 +2567,6 @@ function RecommendationPanel({
           ),
 
         )}
-
-
 
         {(enforcedFields.length > 0 || unspecifiedFields.length > 0) && <details className="booking-details policy-details">
 
@@ -2986,11 +2580,7 @@ function RecommendationPanel({
 
               <span>✓</span>
 
-
-
               Enforced rules:{" "}
-
-
 
               {enforcedFields
 
@@ -3006,8 +2596,6 @@ function RecommendationPanel({
 
           )}
 
-
-
         {unspecifiedFields.length > 0
 
           && (
@@ -3016,13 +2604,9 @@ function RecommendationPanel({
 
               <span>•</span>
 
-
-
               Not specified in the
 
               uploaded policy:{" "}
-
-
 
               {unspecifiedFields
 
@@ -3041,8 +2625,6 @@ function RecommendationPanel({
         </details>}
 
       </div>
-
-
 
       <EmployeeApprovalHandoff
 
@@ -3082,8 +2664,6 @@ function RecommendationPanel({
 
       />
 
-
-
       <details className="booking-details">
 
         <summary>How TripGuard decided</summary>
@@ -3108,10 +2688,6 @@ function RecommendationPanel({
 
 }
 
-
-
-
-
 function NewTripWorkspace() {
 
   const [
@@ -3126,11 +2702,7 @@ function NewTripWorkspace() {
 
   );
 
-
-
   const [fieldErrors, setFieldErrors] = useState({});
-
-
 
   const [
 
@@ -3140,8 +2712,6 @@ function NewTripWorkspace() {
 
   ] = useState(null);
 
-
-
   const [
 
     approvalSubmissionError,
@@ -3150,8 +2720,6 @@ function NewTripWorkspace() {
 
   ] = useState("");
 
-
-
   const [
 
     submittingForApproval,
@@ -3159,8 +2727,6 @@ function NewTripWorkspace() {
     setSubmittingForApproval,
 
   ] = useState(false);
-
-
 
   const {
 
@@ -3182,10 +2748,6 @@ function NewTripWorkspace() {
 
   } = useTripAgent();
 
-
-
-
-
   async function handleSubmit(
 
     event,
@@ -3200,15 +2762,11 @@ function NewTripWorkspace() {
 
     if (Object.keys(errors).length) return;
 
-
-
     setApprovalSubmission(
 
       null,
 
     );
-
-
 
     setApprovalSubmissionError(
 
@@ -3216,21 +2774,15 @@ function NewTripWorkspace() {
 
     );
 
-
-
     setSubmittingForApproval(
 
       false,
 
     );
 
-
-
     await runTrip({
 
       ...form,
-
-
 
       origin:
 
@@ -3240,8 +2792,6 @@ function NewTripWorkspace() {
 
           .toUpperCase(),
 
-
-
       destination:
 
         form.destination
@@ -3250,15 +2800,11 @@ function NewTripWorkspace() {
 
           .toUpperCase(),
 
-
-
       destination_city:
 
         form.destination_city
 
           .trim(),
-
-
 
       work_location:
 
@@ -3266,15 +2812,11 @@ function NewTripWorkspace() {
 
           .trim(),
 
-
-
       purpose:
 
         form.purpose
 
           .trim(),
-
-
 
       budget:
 
@@ -3287,10 +2829,6 @@ function NewTripWorkspace() {
     });
 
   }
-
-
-
-
 
   async function handleSubmitForApproval() {
 
@@ -3306,23 +2844,17 @@ function NewTripWorkspace() {
 
     }
 
-
-
     setSubmittingForApproval(
 
       true,
 
     );
 
-
-
     setApprovalSubmissionError(
 
       "",
 
     );
-
-
 
     try {
 
@@ -3334,8 +2866,6 @@ function NewTripWorkspace() {
 
           method: "POST",
 
-
-
           headers: {
 
             "Content-Type":
@@ -3344,45 +2874,31 @@ function NewTripWorkspace() {
 
           },
 
-
-
           body: JSON.stringify({
 
             trip:
 
               result.trip,
 
-
-
             selected_flight:
 
               result.selected_flight,
-
-
 
             selected_hotel:
 
               result.selected_hotel,
 
-
-
             cost_summary:
 
               result.cost_summary,
-
-
 
             compliance:
 
               result.compliance,
 
-
-
             explanation:
 
               result.explanation,
-
-
 
             trip_run_id:
 
@@ -3394,15 +2910,11 @@ function NewTripWorkspace() {
 
       );
 
-
-
       const payload = await response
 
         .json()
 
         .catch(() => null);
-
-
 
       if (!response.ok) {
 
@@ -3422,13 +2934,9 @@ function NewTripWorkspace() {
 
       }
 
-
-
       const approval =
 
         payload?.approval;
-
-
 
       if (!approval?.id) {
 
@@ -3439,8 +2947,6 @@ function NewTripWorkspace() {
         );
 
       }
-
-
 
       const route =
 
@@ -3458,8 +2964,6 @@ function NewTripWorkspace() {
 
           : null;
 
-
-
       const storedApproval =
 
         saveApprovalDecision(
@@ -3469,8 +2973,6 @@ function NewTripWorkspace() {
           {
 
             route,
-
-
 
             total_cost:
 
@@ -3482,8 +2984,6 @@ function NewTripWorkspace() {
 
               || 0,
 
-
-
             trip_run_id:
 
               currentRunId,
@@ -3491,8 +2991,6 @@ function NewTripWorkspace() {
           },
 
         );
-
-
 
       if (currentRunId) {
 
@@ -3505,8 +3003,6 @@ function NewTripWorkspace() {
         );
 
       }
-
-
 
       setApprovalSubmission(
 
@@ -3550,17 +3046,11 @@ function NewTripWorkspace() {
 
   }
 
-
-
-
-
   function handleOpenApprovals() {
 
     const approvalsPath =
 
       "/app/approvals";
-
-
 
     const currentHashPath =
 
@@ -3571,8 +3061,6 @@ function NewTripWorkspace() {
         "",
 
       );
-
-
 
     if (
 
@@ -3592,23 +3080,15 @@ function NewTripWorkspace() {
 
       );
 
-
-
       return;
 
     }
-
-
 
     window.location.hash =
 
       approvalsPath;
 
   }
-
-
-
-
 
   return (
 
@@ -3620,31 +3100,25 @@ function NewTripWorkspace() {
 
           <span>
 
-            Employee trip request
+            Employee request
 
           </span>
 
-
-
           <h2>
 
-            Start an employee business trip
+            Create a trip request
 
           </h2>
 
-
-
           <p>
 
-            Enter the employee trip details. TripGuard will check policy, compare options and use manager memory where available.
+            Enter the trip details. TripGuard checks policy, compares options and uses manager memory.
 
           </p>
 
         </div>
 
       </div>
-
-
 
       <div className="trip-workspace-grid employee-booking-flow">
 
@@ -3654,23 +3128,17 @@ function NewTripWorkspace() {
 
             <div>
 
-              <span className="surface-eyebrow">Step 1 · Employee request</span>
-
-
+              <span className="surface-eyebrow">Trip details</span>
 
               <h2>
 
-                What trip needs approval?
+                What needs approval?
 
               </h2>
 
             </div>
 
-
-
           </div>
-
-
 
           <TripRequestForm
 
@@ -3704,19 +3172,15 @@ function NewTripWorkspace() {
 
         </section>
 
-
-
         {shouldShowPlanningStatus({ running, started, error, result }) && <div className="booking-progress" role={error ? "alert" : "status"} aria-live="polite">
 
-          <strong>{running ? 'Running policy and memory checks…' : error ? 'Could not find trip options' : 'Finishing your recommendation…'}</strong>
+          <strong>{running ? 'Checking policy, options and memory…' : error ? 'Could not find trip options' : 'Preparing recommendation…'}</strong>
 
           {error && <p>{error} Check your connection and try again. Your request is still here.</p>}
 
-          <details><summary>How TripGuard is working</summary><AgentTimeline steps={steps} running={running} started={started} result={result} progress={progress} error={error} /></details>
+          <details><summary>Agent steps</summary><AgentTimeline steps={steps} running={running} started={started} result={result} progress={progress} error={error} /></details>
 
         </div>}
-
-
 
         {result && <RecommendationPanel
 
@@ -3763,9 +3227,5 @@ function NewTripWorkspace() {
   );
 
 }
-
-
-
-
 
 export default NewTripWorkspace;

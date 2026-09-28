@@ -6,13 +6,9 @@ import {
 
 } from "react";
 
-
-
 import ApprovalModal from "../components/approval/ApprovalModal";
 
 import PolicyUploadCard from "../components/policy/PolicyUploadCard";
-
-
 
 import {
 
@@ -23,8 +19,6 @@ import {
   getSystemStatus,
 
 } from "../services/api";
-
-
 
 import {
 
@@ -41,10 +35,6 @@ import {
   updateAgentRunApproval,
 
 } from "../services/storage";
-
-
-
-
 
 function formatCurrency(
 
@@ -74,10 +64,6 @@ function formatCurrency(
 
 }
 
-
-
-
-
 function formatDate(
 
   value,
@@ -90,13 +76,9 @@ function formatDate(
 
   }
 
-
-
   const parsedDate =
 
     new Date(value);
-
-
 
   if (
 
@@ -111,8 +93,6 @@ function formatDate(
     return "—";
 
   }
-
-
 
   return new Intl.DateTimeFormat(
 
@@ -133,10 +113,6 @@ function formatDate(
   );
 
 }
-
-
-
-
 
 function EmptyList({
 
@@ -162,23 +138,17 @@ function EmptyList({
 
       </span>
 
-
-
       <h3>
 
         {title}
 
       </h3>
 
-
-
       <p>
 
         {description}
 
       </p>
-
-
 
       {actionLabel && (
 
@@ -202,10 +172,6 @@ function EmptyList({
 
 }
 
-
-
-
-
 export function LandingPage({
 
   navigate,
@@ -214,39 +180,35 @@ export function LandingPage({
 
   const workflow = [
 
-    "Employee submits trip request",
+    "Employee requests a trip",
 
-    "AI checks policy and budget",
+    "AI checks rules",
 
-    "AI compares travel options",
+    "AI recommends options",
 
-    "Manager reviews the decision",
+    "Manager decides",
 
-    "TripGuard stores feedback",
+    "Feedback becomes memory",
 
-    "Future trips use memory",
+    "Next trip improves",
 
   ];
-
-
 
   const workflowDescriptions = [
 
-    "Capture traveller ID, route, dates, budget, purpose and workplace details.",
+    "The employee enters route, dates, budget and business purpose.",
 
-    "Read company rules and identify limits before recommending any itinerary.",
+    "The agent checks travel policy, budget limits and approval rules.",
 
-    "Compare flights, hotels, timing, distance, weather risk and total cost.",
+    "Flights, hotels, distance, weather risk and total cost are compared.",
 
-    "Send approval-ready recommendations to a human manager when needed.",
+    "A human manager approves, rejects or gives a correction.",
 
-    "Save approval, rejection and preference signals into persistent memory.",
+    "The decision reason is saved as persistent travel memory.",
 
-    "Recall past manager decisions so the next recommendation is smarter and easier to approve.",
+    "Future recommendations use the remembered manager preference.",
 
   ];
-
-
 
   return (
 
@@ -254,15 +216,9 @@ export function LandingPage({
 
       <div className="landing-background-grid" />
 
-
-
       <div className="landing-orb landing-orb-one" />
 
-
-
       <div className="landing-orb landing-orb-two" />
-
-
 
       <header className="landing-header">
 
@@ -286,8 +242,6 @@ export function LandingPage({
 
           </span>
 
-
-
           <div>
 
             <strong>
@@ -296,19 +250,15 @@ export function LandingPage({
 
             </strong>
 
-
-
             <small>
 
-              AI agent with decision memory
+              Travel approval agent
 
             </small>
 
           </div>
 
         </button>
-
-
 
         <nav>
 
@@ -331,8 +281,6 @@ export function LandingPage({
             Architecture
 
           </button>
-
-
 
           <button
 
@@ -360,8 +308,6 @@ export function LandingPage({
 
       </header>
 
-
-
       <main>
 
         <section className="landing-hero">
@@ -370,35 +316,27 @@ export function LandingPage({
 
             <span className="landing-kicker">
 
-              AI travel approval agent · persistent decision memory
+              AI agent · policy checks · decision memory
 
             </span>
 
-
-
             <h1>
 
-              TripGuard AI
-
-
+              Travel approvals
 
               <em>
 
-                learns from manager decisions.
+                that remember decisions.
 
               </em>
 
             </h1>
 
-
-
             <p>
 
-              TripGuard is an AI travel approval agent for corporate teams. An employee submits a business trip request, the agent checks policy, budget, weather risk and hotel options, then remembers manager feedback so future recommendations become smarter.
+              TripGuard helps teams approve business travel faster. The agent checks policy, budget, travel options and weather risk, then learns from manager feedback for future trips.
 
             </p>
-
-
 
             <div className="landing-hero-actions">
 
@@ -420,9 +358,7 @@ export function LandingPage({
 
               >
 
-                Start employee trip request
-
-
+                Start trip request
 
                 <span>
 
@@ -431,8 +367,6 @@ export function LandingPage({
                 </span>
 
               </button>
-
-
 
               <button
 
@@ -448,13 +382,11 @@ export function LandingPage({
 
               >
 
-                View agent architecture
+                View architecture
 
               </button>
 
             </div>
-
-
 
             <div className="landing-trust-row">
 
@@ -464,15 +396,11 @@ export function LandingPage({
 
               </span>
 
-
-
               <span>
 
                 ✓ Persistent memory
 
               </span>
-
-
 
               <span>
 
@@ -483,8 +411,6 @@ export function LandingPage({
             </div>
 
           </div>
-
-
 
           <div className="landing-agent-preview">
 
@@ -500,8 +426,6 @@ export function LandingPage({
 
               </div>
 
-
-
               <small>
 
                 Employee travel agent
@@ -509,8 +433,6 @@ export function LandingPage({
               </small>
 
             </div>
-
-
 
             <div className="preview-request-card">
 
@@ -520,8 +442,6 @@ export function LandingPage({
 
               </span>
 
-
-
               <div>
 
                 <strong>
@@ -530,15 +450,11 @@ export function LandingPage({
 
                 </strong>
 
-
-
                 <i>
 
                   →
 
                 </i>
-
-
 
                 <strong>
 
@@ -548,8 +464,6 @@ export function LandingPage({
 
               </div>
 
-
-
               <p>
 
                 Client meeting · Budget ₹18,000 · Traveller EMP_123
@@ -557,8 +471,6 @@ export function LandingPage({
               </p>
 
             </div>
-
-
 
             <div className="preview-agent-steps">
 
@@ -590,15 +502,11 @@ export function LandingPage({
 
                       </span>
 
-
-
                       <p>
 
                         {step}
 
                       </p>
-
-
 
                       <small>
 
@@ -618,8 +526,6 @@ export function LandingPage({
 
             </div>
 
-
-
             <div className="preview-decision-card">
 
               <span>
@@ -628,15 +534,11 @@ export function LandingPage({
 
               </span>
 
-
-
               <strong>
 
                 Hotel within manager limit
 
               </strong>
-
-
 
               <p>
 
@@ -650,29 +552,23 @@ export function LandingPage({
 
         </section>
 
-
-
         <section className="landing-value-section">
 
           <div className="landing-section-heading">
 
             <span>
 
-              Product workflow
+              How it works
 
             </span>
 
-
-
             <h2>
 
-              An AI travel agent that solves real business approval delays and improves with memory.
+              One request becomes a recommendation, a manager decision and reusable memory.
 
             </h2>
 
           </div>
-
-
 
           <div className="landing-workflow-grid">
 
@@ -704,15 +600,11 @@ export function LandingPage({
 
                   </span>
 
-
-
                   <h3>
 
                     {step}
 
                   </h3>
-
-
 
                   <p>
 
@@ -730,8 +622,6 @@ export function LandingPage({
 
         </section>
 
-
-
         <section className="landing-final-cta">
 
           <div>
@@ -742,25 +632,19 @@ export function LandingPage({
 
             </span>
 
-
-
             <h2>
 
-              The key innovation is not only planning a trip. It is remembering why a manager approved or rejected it.
+              The key feature: manager feedback becomes memory.
 
             </h2>
 
-
-
             <p>
 
-              TripGuard stores manager preferences such as budget limits, hotel distance and rejection reasons. When the same employee books again, the agent recalls those decisions and explains the safer recommendation.
+              If a manager rejects a hotel for distance or cost, TripGuard remembers that preference and explains better choices next time.
 
             </p>
 
           </div>
-
-
 
           <button
 
@@ -778,9 +662,7 @@ export function LandingPage({
 
           >
 
-            Start the workflow
-
-
+            Try the workflow
 
             <span>
 
@@ -794,8 +676,6 @@ export function LandingPage({
 
       </main>
 
-
-
       <footer className="landing-footer">
 
         <span>
@@ -803,8 +683,6 @@ export function LandingPage({
           TripGuard AI · AI travel approval platform
 
         </span>
-
-
 
         <span>
 
@@ -820,8 +698,6 @@ export function LandingPage({
 
 }
 
-
-
 export function DashboardPage({
 
   navigate,
@@ -836,8 +712,6 @@ export function DashboardPage({
 
   ] = useState([]);
 
-
-
   const [
 
     approvals,
@@ -845,8 +719,6 @@ export function DashboardPage({
     setApprovals,
 
   ] = useState([]);
-
-
 
   const [
 
@@ -856,8 +728,6 @@ export function DashboardPage({
 
   ] = useState(null);
 
-
-
   const [
 
     backendOnline,
@@ -865,8 +735,6 @@ export function DashboardPage({
     setBackendOnline,
 
   ] = useState(false);
-
-
 
   useEffect(() => {
 
@@ -876,15 +744,11 @@ export function DashboardPage({
 
     );
 
-
-
     setApprovals(
 
       getApprovalDecisions(),
 
     );
-
-
 
     async function loadStatus() {
 
@@ -892,23 +756,17 @@ export function DashboardPage({
 
         await getSystemStatus();
 
-
-
       setBackendOnline(
 
         status.online,
 
       );
 
-
-
       try {
 
         const policy =
 
           await getCurrentPolicy();
-
-
 
         setPolicySummary(
 
@@ -928,13 +786,9 @@ export function DashboardPage({
 
     }
 
-
-
     loadStatus();
 
   }, []);
-
-
 
   const approvedCount =
 
@@ -948,8 +802,6 @@ export function DashboardPage({
 
     ).length;
 
-
-
   const pendingApprovalCount =
 
     approvals.filter(
@@ -961,8 +813,6 @@ export function DashboardPage({
         "pending",
 
     ).length;
-
-
 
   const pendingRunCount =
 
@@ -976,8 +826,6 @@ export function DashboardPage({
 
     ).length;
 
-
-
   const pendingCount = Math.max(
 
     pendingApprovalCount,
@@ -986,13 +834,9 @@ export function DashboardPage({
 
   );
 
-
-
   const latestRun =
 
     runs[0];
-
-
 
   return (
 
@@ -1004,27 +848,21 @@ export function DashboardPage({
 
           <span>
 
-            AI agent workspace
+            Product overview
 
           </span>
 
-
-
           <h2>
 
-            AI travel approvals with decision memory.
+            What TripGuard does
 
           </h2>
 
-
-
           <p>
 
-            Show how one employee request becomes a policy-aware recommendation, a manager decision and reusable memory for future trips.
+            TripGuard turns an employee travel request into an approval-ready recommendation, then saves manager feedback as memory.
 
           </p>
-
-
 
           <button
 
@@ -1042,9 +880,7 @@ export function DashboardPage({
 
           >
 
-            Start employee request
-
-
+            Start request
 
             <span>
 
@@ -1056,8 +892,6 @@ export function DashboardPage({
 
         </div>
 
-
-
         <div className="dashboard-hero-visual">
 
           <span className="dashboard-agent-pulse">
@@ -1066,21 +900,17 @@ export function DashboardPage({
 
           </span>
 
-
-
           <div>
 
             <strong>
 
-              Agent + memory ready
+              Agent ready
 
             </strong>
 
-
-
             <p>
 
-              Policy, travel, weather, approval and memory workflow ready.
+              Policy checks, travel options and manager memory in one flow.
 
             </p>
 
@@ -1089,8 +919,6 @@ export function DashboardPage({
         </div>
 
       </div>
-
-
 
       <div className="dashboard-metric-grid">
 
@@ -1102,15 +930,11 @@ export function DashboardPage({
 
           </span>
 
-
-
           <strong>
 
             {runs.length}
 
           </strong>
-
-
 
           <small>
 
@@ -1120,8 +944,6 @@ export function DashboardPage({
 
         </article>
 
-
-
         <article>
 
           <span>
@@ -1130,15 +952,11 @@ export function DashboardPage({
 
           </span>
 
-
-
           <strong>
 
             {approvedCount}
 
           </strong>
-
-
 
           <small>
 
@@ -1148,8 +966,6 @@ export function DashboardPage({
 
         </article>
 
-
-
         <article>
 
           <span>
@@ -1158,15 +974,11 @@ export function DashboardPage({
 
           </span>
 
-
-
           <strong>
 
             {pendingCount}
 
           </strong>
-
-
 
           <small>
 
@@ -1176,8 +988,6 @@ export function DashboardPage({
 
         </article>
 
-
-
         <article>
 
           <span>
@@ -1185,8 +995,6 @@ export function DashboardPage({
             Backend status
 
           </span>
-
-
 
           <strong
 
@@ -1210,8 +1018,6 @@ export function DashboardPage({
 
           </strong>
 
-
-
           <small>
 
             FastAPI agent service
@@ -1221,8 +1027,6 @@ export function DashboardPage({
         </article>
 
       </div>
-
-
 
       <div className="dashboard-content-grid">
 
@@ -1238,8 +1042,6 @@ export function DashboardPage({
 
               </span>
 
-
-
               <h3>
 
                 Corporate travel controls
@@ -1247,8 +1049,6 @@ export function DashboardPage({
               </h3>
 
             </div>
-
-
 
             <button
 
@@ -1272,8 +1072,6 @@ export function DashboardPage({
 
           </div>
 
-
-
           {policySummary?.policy ? (
 
             <div className="policy-summary-grid">
@@ -1285,8 +1083,6 @@ export function DashboardPage({
                   Source
 
                 </span>
-
-
 
                 <strong>
 
@@ -1302,8 +1098,6 @@ export function DashboardPage({
 
               </div>
 
-
-
               <div>
 
                 <span>
@@ -1311,8 +1105,6 @@ export function DashboardPage({
                   Flight limit
 
                 </span>
-
-
 
                 <strong>
 
@@ -1338,8 +1130,6 @@ export function DashboardPage({
 
               </div>
 
-
-
               <div>
 
                 <span>
@@ -1347,8 +1137,6 @@ export function DashboardPage({
                   Hotel/night
 
                 </span>
-
-
 
                 <strong>
 
@@ -1374,8 +1162,6 @@ export function DashboardPage({
 
               </div>
 
-
-
               <div>
 
                 <span>
@@ -1383,8 +1169,6 @@ export function DashboardPage({
                   Approval above
 
                 </span>
-
-
 
                 <strong>
 
@@ -1426,8 +1210,6 @@ export function DashboardPage({
 
         </section>
 
-
-
         <section className="page-surface">
 
           <div className="page-surface-heading">
@@ -1440,8 +1222,6 @@ export function DashboardPage({
 
               </span>
 
-
-
               <h3>
 
                 Most recent decision
@@ -1449,8 +1229,6 @@ export function DashboardPage({
               </h3>
 
             </div>
-
-
 
             <button
 
@@ -1474,8 +1252,6 @@ export function DashboardPage({
 
           </div>
 
-
-
           {latestRun ? (
 
             <div className="latest-run-card">
@@ -1495,8 +1271,6 @@ export function DashboardPage({
                   }
 
                 </span>
-
-
 
                 <h4>
 
@@ -1524,8 +1298,6 @@ export function DashboardPage({
 
                 </h4>
 
-
-
                 <p>
 
                   {formatDate(
@@ -1539,8 +1311,6 @@ export function DashboardPage({
                 </p>
 
               </div>
-
-
 
               <strong>
 
@@ -1596,10 +1366,6 @@ export function DashboardPage({
 
 }
 
-
-
-
-
 export function PoliciesPage() {
 
   return (
@@ -1612,41 +1378,25 @@ export function PoliciesPage() {
 
           <span>
 
-            Policy intelligence
+            Policy setup
 
           </span>
 
-
-
           <h2>
 
-            Convert company policy into
-
-            agent-readable controls
+            Give the agent travel rules
 
           </h2>
 
-
-
           <p>
 
-            Upload a text-based corporate
-
-            travel-policy PDF. TripGuard
-
-            extracts limits, booking rules
-
-            and approval thresholds for use
-
-            in every decision.
+            Upload a travel-policy PDF so TripGuard can check limits, booking rules and approval thresholds.
 
           </p>
 
         </div>
 
       </div>
-
-
 
       <div className="policy-page-grid">
 
@@ -1660,25 +1410,19 @@ export function PoliciesPage() {
 
         </section>
 
-
-
         <aside className="page-surface policy-explanation-card">
 
           <span>
 
-            What the agent reads
+            Rules used by the agent
 
           </span>
 
-
-
           <h3>
 
-            Structured policy fields
+            Policy fields
 
           </h3>
-
-
 
           <div>
 
@@ -1690,15 +1434,11 @@ export function PoliciesPage() {
 
               </strong>
 
-
-
               Domestic flight class
 
               permitted by the company.
 
             </p>
-
-
 
             <p>
 
@@ -1708,15 +1448,11 @@ export function PoliciesPage() {
 
               </strong>
 
-
-
               Maximum flight and nightly
 
               hotel prices.
 
             </p>
-
-
 
             <p>
 
@@ -1726,15 +1462,11 @@ export function PoliciesPage() {
 
               </strong>
 
-
-
               Maximum hotel distance from
 
               the workplace.
 
             </p>
-
-
 
             <p>
 
@@ -1744,15 +1476,11 @@ export function PoliciesPage() {
 
               </strong>
 
-
-
               Total trip cost requiring
 
               manager review.
 
             </p>
-
-
 
             <p>
 
@@ -1762,8 +1490,6 @@ export function PoliciesPage() {
 
               </strong>
 
-
-
               Minimum recommended booking
 
               period.
@@ -1772,8 +1498,6 @@ export function PoliciesPage() {
 
           </div>
 
-
-
           <div className="information-callout">
 
             <span>
@@ -1781,8 +1505,6 @@ export function PoliciesPage() {
               !
 
             </span>
-
-
 
             <p>
 
@@ -1806,10 +1528,6 @@ export function PoliciesPage() {
 
 }
 
-
-
-
-
 function buildResultFromApproval(
 
   approval,
@@ -1826,15 +1544,11 @@ function buildResultFromApproval(
 
         || null,
 
-
-
       destination:
 
         approval?.destination
 
         || null,
-
-
 
       destination_city:
 
@@ -1844,8 +1558,6 @@ function buildResultFromApproval(
 
         || null,
 
-
-
       departure_date:
 
         approval
@@ -1853,8 +1565,6 @@ function buildResultFromApproval(
           ?.departure_date
 
         || null,
-
-
 
       return_date:
 
@@ -1864,8 +1574,6 @@ function buildResultFromApproval(
 
         || null,
 
-
-
       purpose:
 
         approval?.purpose
@@ -1873,8 +1581,6 @@ function buildResultFromApproval(
         || null,
 
     };
-
-
 
   const costSummary =
 
@@ -1892,8 +1598,6 @@ function buildResultFromApproval(
 
         ),
 
-
-
       hotel_cost:
 
         Number(
@@ -1905,8 +1609,6 @@ function buildResultFromApproval(
           || 0,
 
         ),
-
-
 
       transport_budget:
 
@@ -1920,8 +1622,6 @@ function buildResultFromApproval(
 
         ),
 
-
-
       total_cost:
 
         Number(
@@ -1933,8 +1633,6 @@ function buildResultFromApproval(
           || 0,
 
         ),
-
-
 
       traveller_budget:
 
@@ -1948,8 +1646,6 @@ function buildResultFromApproval(
 
         ),
 
-
-
       budget_remaining:
 
         Number(
@@ -1961,8 +1657,6 @@ function buildResultFromApproval(
           || 0,
 
         ),
-
-
 
       exception_amount:
 
@@ -1978,15 +1672,11 @@ function buildResultFromApproval(
 
     };
 
-
-
   const compliance =
 
     approval?.compliance
 
     || {};
-
-
 
   return {
 
@@ -2006,11 +1696,7 @@ function buildResultFromApproval(
 
       ),
 
-
-
     trip,
-
-
 
     selected_flight:
 
@@ -2020,8 +1706,6 @@ function buildResultFromApproval(
 
       || {},
 
-
-
     selected_hotel:
 
       approval
@@ -2030,17 +1714,11 @@ function buildResultFromApproval(
 
       || {},
 
-
-
     cost_summary:
 
       costSummary,
 
-
-
     compliance,
-
-
 
     policy_coverage:
 
@@ -2049,8 +1727,6 @@ function buildResultFromApproval(
         ?.policy_coverage
 
       || {},
-
-
 
     explanation:
 
@@ -2062,15 +1738,11 @@ function buildResultFromApproval(
 
       || "",
 
-
-
     approval_request: {
 
       prepared:
 
         true,
-
-
 
       reason:
 
@@ -2092,10 +1764,6 @@ function buildResultFromApproval(
 
 }
 
-
-
-
-
 export function ApprovalsPage({
 
   navigate,
@@ -2114,8 +1782,6 @@ export function ApprovalsPage({
 
   );
 
-
-
   const [
 
     selectedApproval,
@@ -2123,8 +1789,6 @@ export function ApprovalsPage({
     setSelectedApproval,
 
   ] = useState(null);
-
-
 
   useEffect(() => {
 
@@ -2138,11 +1802,7 @@ export function ApprovalsPage({
 
     }
 
-
-
     refreshApprovals();
-
-
 
     window.addEventListener(
 
@@ -2152,8 +1812,6 @@ export function ApprovalsPage({
 
     );
 
-
-
     window.addEventListener(
 
       "focus",
@@ -2161,8 +1819,6 @@ export function ApprovalsPage({
       refreshApprovals,
 
     );
-
-
 
     return () => {
 
@@ -2173,8 +1829,6 @@ export function ApprovalsPage({
         refreshApprovals,
 
       );
-
-
 
       window.removeEventListener(
 
@@ -2188,8 +1842,6 @@ export function ApprovalsPage({
 
   }, []);
 
-
-
   const pendingApprovals =
 
     approvals.filter(
@@ -2201,8 +1853,6 @@ export function ApprovalsPage({
         "pending",
 
     );
-
-
 
   const completedApprovals =
 
@@ -2216,17 +1866,11 @@ export function ApprovalsPage({
 
     );
 
-
-
   function clearHistory() {
 
     clearApprovalDecisions();
 
-
-
     setApprovals([]);
-
-
 
     setSelectedApproval(
 
@@ -2235,8 +1879,6 @@ export function ApprovalsPage({
     );
 
   }
-
-
 
   function handleApprovalCompleted(
 
@@ -2247,8 +1889,6 @@ export function ApprovalsPage({
     const currentRequest =
 
       selectedApproval;
-
-
 
     const storedApproval =
 
@@ -2267,8 +1907,6 @@ export function ApprovalsPage({
             || approval?.route
 
             || null,
-
-
 
           total_cost:
 
@@ -2290,8 +1928,6 @@ export function ApprovalsPage({
 
             || 0,
 
-
-
           trip_run_id:
 
             currentRequest
@@ -2308,15 +1944,11 @@ export function ApprovalsPage({
 
       );
 
-
-
     const tripRunId =
 
       storedApproval
 
         .trip_run_id;
-
-
 
     if (tripRunId) {
 
@@ -2330,15 +1962,11 @@ export function ApprovalsPage({
 
     }
 
-
-
     setApprovals(
 
       getApprovalDecisions(),
 
     );
-
-
 
     setSelectedApproval(
 
@@ -2347,8 +1975,6 @@ export function ApprovalsPage({
     );
 
   }
-
-
 
   return (
 
@@ -2362,37 +1988,23 @@ export function ApprovalsPage({
 
             <span>
 
-              Manager workspace
+              Manager memory
 
             </span>
 
-
-
             <h2>
 
-              Travel approval queue
+              Review travel decisions
 
             </h2>
 
-
-
             <p>
 
-              Review pending employee
-
-              travel requests, inspect
-
-              policy exceptions and record
-
-              an auditable approval or
-
-              rejection decision.
+              Approve, reject or correct a recommendation. TripGuard saves useful feedback for the next trip.
 
             </p>
 
           </div>
-
-
 
           {approvals.length > 0 && (
 
@@ -2418,8 +2030,6 @@ export function ApprovalsPage({
 
         </div>
 
-
-
         <section className="page-surface">
 
           <div className="page-surface-heading">
@@ -2428,21 +2038,17 @@ export function ApprovalsPage({
 
               <span>
 
-                Awaiting manager review
+                Needs review
 
               </span>
 
-
-
               <h3>
 
-                Pending requests
+                Pending decisions
 
               </h3>
 
             </div>
-
-
 
             <span>
 
@@ -2460,8 +2066,6 @@ export function ApprovalsPage({
 
           </div>
 
-
-
           {pendingApprovals.length ===
 
           0 ? (
@@ -2472,9 +2076,9 @@ export function ApprovalsPage({
 
               title="No pending approvals"
 
-              description="Employee travel requests requiring manager review will appear here."
+              description="Trips needing manager approval will appear here."
 
-              actionLabel="Open employee workspace"
+              actionLabel="Create request"
 
               onAction={() =>
 
@@ -2504,8 +2108,6 @@ export function ApprovalsPage({
 
                     || {};
 
-
-
                   const violations =
 
                     compliance
@@ -2513,8 +2115,6 @@ export function ApprovalsPage({
                       .violations
 
                     || [];
-
-
 
                   const route =
 
@@ -2544,8 +2144,6 @@ export function ApprovalsPage({
 
                     );
 
-
-
                   return (
 
                     <article
@@ -2566,8 +2164,6 @@ export function ApprovalsPage({
 
                       </div>
 
-
-
                       <div className="record-main">
 
                         <div>
@@ -2578,8 +2174,6 @@ export function ApprovalsPage({
 
                           </span>
 
-
-
                           <h3>
 
                             {route}
@@ -2588,13 +2182,9 @@ export function ApprovalsPage({
 
                         </div>
 
-
-
                         <p>
 
                           Submitted{" "}
-
-
 
                           {formatDate(
 
@@ -2610,8 +2200,6 @@ export function ApprovalsPage({
 
                         </p>
 
-
-
                         {violations.length >
 
                           0 && (
@@ -2623,8 +2211,6 @@ export function ApprovalsPage({
                               violations[0]
 
                             }
-
-
 
                             {violations.length >
 
@@ -2647,8 +2233,6 @@ export function ApprovalsPage({
                           </blockquote>
 
                         )}
-
-
 
                         {violations.length ===
 
@@ -2674,8 +2258,6 @@ export function ApprovalsPage({
 
                       </div>
 
-
-
                       <div className="record-meta">
 
                         <strong>
@@ -2696,15 +2278,11 @@ export function ApprovalsPage({
 
                         </strong>
 
-
-
                         <span>
 
                           {approval.id}
 
                         </span>
-
-
 
                         <button
 
@@ -2744,8 +2322,6 @@ export function ApprovalsPage({
 
         </section>
 
-
-
         <section className="page-surface">
 
           <div className="page-surface-heading">
@@ -2754,21 +2330,17 @@ export function ApprovalsPage({
 
               <span>
 
-                Audit history
+                Memory history
 
               </span>
 
-
-
               <h3>
 
-                Completed decisions
+                Saved decisions
 
               </h3>
 
             </div>
-
-
 
             <span>
 
@@ -2786,8 +2358,6 @@ export function ApprovalsPage({
 
           </div>
 
-
-
           {completedApprovals.length ===
 
           0 ? (
@@ -2798,7 +2368,7 @@ export function ApprovalsPage({
 
               title="No completed decisions"
 
-              description="Approved and rejected travel requests will appear here."
+              description="Manager decisions saved for future trips will appear here."
 
             />
 
@@ -2838,8 +2408,6 @@ export function ApprovalsPage({
 
                     );
 
-
-
                   return (
 
                     <article
@@ -2878,8 +2446,6 @@ export function ApprovalsPage({
 
                       </div>
 
-
-
                       <div className="record-main">
 
                         <div>
@@ -2906,8 +2472,6 @@ export function ApprovalsPage({
 
                           </span>
 
-
-
                           <h3>
 
                             {route}
@@ -2916,13 +2480,9 @@ export function ApprovalsPage({
 
                         </div>
 
-
-
                         <p>
 
                           Reviewed by{" "}
-
-
 
                           {approval
 
@@ -2930,11 +2490,7 @@ export function ApprovalsPage({
 
                             || "Manager"}
 
-
-
                           {" · "}
-
-
 
                           {formatDate(
 
@@ -2953,8 +2509,6 @@ export function ApprovalsPage({
                           )}
 
                         </p>
-
-
 
                         {approval
 
@@ -2976,8 +2530,6 @@ export function ApprovalsPage({
 
                           )}
 
-
-
                         {approval.feedback_reason === "hotel_too_far" && (
 
                           <p>
@@ -2993,8 +2545,6 @@ export function ApprovalsPage({
                         )}
 
                       </div>
-
-
 
                       <div className="record-meta">
 
@@ -3015,8 +2565,6 @@ export function ApprovalsPage({
                           )}
 
                         </strong>
-
-
 
                         <span>
 
@@ -3041,8 +2589,6 @@ export function ApprovalsPage({
         </section>
 
       </div>
-
-
 
       <ApprovalModal
 
@@ -3112,10 +2658,6 @@ export function ApprovalsPage({
 
 }
 
-
-
-
-
 export function ActivityPage({
 
   navigate,
@@ -3134,19 +2676,13 @@ export function ActivityPage({
 
   );
 
-
-
   function clearHistory() {
 
     clearAgentRuns();
 
-
-
     setRuns([]);
 
   }
-
-
 
   return (
 
@@ -3158,33 +2694,23 @@ export function ActivityPage({
 
           <span>
 
-            Agent history
+            Agent steps
 
           </span>
 
-
-
           <h2>
 
-            Previous workflow runs
+            Previous runs
 
           </h2>
 
-
-
           <p>
 
-            Inspect past routes, costs,
-
-            compliance outcomes, weather
-
-            risk and approval status.
+            See what the agent checked for each completed trip request.
 
           </p>
 
         </div>
-
-
 
         {runs.length > 0 && (
 
@@ -3210,8 +2736,6 @@ export function ActivityPage({
 
       </div>
 
-
-
       <section className="page-surface">
 
         {runs.length === 0 ? (
@@ -3222,7 +2746,7 @@ export function ActivityPage({
 
             title="No activity recorded"
 
-            description="Completed TripGuard workflows will be saved locally in this browser."
+            description="Completed agent runs will appear here."
 
             actionLabel="Run the agent"
 
@@ -3256,8 +2780,6 @@ export function ActivityPage({
 
                   || "unknown";
 
-
-
                 const compliant =
 
                   run.result
@@ -3265,8 +2787,6 @@ export function ActivityPage({
                     ?.compliance
 
                     ?.is_compliant;
-
-
 
                 return (
 
@@ -3296,15 +2816,11 @@ export function ActivityPage({
 
                       </span>
 
-
-
                       <i>
 
                         →
 
                       </i>
-
-
 
                       <span>
 
@@ -3320,8 +2836,6 @@ export function ActivityPage({
 
                     </div>
 
-
-
                     <div className="activity-details">
 
                       <div>
@@ -3331,8 +2845,6 @@ export function ActivityPage({
                           Agent decision
 
                         </span>
-
-
 
                         <strong
 
@@ -3358,8 +2870,6 @@ export function ActivityPage({
 
                       </div>
 
-
-
                       <div>
 
                         <span>
@@ -3367,8 +2877,6 @@ export function ActivityPage({
                           Total cost
 
                         </span>
-
-
 
                         <strong>
 
@@ -3386,8 +2894,6 @@ export function ActivityPage({
 
                       </div>
 
-
-
                       <div>
 
                         <span>
@@ -3395,8 +2901,6 @@ export function ActivityPage({
                           Weather risk
 
                         </span>
-
-
 
                         <strong className="capitalize">
 
@@ -3406,8 +2910,6 @@ export function ActivityPage({
 
                       </div>
 
-
-
                       <div>
 
                         <span>
@@ -3415,8 +2917,6 @@ export function ActivityPage({
                           Approval
 
                         </span>
-
-
 
                         <strong className="capitalize">
 
@@ -3434,8 +2934,6 @@ export function ActivityPage({
 
                     </div>
 
-
-
                     <div className="activity-footer">
 
                       <span>
@@ -3447,8 +2945,6 @@ export function ActivityPage({
                         )}
 
                       </span>
-
-
 
                       <span>
 
@@ -3465,8 +2961,6 @@ export function ActivityPage({
                         {" tool events"}
 
                       </span>
-
-
 
                       <span>
 
@@ -3496,10 +2990,6 @@ export function ActivityPage({
 
 }
 
-
-
-
-
 export function ArchitecturePage() {
 
   const architectureSteps = [
@@ -3510,13 +3000,9 @@ export function ArchitecturePage() {
 
         "01",
 
-
-
       title:
 
         "Employee Request",
-
-
 
       description:
 
@@ -3530,13 +3016,9 @@ export function ArchitecturePage() {
 
         "02",
 
-
-
       title:
 
         "Policy Intelligence",
-
-
 
       description:
 
@@ -3550,13 +3032,9 @@ export function ArchitecturePage() {
 
         "03",
 
-
-
       title:
 
         "Travel Search Tools",
-
-
 
       description:
 
@@ -3570,13 +3048,9 @@ export function ArchitecturePage() {
 
         "04",
 
-
-
       title:
 
         "Risk Check",
-
-
 
       description:
 
@@ -3590,13 +3064,9 @@ export function ArchitecturePage() {
 
         "05",
 
-
-
       title:
 
         "Decision Agent",
-
-
 
       description:
 
@@ -3610,13 +3080,9 @@ export function ArchitecturePage() {
 
         "06",
 
-
-
       title:
 
         "Manager Approval",
-
-
 
       description:
 
@@ -3630,13 +3096,9 @@ export function ArchitecturePage() {
 
         "07",
 
-
-
       title:
 
         "Hindsight Memory",
-
-
 
       description:
 
@@ -3650,13 +3112,9 @@ export function ArchitecturePage() {
 
         "08",
 
-
-
       title:
 
         "Smarter Future Trips",
-
-
 
       description:
 
@@ -3665,8 +3123,6 @@ export function ArchitecturePage() {
     },
 
   ];
-
-
 
   return (
 
@@ -3678,31 +3134,25 @@ export function ArchitecturePage() {
 
           <span>
 
-            Agent architecture
+            Architecture
 
           </span>
 
-
-
           <h2>
 
-            How TripGuard connects AI planning with persistent decision memory
+            How the agent works
 
           </h2>
 
-
-
           <p>
 
-            The workflow is built around the product goal: an AI agent that performs useful tool-based work, keeps a human in the loop and remembers feedback for future decisions.
+            TripGuard combines policy checks, travel tools, human approval and persistent memory.
 
           </p>
 
         </div>
 
       </div>
-
-
 
       <section className="architecture-hero">
 
@@ -3714,15 +3164,11 @@ export function ArchitecturePage() {
 
           </span>
 
-
-
           <strong>
 
             HYD → BLR
 
           </strong>
-
-
 
           <p>
 
@@ -3732,15 +3178,11 @@ export function ArchitecturePage() {
 
         </div>
 
-
-
         <i>
 
           →
 
         </i>
-
-
 
         <div className="architecture-agent-core">
 
@@ -3750,15 +3192,11 @@ export function ArchitecturePage() {
 
           </span>
 
-
-
           <strong>
 
             TripGuard Agent
 
           </strong>
-
-
 
           <p>
 
@@ -3768,15 +3206,11 @@ export function ArchitecturePage() {
 
         </div>
 
-
-
         <i>
 
           →
 
         </i>
-
-
 
         <div>
 
@@ -3786,15 +3220,11 @@ export function ArchitecturePage() {
 
           </span>
 
-
-
           <strong>
 
             Smarter next trip
 
           </strong>
-
-
 
           <p>
 
@@ -3805,8 +3235,6 @@ export function ArchitecturePage() {
         </div>
 
       </section>
-
-
 
       <div className="architecture-flow">
 
@@ -3838,8 +3266,6 @@ export function ArchitecturePage() {
 
                 </span>
 
-
-
                 {index <
 
                   architectureSteps.length
@@ -3854,8 +3280,6 @@ export function ArchitecturePage() {
 
               </div>
 
-
-
               <section>
 
                 <h3>
@@ -3863,8 +3287,6 @@ export function ArchitecturePage() {
                   {step.title}
 
                 </h3>
-
-
 
                 <p>
 
@@ -3886,8 +3308,6 @@ export function ArchitecturePage() {
 
       </div>
 
-
-
       <section className="technology-grid">
 
         <article>
@@ -3898,15 +3318,11 @@ export function ArchitecturePage() {
 
           </span>
 
-
-
           <strong>
 
             React
 
           </strong>
-
-
 
           <p>
 
@@ -3916,8 +3332,6 @@ export function ArchitecturePage() {
 
         </article>
 
-
-
         <article>
 
           <span>
@@ -3926,15 +3340,11 @@ export function ArchitecturePage() {
 
           </span>
 
-
-
           <strong>
 
             FastAPI
 
           </strong>
-
-
 
           <p>
 
@@ -3944,8 +3354,6 @@ export function ArchitecturePage() {
 
         </article>
 
-
-
         <article>
 
           <span>
@@ -3954,15 +3362,11 @@ export function ArchitecturePage() {
 
           </span>
 
-
-
           <strong>
 
             LangGraph
 
           </strong>
-
-
 
           <p>
 
@@ -3972,8 +3376,6 @@ export function ArchitecturePage() {
 
         </article>
 
-
-
         <article>
 
           <span>
@@ -3982,15 +3384,11 @@ export function ArchitecturePage() {
 
           </span>
 
-
-
           <strong>
 
             Hindsight
 
           </strong>
-
-
 
           <p>
 

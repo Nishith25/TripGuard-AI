@@ -11,13 +11,13 @@ import {
 const primaryItems = [
   {
     path: "/app/trips/new",
-    label: "Employee trip request",
+    label: "Trip request",
     shortLabel: "Trip",
     icon: "✦",
   },
   {
     path: "/app/approvals",
-    label: "Manager memory",
+    label: "Manager review",
     shortLabel: "Memory",
     icon: "✓",
   },
@@ -38,7 +38,7 @@ const secondaryItems = [
   },
   {
     path: "/app/activity",
-    label: "Activity",
+    label: "Agent steps",
     shortLabel: "Activity",
     icon: "◷",
   },
@@ -73,7 +73,7 @@ function DesktopSidebar({
             TripGuard AI
           </strong>
 
-          <small>AI travel agent</small>
+          <small>Travel approval agent</small>
         </span>
       </button>
 
@@ -137,7 +137,7 @@ function TopHeader({
     <header className="application-header">
       <div>
         <span className="application-header-eyebrow">
-          AI agent + persistent memory
+          Agent + decision memory
         </span>
 
         <h1>{title}</h1>
@@ -172,7 +172,7 @@ function TopHeader({
             );
           }}
         >
-          Start request
+          New request
           <span>↗</span>
         </button>}
       </div>
