@@ -2802,13 +2802,17 @@ export function MemoryPage({
 
           <strong>
 
-            Hotel distance
+            {memoryDecisions.length > 0
+              ? latestMemoryLabel.learning
+              : "No memory yet"}
 
           </strong>
 
           <small>
 
-            Example manager preference
+            {memoryDecisions.length > 0
+              ? "Latest reusable manager preference"
+              : "Approve or reject a trip and save reusable feedback"}
 
           </small>
 
@@ -2824,13 +2828,17 @@ export function MemoryPage({
 
           <strong>
 
-            Smarter trips
+            {memoryDecisions.length > 0
+              ? latestMemoryLabel.impact
+              : "No saved preference"}
 
           </strong>
 
           <small>
 
-            Recommendations improve over time
+            {memoryDecisions.length > 0
+              ? "Used as context for future recommendations"
+              : "Future recommendations have no saved manager preference yet"}
 
           </small>
 
@@ -2872,7 +2880,9 @@ export function MemoryPage({
 
             <strong>
 
-              {latestMemory?.traveller_id || latestMemory?.trip?.traveller_id || "EMP_123"}
+              {latestMemory?.traveller_id
+                || latestMemory?.trip?.traveller_id
+                || "—"}
 
             </strong>
 
@@ -2888,7 +2898,7 @@ export function MemoryPage({
 
             <strong className="capitalize">
 
-              {latestMemory?.status || "Rejected"}
+              {latestMemory?.status || "—"}
 
             </strong>
 
