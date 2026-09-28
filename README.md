@@ -1,16 +1,10 @@
 # TripGuard AI
 
-**Agentic, policy-aware corporate travel planning with live inventory, explainable decisions, and human approval.**
+**A memory-powered AI agent for policy-aware corporate travel planning and approval.**
 
-TripGuard AI converts an employee’s business-travel request into a policy-aware itinerary by retrieving company rules, searching live flight and hotel inventory, checking destination weather, evaluating alternatives, explaining its recommendation, and escalating qualifying requests to a human manager.
+TripGuard AI helps employees plan business travel while considering company policy, live flight and hotel inventory, weather, budget constraints, previous manager decisions, and approval requirements.
 
-## Travel Decision Memory with Hindsight
-
-This challenge extension adds a persistent memory of reviewed travel decisions to the pre-existing TripGuard agent. A manager can reject a policy-compliant hotel as too far for a traveller's workplace and specify a preferred maximum distance. The backend stores that decision in a Hindsight bank scoped to the demo traveller ID. On a later trip, the agent recalls the relevant decision, prefers a nearer **policy-compliant** hotel, and explains the change in the existing activity timeline. Memory never overrides current company policy or the traveller's explicit constraints.
-
-For a repeatable two-trip walkthrough, setup instructions, privacy limitations and the distinction between the original project and this extension, see [Travel Decision Memory Demo](docs/travel-decision-memory-demo.md).
-
-Set `HINDSIGHT_BASE_URL=https://api.hindsight.vectorize.io` and `HINDSIGHT_API_KEY` in the **backend** environment using your own credentials from the Hindsight Cloud Connect page, or use a self-hosted Hindsight API URL. Use `TRAVEL_PROVIDER_MODE=local` for stable fictional inventory during a demo. The UI never receives the memory token. Missing Hindsight configuration or a memory service failure is reported in the agent trace and falls back to a standard policy-based trip recommendation. A demo traveller ID is not authentication; do not use real employee decisions or identities until proper access control exists.
+Unlike a stateless travel assistant, TripGuard learns from reviewed trips. Manager decisions are retained using **Hindsight persistent memory** and recalled during future relevant requests so the agent can adapt its recommendations while keeping company policy authoritative.
 
 ---
 
@@ -18,96 +12,179 @@ Set `HINDSIGHT_BASE_URL=https://api.hindsight.vectorize.io` and `HINDSIGHT_API_K
 
 - **Frontend:** https://trip-guard-ai.vercel.app
 - **Backend:** https://tripguard-ai-z34p.onrender.com
-- **API Health:** https://tripguard-ai-z34p.onrender.com/health
-- **GitHub Repository:** https://github.com/Nishith25/TripGuard-AI
-- **90–120 Second Live Demo:** (https://drive.google.com/file/d/1EHl809Baa1_ZlDoYC6_puLJskI-p-whU/view?usp=drivesdk)
+- **Production Health:** https://tripguard-ai-z34p.onrender.com/api/health
+- **GitHub:** https://github.com/Nishith25/TripGuard-AI
+- **Demo Video:** Public YouTube link to be added before final submission
 
-> The Render backend may take a few seconds to wake up after inactivity.
-
----
-
-## Project Overview
-
-Corporate business-travel planning involves more than selecting the cheapest flight and hotel.
-
-A valid recommendation may need to consider:
-
-- Employee budget
-- Flight timing
-- Required arrival time
-- Company travel class
-- Maximum flight price
-- Maximum hotel price per night
-- Hotel distance from the workplace
-- Advance-booking guidance
-- Local transport allowance
-- Manager-approval thresholds
-- Destination weather
-- Policy clauses requiring human interpretation
-
-TripGuard AI handles these factors through a stateful, multi-step agent workflow instead of returning a simple search result.
-
-The platform separates employee actions, policy administration, autonomous agent execution, and manager approval into clear workspaces.
+> The Render service may require a few seconds to wake after inactivity.
 
 ---
 
-## Problem Statement
+## The Problem
 
-Employees often spend significant time comparing travel options while manually checking company-policy documents.
+Corporate travel planning is more complicated than choosing the cheapest flight.
 
-This creates several problems:
+Employees may need to consider:
 
-- Policy violations may be discovered only after booking.
-- Employees may select the cheapest option even when it fails timing or location requirements.
-- Managers receive incomplete approval requests without supporting evidence.
-- Policy interpretation may vary between employees.
-- Travel decisions are difficult to audit.
-- Weather and operational risks are often considered too late.
+- company flight-price limits
+- permitted travel class
+- hotel price limits
+- hotel distance from the workplace
+- traveller budget
+- required arrival time
+- advance-booking rules
+- manager-approval thresholds
+- destination weather
+- policy clauses that require human interpretation
 
-TripGuard AI addresses these problems by combining live travel data, structured policy controls, transparent reasoning, and human-in-the-loop approval.
+Managers also encounter similar exceptions repeatedly, but traditional approval systems do not learn from earlier decisions.
 
----
+For example, if a manager rejects a hotel because it is too far from a client's office and asks the employee to stay within 2 km, a stateless system may recommend another distant hotel next time.
 
-## Solution
-
-TripGuard AI accepts a business-travel request containing details such as:
-
-- Origin and destination
-- Travel dates
-- Traveller budget
-- Required arrival time
-- Workplace location
-- Business purpose
-
-The agent then:
-
-1. Structures the employee’s requirements.
-2. Retrieves the active corporate travel policy.
-3. Searches live flight inventory.
-4. Searches live hotel inventory.
-5. retrieves destination weather.
-6. Evaluates possible flight-and-hotel combinations.
-7. Ranks valid options.
-8. Explains why the selected option was preferred.
-9. Identifies policy violations or clauses requiring human review.
-10. Sends qualifying requests to a manager approval queue.
-11. Stores the manager’s approval or rejection as an auditable record.
+TripGuard remembers that decision.
 
 ---
 
-## Why This Is an Agentic AI System
+## The Solution
 
-TripGuard AI is not only a conversational interface or a static recommendation engine.
+TripGuard combines deterministic policy enforcement, autonomous tool execution, persistent memory, an LLM explanation layer, and human approval.
 
-It demonstrates agentic behaviour through:
+```text
+Employee Trip Request
+        ↓
+Requirement Planner
+        ↓
+Corporate Policy Retrieval
+        ↓
+Live Flight Search
+        ↓
+Live Hotel Search
+        ↓
+Weather Intelligence
+        ↓
+Policy Compliance Evaluation
+        ↓
+Hindsight Memory Recall
+        ↓
+Deterministic Recommendation
+        ↓
+GPT-OSS-120B Explanation
+        ↓
+Manager Review when required
+        ↓
+Manager Decision
+        ↓
+Hindsight Memory Retain
+        ↓
+Future trips can recall the decision
+```
 
-- **Stateful orchestration:** LangGraph carries trip data and tool results through multiple workflow nodes.
-- **Autonomous tool use:** The agent calls policy, flight, hotel, weather, mapping, compliance, and approval tools.
-- **Multi-step decision-making:** It searches, compares, evaluates, ranks, and explains options.
-- **Constraint reasoning:** Traveller requirements and company-policy rules are evaluated together.
-- **Dynamic escalation:** The workflow decides whether manager review is required.
-- **Human-in-the-loop control:** A manager retains authority over exceptions and approval-required trips.
-- **Auditability:** Agent runs and manager decisions are stored for later review.
+---
+
+## Why TripGuard Is an AI Agent
+
+TripGuard is a multi-step agent rather than a single chatbot request.
+
+- **Stateful orchestration:** LangGraph carries the trip request and intermediate results through a structured workflow.
+- **Autonomous tool usage:** The workflow invokes policy, flight, hotel, weather, compliance, memory, recommendation, and explanation steps.
+- **Persistent memory:** Hindsight stores reviewed manager decisions and recalls relevant context during later trips.
+- **Human-in-the-loop:** Exceptions and approval-required trips remain under manager control.
+- **Persistent application state:** Supabase stores trip runs and approval records across backend restarts and deployments.
+
+---
+
+## Hindsight Persistent Memory
+
+Persistent memory is a central part of TripGuard.
+
+Manager feedback can be stored for a fictional traveller ID and recalled when a later trip has relevant context.
+
+TripGuard supports reusable manager memory for:
+
+- **Hotel-distance preferences**
+- **Urgent short-notice travel context**
+- **Cost-exception context**
+- **General reusable manager preferences**
+
+### Example
+
+A manager rejects a hotel and records:
+
+```text
+Prefer hotels within 2 km of this workplace.
+```
+
+On a later relevant trip, TripGuard recalls that preference through Hindsight and considers it while ranking policy-compliant options.
+
+### Memory Never Overrides Policy
+
+Hindsight memory is contextual preference, not company policy.
+
+TripGuard keeps policy and traveller constraints authoritative. A remembered preference can influence selection between otherwise valid options, but it cannot make a policy violation compliant.
+
+For the repeatable memory walkthrough, see [Travel Decision Memory Demo](docs/travel-decision-memory-demo.md).
+
+---
+
+## LLM Integration
+
+TripGuard uses:
+
+```text
+Provider: Groq
+Model: openai/gpt-oss-120b
+```
+
+The LLM runs **after** deterministic recommendation logic.
+
+It receives already-computed facts such as:
+
+- selected flight
+- selected hotel
+- total trip cost
+- compliance result
+- policy violations
+- manager-approval requirement
+- relevant Hindsight memory
+- weather context
+- selection reasoning
+
+The LLM converts those facts into a concise, user-facing explanation.
+
+It does **not** decide:
+
+- policy compliance
+- which violations exist
+- which flight or hotel wins
+- whether manager approval is required
+
+If Groq is unavailable, TripGuard keeps the deterministic explanation and continues operating.
+
+---
+
+## Example Agent Activity
+
+```text
+Requirement Planner
+        ↓
+Policy Retrieval Tool
+        ↓
+Flight Search Tool
+        ↓
+Hotel Search Tool
+        ↓
+Weather Intelligence Tool
+        ↓
+Policy Compliance Tool
+        ↓
+Hindsight Recall
+        ↓
+Decision Agent
+        ↓
+LLM Explanation
+```
+
+The frontend streams these stages while the workflow executes.
 
 ---
 
@@ -115,612 +192,412 @@ It demonstrates agentic behaviour through:
 
 ### Employee Travel Workspace
 
-- Enter origin and destination
-- Select travel dates
-- Set traveller budget
-- Specify required arrival time
-- Add workplace location
-- Add business purpose
-- Load a demonstration request
-- Run the autonomous agent
-- Submit qualifying recommendations for manager review
+Employees can provide:
+
+- origin and destination
+- destination city
+- travel dates
+- traveller budget
+- required arrival time
+- workplace
+- business purpose
+- traveller ID for memory-enabled demonstrations
 
 ### Live Travel Search
 
-- Live Google Flights results through SerpApi
-- Live Google Hotels results through SerpApi
-- Location and distance intelligence
-- Airline, flight number, timing, price, and provider information
-- Hotel price, rating, distance, and provider information
-
-### Corporate Policy Intelligence
-
-- Upload a text-based travel-policy PDF
-- Extract structured policy rules
-- Detect maximum flight-price limits
-- Detect maximum hotel-price limits
-- Detect permitted travel class
-- Detect workplace-distance limits
-- Detect manager-approval thresholds
-- Detect transport allowances
-- Identify clauses requiring human interpretation
-- Keep unspecified fields unset instead of inventing policy rules
+TripGuard retrieves live Google Flights and Google Hotels inventory through **SerpApi**.
 
 ### Weather Intelligence
 
-- Live weather data through Open-Meteo
-- Destination weather summary
-- Weather-risk assessment
-- Weather information included in the final recommendation
+**Open-Meteo** provides destination weather context and travel-risk information.
 
-### Explainable Recommendation
+### Corporate Policy Intelligence
 
-- Recommended flight
-- Recommended hotel
-- Total estimated trip cost
-- Budget remaining or exception amount
-- Policy-compliance outcome
-- Selection reasoning
-- Comparison with cheaper alternatives
-- Reasons why lower-priced options were not selected
-- Automatically enforced policy fields
-- Policy fields not specified in the uploaded document
-- Manual-review clauses
+TripGuard can process a text-based corporate travel-policy PDF and extract structured controls such as:
 
-### Human Approval Workflow
+- permitted flight class
+- maximum round-trip flight price
+- maximum hotel price
+- maximum workplace distance
+- manager-approval threshold
+- local transport allowance
+- advance-booking recommendations
 
-- Employee submits a completed recommendation
-- Pending request appears in the manager workspace
-- Manager inspects route, cost, inventory, policy exceptions, and manual checks
-- Manager approves or rejects the request
-- Reviewer name and decision note are recorded
-- Completed decisions appear in audit history
-- Associated trip-run status is updated
+Clauses that cannot safely be evaluated automatically are preserved for human review.
 
-### Operational Dashboard
+### Explainable Recommendations
 
-- Backend availability
-- Number of agent runs
-- Approved-trip count
-- Pending-approval count
-- Active policy summary
-- Most recent agent decision
+The final result can include:
+
+- recommended flight
+- recommended hotel
+- estimated total cost
+- traveller budget
+- exception amount
+- compliance result
+- policy violations
+- warnings
+- selection reasoning
+- recalled manager context
+- manager-approval requirement
+- LLM-generated explanation
+
+### Manager Review
+
+Managers can:
+
+- inspect the recommendation
+- review policy violations
+- approve or reject
+- record a decision note
+- classify reusable feedback
+- store relevant feedback in Hindsight
+
+### Persistent History
+
+Supabase stores trip runs and approval records so they survive backend restarts and deployments.
 
 ---
 
-## User Workflows
+## Technology Stack
 
-### Employee Workflow
+### Frontend
+
+- React
+- Vite
+- JavaScript
+- responsive custom CSS
+- streamed backend events
+- Vercel
+
+### Backend
+
+- Python
+- FastAPI
+- LangGraph
+- Pydantic
+- HTTPX
+- PDF text extraction
+- Render
+
+### Memory
+
+- Hindsight by Vectorize
+- traveller-scoped memory banks
+- retain
+- recall
+
+### LLM
+
+- Groq API
+- `openai/gpt-oss-120b`
+
+### Persistence
+
+- Supabase
+- PostgreSQL
+- `trip_runs`
+- `approvals`
+
+### Live Data
+
+- SerpApi Google Flights
+- SerpApi Google Hotels
+- Open-Meteo
+
+---
+
+## System Architecture
 
 ```text
-New Trip
-   ↓
-Enter travel requirements
-   ↓
-Run autonomous agent
-   ↓
-Review live recommendation
-   ↓
-Submit for manager review when required
-Policy Administrator Workflow
-Policies
-   ↓
-Upload corporate travel-policy PDF
-   ↓
-Review extracted policy controls
-   ↓
-Policy becomes active for future agent runs
-Manager Workflow
-Approvals
-   ↓
-View pending employee requests
-   ↓
-Open a request
-   ↓
-Review policy, inventory, cost, and exceptions
-   ↓
-Approve or reject
-   ↓
-Decision moves to completed history
+                    ┌──────────────────────┐
+                    │     React / Vite     │
+                    │       Frontend       │
+                    └──────────┬───────────┘
+                               │
+                        REST + Streaming
+                               │
+                               ▼
+                    ┌──────────────────────┐
+                    │       FastAPI        │
+                    │       Backend        │
+                    └──────────┬───────────┘
+                               │
+                               ▼
+                    ┌──────────────────────┐
+                    │      LangGraph       │
+                    │    Agent Workflow    │
+                    └──────────┬───────────┘
+                               │
+        ┌──────────────────────┼──────────────────────┐
+        │                      │                      │
+        ▼                      ▼                      ▼
+   ┌─────────┐           ┌───────────┐          ┌───────────┐
+   │ SerpApi │           │ Open-Meteo│          │ Hindsight │
+   │ Flights │           │  Weather  │          │  Memory   │
+   │ Hotels  │           └───────────┘          └───────────┘
+   └─────────┘
+        │
+        └──────────────────────┐
+                               ▼
+                    ┌──────────────────────┐
+                    │ Deterministic Policy │
+                    │ + Ranking Engine     │
+                    └──────────┬───────────┘
+                               │
+                               ▼
+                    ┌──────────────────────┐
+                    │ GPT-OSS-120B / Groq │
+                    │ Explanation Layer    │
+                    └──────────┬───────────┘
+                               │
+                               ▼
+                    ┌──────────────────────┐
+                    │ Human Manager Review │
+                    └──────────┬───────────┘
+                               │
+                  ┌────────────┴────────────┐
+                  ▼                         ▼
+            ┌────────────┐            ┌────────────┐
+            │  Supabase  │            │ Hindsight  │
+            │ Trips +    │            │  Retain    │
+            │ Approvals  │            │  Memory    │
+            └────────────┘            └────────────┘
+```
 
-The current demonstration separates these workflows by application page. Authentication and role-based access control are planned as a production enhancement.
+---
 
-Agent Workflow
-Decision Process
+## Data Persistence
 
-TripGuard evaluates travel options using multiple factors rather than selecting only the lowest price.
+TripGuard uses **Supabase as the server-side source of truth**.
 
-The agent considers:
+### `trip_runs`
 
-Mandatory traveller constraints
-Mandatory company-policy rules
-Live inventory-verification quality
-Arrival-time suitability
-Flight price
-Hotel price
-Hotel distance from the workplace
-Total trip cost
-Traveller budget
-Destination weather risk
-Manager-approval thresholds
-Clauses requiring manual interpretation
+Stores the original request, final recommendation, execution trace, approval status, linked approval data, and timestamps.
 
-A cheaper flight may not be selected when it:
+### `approvals`
 
-Arrives after the required time
-Violates the allowed travel class
-Causes the complete itinerary to exceed the traveller’s budget
-Produces a less suitable hotel combination
-Has incomplete inventory details
-Fails a mandatory company-policy rule
-Policy Interpretation
+Stores trip information, selected flight and hotel, cost information, compliance result, review status, reviewer, decision note, reusable feedback category, and Hindsight memory status.
 
-TripGuard separates policy clauses into three categories.
+Browser storage is used only as a frontend cache/fallback. When server synchronization succeeds, server data is authoritative.
 
-Automatically Enforced
+---
 
-Structured rules that can be evaluated directly, such as:
+## Production Health Monitoring
 
-Maximum flight price
-Maximum hotel price per night
-Permitted travel class
-Maximum hotel distance
-Manager-approval threshold
-Local transport allowance
-Advisory Rules
+TripGuard exposes:
 
-Guidance that creates a warning but does not automatically invalidate a trip.
+```text
+GET /api/health
+```
 
-For example:
+A healthy response resembles:
 
-Domestic travel should be booked at least five days in advance.
+```json
+{
+  "status": "healthy",
+  "services": {
+    "api": {"status": "healthy"},
+    "supabase": {
+      "status": "healthy",
+      "backend": "supabase"
+    },
+    "hindsight": {"status": "healthy"}
+  }
+}
+```
 
-The word “should” is treated as a recommendation rather than a mandatory violation.
+---
 
-Manual-Review Clauses
+## API Endpoints
 
-Rules that require human interpretation or external evidence.
+### Agent
 
-Examples include:
+| Method | Endpoint | Purpose |
+|---|---|---|
+| POST | `/api/plan` | Run the complete planning workflow |
+| POST | `/api/plan/stream` | Stream workflow events and the final recommendation |
 
-Original receipts must be submitted.
-A department head must validate a particular expense.
-Reimbursement documents must be submitted within a specified period.
+### Trips
 
-TripGuard displays these clauses for manager review rather than pretending that they were automatically verified.
+| Method | Endpoint | Purpose |
+|---|---|---|
+| GET | `/api/trips` | Retrieve persisted trip runs |
+| POST | `/api/trips` | Persist a trip run |
+| GET | `/api/trips/{id}` | Retrieve one trip |
+| PATCH | `/api/trips/{id}/approval` | Update linked approval status |
 
-Technology Stack
-Frontend
-React
-Vite
-JavaScript
-Responsive CSS
-Custom hash-based routing
-Fetch API
-Local browser persistence
-Backend
-Python
-FastAPI
-LangGraph
-Pydantic
-Streaming API responses
-PDF text extraction
-JSON-based demonstration persistence
-External Services
-SerpApi Google Flights
-SerpApi Google Hotels
-SerpApi location and mapping data
-Open-Meteo weather API
-Vercel frontend hosting
-Render backend hosting
-System Architecture
-┌──────────────────────────────────────┐
-│             React Frontend           │
-│                                      │
-│  Dashboard                           │
-│  New Trip                            │
-│  Policies                            │
-│  Approvals                           │
-│  Activity                            │
-│  Architecture                        │
-└──────────────────┬───────────────────┘
-                   │
-                   │ REST + Streaming
-                   ▼
-┌──────────────────────────────────────┐
-│             FastAPI Backend          │
-│                                      │
-│  Planning API                        │
-│  Policy API                          │
-│  Approval API                        │
-│  Persistent Run History              │
-└──────────────────┬───────────────────┘
-                   │
-                   ▼
-┌──────────────────────────────────────┐
-│          LangGraph Workflow          │
-│                                      │
-│  Requirement Planner                 │
-│  Policy Retrieval                    │
-│  Flight Search                       │
-│  Hotel Search                        │
-│  Weather Analysis                    │
-│  Compliance Evaluation               │
-│  Selection and Explanation           │
-│  Human Approval Handoff              │
-└──────────┬──────────┬──────────┬─────┘
-           │          │          │
-           ▼          ▼          ▼
-       SerpApi    Open-Meteo   Policy PDF
-Project Structure
-TripGuard-AI/
-├── app/
-│   ├── main.py
-│   ├── graph.py
-│   ├── routes/
-│   │   ├── policy.py
-│   │   └── approvals.py
-│   ├── tools/
-│   │   ├── policy_tool.py
-│   │   ├── flight_tool.py
-│   │   ├── hotel_tool.py
-│   │   └── weather_tool.py
-│   └── ...
-│
-├── frontend/
-│   ├── src/
-│   │   ├── components/
-│   │   │   ├── workspace/
-│   │   │   ├── approval/
-│   │   │   └── policy/
-│   │   ├── pages/
-│   │   ├── services/
-│   │   ├── App.jsx
-│   │   └── index.css
-│   ├── package.json
-│   └── vite.config.js
-│
-├── data/
-│   └── travel_policy.json
-│
-├── docs/
-│   ├── demo-policies/
-│   │   ├── test_policy.pdf
-│   │   └── sample_travel_policy.pdf
-│   └── screenshots/
-│
-├── requirements.txt
-├── .env.example
-├── .gitignore
-└── README.md
+### Approvals
 
-The exact structure may include additional supporting modules.
+| Method | Endpoint | Purpose |
+|---|---|---|
+| GET | `/api/approvals` | Retrieve approval requests |
+| POST | `/api/approvals` | Create an approval request |
+| GET | `/api/approvals/{id}` | Retrieve one approval |
+| PATCH | `/api/approvals/{id}/decision` | Approve or reject |
 
-API Endpoints
-System
-Method	Endpoint	Description
-GET	/health	Check backend availability
-Agent Planning
-Method	Endpoint	Description
-POST	/api/plan	Run the complete planning workflow
-POST	/api/plan/stream	Stream agent execution events and the final result
-Policy
-Method	Endpoint	Description
-GET	/api/policy/current	Retrieve the active structured policy
-POST	/api/policy/upload	Upload and process a policy PDF
-Approvals
-Method	Endpoint	Description
-GET	/api/approvals	Retrieve approval requests
-POST	/api/approvals	Create a pending approval request
-PATCH	/api/approvals/{approval_id}/decision	Approve or reject an existing request
-Local Development
-Prerequisites
+### Policy
 
-Install:
+| Method | Endpoint | Purpose |
+|---|---|---|
+| GET | `/api/policy/current` | Retrieve the active policy |
+| POST | `/api/policy/upload` | Upload a policy PDF |
 
-Python 3.10 or newer
-Node.js 18 or newer
-npm
-Git
+### Health
 
-You also need a SerpApi API key for live travel search.
+| Method | Endpoint | Purpose |
+|---|---|---|
+| GET | `/api/health` | Check API, Supabase, and Hindsight health |
 
-Backend Setup
+---
 
-Clone the repository:
+## Local Development
 
-git clone https://github.com/Nishith25/TripGuard-AI
+### Requirements
+
+- Python 3.10+
+- Node.js 18+
+- npm
+- Git
+
+### Backend
+
+```bash
+git clone https://github.com/Nishith25/TripGuard-AI.git
 cd TripGuard-AI
-
-Create and activate a Python virtual environment:
-
-macOS or Linux
 python3 -m venv .venv
 source .venv/bin/activate
-Windows PowerShell
-python -m venv .venv
-.venv\Scripts\Activate.ps1
-
-Install backend dependencies:
-
 pip install -r requirements.txt
-
-Create the backend environment file:
-
 cp .env.example .env
+```
 
-Add the required values:
+Configure the backend environment:
 
-SERPAPI_API_KEY=your_serpapi_key
+```env
 ALLOWED_ORIGINS=http://localhost:5173
 
-Start FastAPI:
-
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
-
-The backend will run at:
-
-http://localhost:8000
-
-API documentation will be available at:
-
-http://localhost:8000/docs
-Frontend Setup
-
-Open another terminal:
-
-cd TripGuard-AI/frontend
-npm install
-
-Create the frontend environment file:
-
-cp .env.example .env
-
-Set the backend URL:
-
-VITE_API_URL=http://localhost:8000
-
-Start the frontend:
-
-npm run dev
-
-The frontend will normally run at:
-
-http://localhost:5173
-Environment Variables
-Backend .env
 SERPAPI_API_KEY=
-ALLOWED_ORIGINS=http://localhost:5173
+TRAVEL_PROVIDER_MODE=serpapi
+TRAVEL_FALLBACK_TO_LOCAL=true
 
-Do not commit the real .env file.
+HINDSIGHT_BASE_URL=https://api.hindsight.vectorize.io
+HINDSIGHT_API_KEY=
 
-Frontend frontend/.env
+SUPABASE_URL=
+SUPABASE_SERVICE_ROLE_KEY=
+TRIPGUARD_STORAGE_BACKEND=supabase
+
+GROQ_API_KEY=
+GROQ_MODEL=openai/gpt-oss-120b
+```
+
+Never commit real credentials.
+
+Start the backend:
+
+```bash
+python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+```
+
+### Frontend
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Set:
+
+```env
 VITE_API_URL=http://localhost:8000
+```
 
-For the deployed frontend:
+---
 
-VITE_API_URL=https://tripguard-ai-z34p.onrender.com
-Demo Policies
+## Testing
 
-The repository includes two demonstration policy documents under:
+Run backend tests:
 
-docs/demo-policies/
-Test Policy
+```bash
+TRAVEL_PROVIDER_MODE=local PYTHONPATH=. pytest
+```
 
-Demonstrates:
+Current test suite:
 
-Economy-class requirement
-Maximum flight cost of INR 8,000
-Maximum hotel price of INR 3,500 per night
-Receipt-submission clause requiring manual review
-Sample Corporate Travel Policy
+```text
+18 passed
+```
 
-Demonstrates:
+Build the frontend:
 
-Economy-class requirement
-Maximum round-trip flight cost of INR 9,500
-Maximum hotel price of INR 4,000 per night
-Maximum hotel distance of four kilometres
-Manager approval above INR 16,000
-Five-day advance-booking recommendation
-INR 1,000 local transport allowance
-Recommended Demo Scenario
-
-Use a Hyderabad-to-Bengaluru business trip.
-
-Origin: HYD
-Destination: BLR
-Destination city: Bengaluru
-Traveller budget: INR 18,000
-Required arrival time: 10:00 AM
-Workplace: Embassy Tech Village
-Purpose: Important client meeting
-
-Select valid future departure and return dates.
-
-Expected Demonstration Flow
-Upload policy
-   ↓
-Open New Trip
-   ↓
-Enter employee requirements
-   ↓
-Run autonomous agent
-   ↓
-Watch tool calls execute
-   ↓
-Review live flight, hotel, weather, and policy result
-   ↓
-Inspect recommendation reasoning
-   ↓
-Submit for manager review
-   ↓
-Open Approvals
-   ↓
-Approve or reject
-   ↓
-Verify completed decision and activity status
-Live Demo Video
-
-The submission video demonstrates the agent:
-
-Receiving a real employee travel request
-Calling live travel and weather tools
-Retrieving the active company policy
-Evaluating available options
-Returning an explainable recommendation
-Sending a qualifying request to a manager
-Recording a human approval decision
-
-Watch the 90–120 second live demonstration:
-
-https://drive.google.com/file/d/1EHl809Baa1_ZlDoYC6_puLJskI-p-whU/view?usp=drivesdk
-
-Testing the Application
-Frontend Build
+```bash
 cd frontend
 npm run build
-Python Syntax Check
+```
 
-From the project root:
+---
 
-python -m py_compile \
-app/main.py \
-app/graph.py \
-app/tools/policy_tool.py \
-app/tools/flight_tool.py \
-app/tools/hotel_tool.py \
-app/routes/policy.py
-Production Workflow Check
+## Failure Handling
 
-Test the deployed application in this order:
+TripGuard is designed to degrade safely.
 
-Open the live frontend.
-Allow the Render backend to wake up.
-Upload a demonstration policy.
-Open New Trip.
-Enter a valid future trip.
-Run the autonomous agent.
-Confirm that tool activity appears.
-Confirm that a live recommendation is returned.
-Submit the result for manager review.
-Open Approvals.
-Review and approve or reject the request.
-Confirm that the decision appears under completed approvals.
-Confirm that the Activity page reflects the decision.
-Deployment
-Frontend
+- **Hindsight unavailable:** continue with normal policy-based recommendation logic.
+- **Groq unavailable:** retain the deterministic explanation.
+- **Weather unavailable:** continue and report that weather was unavailable.
+- **Live travel search unavailable:** optional local fallback inventory can be enabled.
+- **Policy exception:** escalate to human review instead of silently approving.
 
-The React application is deployed on Vercel:
+---
 
-https://trip-guard-ai.vercel.app
-Backend
+## Security Notes
 
-The FastAPI application is deployed on Render:
+- API keys remain backend-only.
+- `.env` files must never be committed.
+- `SUPABASE_SERVICE_ROLE_KEY` must never be exposed to the frontend.
+- Hindsight and Groq keys remain server-side.
+- Supabase tables use Row Level Security.
+- Production use should add authentication and authorization before storing real employee information.
 
-https://tripguard-ai-z34p.onrender.com
+---
 
-The frontend communicates with the backend using:
+## Known Limitations
 
-VITE_API_URL=https://tripguard-ai-z34p.onrender.com
-Known Limitations
-Authentication is not included in the current demonstration.
-Employee, administrator, and manager workflows are separated by pages rather than protected user roles.
-Render’s filesystem is ephemeral, so an uploaded policy may need to be uploaded again after a restart or redeployment.
-The backend may take several seconds to wake up on the free Render hosting tier.
-Live travel results depend on SerpApi availability and API quota.
-Text-based policy PDFs are supported; scanned image-only PDFs require OCR.
-Some policy clauses require human interpretation and cannot be automatically verified.
-Browser and JSON persistence are designed for demonstration rather than production-scale use.
-Full booking and payment execution are outside the current project scope.
-The system recommends inventory but does not purchase tickets or reserve rooms.
-Approval-history deletion currently clears the local browser view and is not intended as production record management.
-Production Enhancements
+- Authentication and role-based access control are not yet implemented.
+- Demo traveller IDs are memory identifiers, not authentication.
+- Uploaded policy files are not stored in durable object storage.
+- Image-only/scanned policies require OCR support.
+- Full ticket purchasing and hotel booking are outside the current scope.
+- Live data quality depends on external provider availability.
+- Some policy clauses require human interpretation.
+- Production-scale concurrency can be improved with more targeted database operations.
 
-Future development can include:
+---
 
-Employee and manager authentication
-Role-based access control
-PostgreSQL or MongoDB persistence
-Organisation and department support
-Email and Slack approval notifications
-Calendar integration
-Direct travel-booking integrations
-Expense-management integration
-Receipt OCR and validation
-Policy versioning
-Approval chains
-Multi-manager escalation
-Cancellation and rebooking workflows
-Historical price analysis
-More detailed return-flight selection
-Automated testing and CI/CD
-Persistent file storage for uploaded policies
-Enterprise audit logs
-Analytics for travel spending and policy violations
-Design Principles
+## Project Status
 
-TripGuard AI follows these principles:
+The current production system includes:
 
-Policy First
+- live flight search
+- live hotel search
+- live weather intelligence
+- structured policy evaluation
+- LangGraph orchestration
+- Hindsight persistent memory
+- manager retain/recall workflow
+- Groq GPT-OSS-120B explanation layer
+- Supabase persistent storage
+- human manager approval
+- production dependency health checks
+- automated backend tests
+- deployed frontend and backend
 
-Recommendations must consider company rules before price optimisation.
+---
 
-Explainability
+## Submission Links
 
-Every selected itinerary should include a clear reason.
-
-No Invented Rules
-
-Policy fields not present in the uploaded document remain unspecified.
-
-Human Authority
-
-The manager retains control when exceptions or approvals are required.
-
-Live Evidence
-
-Recommendations use live travel and weather tools whenever available.
-
-Auditability
-
-Agent activity and human decisions are recorded for later review.
-
-Security Notes
-Never commit real API keys.
-Keep .env files outside Git.
-Use restricted production CORS origins.
-Replace JSON and browser persistence with a secured database before production.
-Add authentication before processing real employee travel data.
-Validate and scan uploaded documents in a production deployment.
-Add rate limiting and monitoring to public APIs.
-Submission Links
-GitHub: https://github.com/Nishith25/TripGuard-AI
-Live Application: https://trip-guard-ai.vercel.app
-Backend: https://tripguard-ai-z34p.onrender.com
-Demo Video: https://drive.google.com/file/d/1EHl809Baa1_ZlDoYC6_puLJskI-p-whU/view?usp=drivesdk
-Author
-
-Nishith Reddy Makireddy
-
-B.Tech Computer Science and Engineering
-Woxsen University
-
-Email: nishithreddyyyy@gmail.com
-GitHub: https://github.com/Nishith25
-LinkedIn: https://www.linkedin.com/in/nishith-reddy-91b72525a/
-Acknowledgements
-
-TripGuard AI uses:
-
-LangGraph for stateful agent orchestration
-FastAPI for backend APIs
-React and Vite for the frontend
-SerpApi for live travel-search data
-Open-Meteo for weather intelligence
-Vercel and Render for deployment
-Disclaimer
-
-TripGuard AI is a demonstration project.
-
-Travel prices, schedules, hotel availability, weather conditions, and policy interpretations should be independently verified before making real reservations or financial decisions.
+- **GitHub:** https://github.com/Nishith25/TripGuard-AI
+- **Live Application:** https://trip-guard-ai.vercel.app
+- **Backend:** https://tripguard-ai-z34p.onrender.com
+- **Health Check:** https://tripguard-ai-z34p.onrender.com/api/health
+- **Public Demo Video:** To be added after recording
