@@ -11,14 +11,14 @@ import {
 const primaryItems = [
   {
     path: "/app/trips/new",
-    label: "Plan a trip",
-    shortLabel: "Plan",
+    label: "Employee trip request",
+    shortLabel: "Trip",
     icon: "✦",
   },
   {
     path: "/app/approvals",
-    label: "Manager reviews",
-    shortLabel: "Reviews",
+    label: "Manager memory",
+    shortLabel: "Memory",
     icon: "✓",
   },
 ];
@@ -73,12 +73,12 @@ function DesktopSidebar({
             TripGuard AI
           </strong>
 
-          <small>Business travel</small>
+          <small>AI travel agent</small>
         </span>
       </button>
 
       <nav className="sidebar-navigation">
-        <span className="sidebar-section-label">Travel</span>
+        <span className="sidebar-section-label">Core flow</span>
 
         {primaryItems.map(
           (item) => (
@@ -137,7 +137,7 @@ function TopHeader({
     <header className="application-header">
       <div>
         <span className="application-header-eyebrow">
-          Business travel
+          AI agent + persistent memory
         </span>
 
         <h1>{title}</h1>
@@ -172,7 +172,7 @@ function TopHeader({
             );
           }}
         >
-          New trip
+          Start request
           <span>↗</span>
         </button>}
       </div>

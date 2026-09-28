@@ -21,17 +21,12 @@ import {
 
 
 const PAGE_TITLES = {
-  "/app": "Dashboard",
-  "/app/trips/new":
-    "Plan a new trip",
-  "/app/policies":
-    "Travel policies",
-  "/app/approvals":
-    "Approvals",
-  "/app/activity":
-    "Agent activity",
-  "/app/architecture":
-    "System architecture",
+  "/app": "AI agent overview",
+  "/app/trips/new": "Employee trip request",
+  "/app/policies": "Policy intelligence",
+  "/app/approvals": "Manager decision memory",
+  "/app/activity": "Agent activity",
+  "/app/architecture": "Agent architecture",
 };
 
 
