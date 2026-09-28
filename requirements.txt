@@ -6,3 +6,5 @@ python-multipart
 pypdf
 httpx
 hindsight-client==0.10.1
+
+supabase

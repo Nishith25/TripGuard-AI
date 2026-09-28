@@ -10,6 +10,12 @@ from uuid import uuid4
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel, Field, model_validator
 
+from app.integrations.supabase_store import (
+    fetch_rows,
+    upsert_rows,
+    use_supabase,
+)
+
 from app.integrations.travel_memory import (
     retain_hotel_decision,
     retain_manager_preference,
@@ -115,6 +121,11 @@ def utc_now() -> str:
 
 def load_approvals_unlocked(
 ) -> list[dict[str, Any]]:
+    if use_supabase():
+        return fetch_rows(
+            "approvals"
+        )
+
     if not APPROVALS_PATH.exists():
         return []
 
@@ -162,6 +173,13 @@ def save_approvals_unlocked(
         dict[str, Any]
     ],
 ) -> None:
+    if use_supabase():
+        upsert_rows(
+            "approvals",
+            approvals,
+        )
+        return
+
     APPROVALS_PATH.parent.mkdir(
         parents=True,
         exist_ok=True,

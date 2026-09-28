@@ -10,6 +10,12 @@ from uuid import uuid4
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel, Field
 
+from app.integrations.supabase_store import (
+    fetch_rows,
+    upsert_rows,
+    use_supabase,
+)
+
 
 router = APIRouter(
     prefix="/api/trips",
@@ -72,6 +78,11 @@ def utc_now() -> str:
 
 
 def load_trip_runs_unlocked() -> list[dict[str, Any]]:
+    if use_supabase():
+        return fetch_rows(
+            "trip_runs"
+        )
+
     if not TRIP_RUNS_PATH.exists():
         return []
 
@@ -108,6 +119,13 @@ def load_trip_runs() -> list[dict[str, Any]]:
 def save_trip_runs_unlocked(
     trip_runs: list[dict[str, Any]],
 ) -> None:
+    if use_supabase():
+        upsert_rows(
+            "trip_runs",
+            trip_runs,
+        )
+        return
+
     TRIP_RUNS_PATH.parent.mkdir(
         parents=True,
         exist_ok=True,
