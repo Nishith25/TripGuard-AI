@@ -4120,16 +4120,13 @@ textarea {
   .employee-booking-flow .itinerary-selection-card strong { overflow-wrap: anywhere; }
   .employee-booking-flow .booking-details { padding: 14px; }
 }
-
-
-/* Dark monochrome theme - full final override */
-
+/* Clean dark monochrome theme */
 :root {
-  --background: #050505;
-  --surface: #101010;
-  --surface-soft: #151515;
-  --surface-raised: #1c1c1c;
-  --border: rgba(255, 255, 255, 0.12);
+  --background: #000000;
+  --surface: #0b0b0b;
+  --surface-soft: #111111;
+  --surface-raised: #151515;
+  --border: rgba(255, 255, 255, 0.14);
   --border-strong: rgba(255, 255, 255, 0.28);
   --text: #f7f7f7;
   --text-secondary: #b8b8b8;
@@ -4144,556 +4141,229 @@ textarea {
 html,
 body,
 #root {
-  background: #050505 !important;
-  color: #f7f7f7 !important;
+  background: #000000;
+  color: var(--text);
 }
 
-body::before {
-  background:
-    radial-gradient(circle at top left, rgba(255, 255, 255, 0.06), transparent 34rem),
-    radial-gradient(circle at bottom right, rgba(255, 255, 255, 0.04), transparent 32rem),
-    #050505 !important;
+body {
+  background: #000000;
 }
 
 .application-shell,
-.app-shell,
-.main-shell,
 .workspace-shell,
 .page-shell,
-.dashboard-shell,
 .app-main,
-.main-content,
 .desktop-sidebar,
 .mobile-navigation,
-.application-header {
-  background: #050505 !important;
-  color: #f7f7f7 !important;
-  border-color: rgba(255, 255, 255, 0.1) !important;
+.application-header,
+.landing-page {
+  background: #000000;
+  color: var(--text);
 }
 
 .desktop-sidebar,
-.mobile-navigation,
 .application-header {
-  background: #070707 !important;
+  border-color: var(--border);
 }
 
 .sidebar-brand,
 .landing-brand {
-  background: #ffffff !important;
-  color: #050505 !important;
-  border: 1px solid rgba(255, 255, 255, 0.18) !important;
-  box-shadow: none !important;
+  background: transparent;
+  color: #ffffff;
+  border: 1px solid var(--border);
 }
 
-.sidebar-brand *,
-.landing-brand * {
-  color: #050505 !important;
+.sidebar-brand strong,
+.sidebar-brand small,
+.landing-brand strong,
+.landing-brand small {
+  color: #ffffff;
 }
 
 .sidebar-brand-mark,
-.landing-brand > span,
-.logo-mark,
-.brand-mark,
-.sidebar-brand-avatar,
-.sidebar-brand-icon {
-  background: #ededed !important;
-  color: #050505 !important;
-  border: 1px solid rgba(0, 0, 0, 0.1) !important;
-  box-shadow: none !important;
-}
-
-.sidebar-section-label,
-.sidebar-secondary-label,
-.application-header-eyebrow,
-.surface-eyebrow,
-.weather-eyebrow,
-.approval-modal-eyebrow,
-.policy-card-eyebrow,
-.landing-kicker,
-.trip-page-eyebrow,
-.trip-form-step,
-.employee-booking-flow .form-section-divider,
-.employee-booking-flow [class*="eyebrow"],
-.employee-booking-flow [class*="kicker"],
-.employee-booking-flow [class*="step"],
-.employee-booking-flow [class*="label"] {
-  color: #ffffff !important;
+.landing-brand > span {
+  background: #ffffff;
+  color: #000000;
+  border-color: #ffffff;
+  box-shadow: none;
 }
 
 .sidebar-link,
 .mobile-navigation button,
 .mobile-more > summary {
-  background: transparent !important;
-  color: #b8b8b8 !important;
-  border-color: rgba(255, 255, 255, 0.14) !important;
-  box-shadow: none !important;
-}
-
-.sidebar-link *,
-.mobile-navigation button *,
-.mobile-more > summary * {
-  color: inherit !important;
+  background: transparent;
+  color: var(--text-secondary);
+  border-color: var(--border);
+  box-shadow: none;
 }
 
 .sidebar-link:hover,
 .mobile-navigation button:hover,
 .mobile-more > summary:hover {
-  background: #161616 !important;
-  color: #ffffff !important;
+  background: #111111;
+  color: #ffffff;
 }
 
 .sidebar-link.active,
 .mobile-navigation button.active,
 .mobile-more[open] > summary {
-  background: #ffffff !important;
-  color: #050505 !important;
-  border-color: #ffffff !important;
+  background: #ffffff;
+  color: #000000;
+  border-color: #ffffff;
 }
 
-.sidebar-project-card,
-.trip-form-demo-helper,
+.sidebar-link.active *,
+.mobile-navigation button.active * {
+  color: #000000;
+}
+
+.surface-eyebrow,
+.weather-eyebrow,
+.application-header-eyebrow,
+.policy-card-eyebrow,
+.approval-modal-eyebrow,
+.landing-kicker,
+.trip-page-eyebrow,
+.trip-form-step,
+.employee-booking-flow .form-section-divider,
+.booking-details > summary,
+.booking-progress summary {
+  color: #ffffff;
+}
+
+.workspace-surface,
+.dashboard-hero,
+.metric-card,
+.policy-card,
+.approval-workspace,
 .trip-request-surface,
 .trip-request-form,
-.employee-booking-flow,
-.booking-details,
-.booking-progress,
-.approval-workspace,
 .recommendation-surface,
-.policy-assessment,
-.remembered-preference,
+.booking-progress,
+.booking-details,
 .agent-execution-surface,
 .agent-timeline,
 .policy-details,
-.cost-summary-grid,
-.selection-reasoning-panel,
-.selected-reason-card,
-.cheaper-alternative-card,
-.alternative-ranking-reason,
-.selection-no-cheaper,
-[class*="card"],
-[class*="panel"],
-[class*="section"],
-[class*="workspace"],
-[class*="modal"],
-[class*="form"],
-[class*="summary"],
-[class*="timeline"],
-[class*="result"],
-[class*="recommendation"] {
-  background: #101010 !important;
-  color: #f7f7f7 !important;
-  border-color: rgba(255, 255, 255, 0.12) !important;
-  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.42) !important;
+.approval-control-card,
+.architecture-hero,
+.architecture-flow article,
+.landing-agent-preview,
+.landing-workflow-grid article,
+.landing-final-cta {
+  background: #0b0b0b;
+  border-color: var(--border);
+  box-shadow: none;
 }
 
-.trip-request-form section,
-.trip-request-form fieldset,
-.booking-details,
-.booking-progress,
-.employee-booking-flow .trip-request-surface,
-.employee-booking-flow .trip-request-form {
-  background: #111111 !important;
-  border-color: rgba(255, 255, 255, 0.12) !important;
+.dashboard-hero,
+.architecture-hero,
+.landing-page {
+  background-image: none;
 }
 
-[class*="soft"],
-[class*="muted"],
-[class*="helper"],
-[class*="note"],
-.field-hint {
-  background: #151515 !important;
-  color: #b8b8b8 !important;
+.landing-background-grid,
+.landing-orb {
+  display: none;
 }
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6,
-strong,
-legend {
-  color: #ffffff !important;
+.landing-hero h1 em {
+  color: #ffffff;
+  background: none;
+  -webkit-text-fill-color: #ffffff;
 }
 
-p,
-li,
-span,
-small,
-label {
-  color: inherit;
-}
-
-a {
-  color: #ffffff !important;
-}
-
-button,
-.button,
-.primary-action-button,
-.trip-form-demo-helper button,
-.approval-control-card button,
-[class*="button"],
-[class*="cta"] {
-  background: #ffffff !important;
-  color: #050505 !important;
-  border-color: rgba(255, 255, 255, 0.22) !important;
-  box-shadow: none !important;
-}
-
-button *,
-.button *,
-.primary-action-button *,
-[class*="button"] * {
-  color: inherit !important;
-}
-
-button:hover:not(:disabled),
-.button:hover,
-.primary-action-button:hover,
-[class*="button"]:hover {
-  background: #e8e8e8 !important;
-  color: #050505 !important;
-  transform: translateY(-1px);
-}
-
-button:disabled {
-  background: #2a2a2a !important;
-  color: #8d8d8d !important;
-  border-color: rgba(255, 255, 255, 0.1) !important;
+.landing-final-cta {
+  color: #ffffff;
 }
 
 input,
 select,
 textarea {
-  background: #0b0b0b !important;
-  color: #ffffff !important;
-  border-color: rgba(255, 255, 255, 0.16) !important;
-  box-shadow: none !important;
+  background: #080808;
+  color: #ffffff;
+  border-color: var(--border);
+  box-shadow: none;
 }
 
 input::placeholder,
 textarea::placeholder {
-  color: #777777 !important;
+  color: #777777;
 }
 
-input:focus,
-select:focus,
-textarea:focus,
-.sidebar-link:focus-visible,
-.mobile-navigation button:focus-visible,
-.primary-action-button:focus-visible,
-.approval-control-card button:focus-visible,
-.booking-details summary:focus-visible,
-.booking-progress summary:focus-visible,
-.mobile-more > summary:focus-visible {
-  border-color: rgba(255, 255, 255, 0.55) !important;
-  outline: 2px solid #ffffff !important;
-  outline-offset: 3px !important;
-  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.08) !important;
+button,
+.primary-action-button,
+.sample-trip-button,
+.secondary-action-button,
+.policy-details-button,
+.policy-upload-button,
+.policy-reset-button,
+.approval-control-card button,
+.approval-modal-actions button,
+.landing-primary-button,
+.landing-secondary-button,
+.landing-final-cta button {
+  box-shadow: none;
 }
 
-.trip-request-form label > span,
-.form-error,
-.field-error,
-.booking-progress p,
-.booking-progress summary,
-.booking-details > summary {
-  color: #f1f1f1 !important;
+.primary-action-button,
+.sample-trip-button,
+.landing-primary-button,
+.landing-final-cta button,
+.page-empty-list button,
+.approval-approve-button {
+  background: #ffffff;
+  color: #000000;
+  border-color: #ffffff;
 }
 
-[class*="badge"],
-[class*="pill"],
-[class*="tag"],
-[class*="chip"],
-[class*="status"] {
-  background: #1a1a1a !important;
-  color: #eeeeee !important;
-  border-color: rgba(255, 255, 255, 0.18) !important;
+.primary-action-button *,
+.sample-trip-button *,
+.landing-primary-button *,
+.landing-final-cta button *,
+.page-empty-list button * {
+  color: #000000;
 }
 
-[class*="success"],
-[class*="approved"],
-[class*="compliant"],
-[class*="warning"],
-[class*="exception"],
-[class*="error"],
-[class*="danger"],
-[class*="failed"] {
-  background: #171717 !important;
-  color: #f1f1f1 !important;
-  border-color: rgba(255, 255, 255, 0.2) !important;
+.secondary-action-button,
+.landing-secondary-button,
+.policy-reset-button,
+.approval-reject-button {
+  background: #0b0b0b;
+  color: #ffffff;
+  border-color: var(--border);
 }
 
 .route-direction,
-.route-input-row > div {
-  background: #181818 !important;
-  color: #ffffff !important;
-  border: 1px solid rgba(255, 255, 255, 0.12) !important;
-  box-shadow: none !important;
+.route-input-row > div,
+.architecture-agent-core {
+  background: #111111;
+  color: #ffffff;
+  border-color: var(--border);
 }
 
-svg,
-[class*="icon"]:not(.logo-mark):not(.brand-mark):not(.sidebar-brand-mark),
-[class*="Icon"]:not(.logo-mark):not(.brand-mark):not(.sidebar-brand-mark) {
-  background: transparent !important;
-  color: currentColor !important;
-  border-color: transparent !important;
-  box-shadow: none !important;
+.positive-text,
+.negative-text,
+.warning-text,
+.approval-outcome.approved,
+.approval-outcome.rejected {
+  color: #ffffff !important;
+}
+
+[class*="approved"],
+[class*="rejected"],
+[class*="compliant"],
+[class*="pending"] {
+  color: #ffffff;
+}
+
+svg {
+  color: currentColor;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #3a3a3a !important;
+  background: #3a3a3a;
 }
 
 ::-webkit-scrollbar-track {
-  background: #090909 !important;
-}
-/* FINAL DARK MONOCHROME CLEANUP */
-:root {
-  --primary: #ffffff !important;
-  --accent: #ffffff !important;
-  --purple: #ffffff !important;
-  --violet: #ffffff !important;
-  --text: #f5f5f5 !important;
-  --muted: #a3a3a3 !important;
-  --bg: #000000 !important;
-  --surface: #0b0b0b !important;
-  --surface-2: #111111 !important;
-  --border: #2a2a2a !important;
-}
-
-body,
-#root,
-.app,
-.app-shell,
-.landing-page,
-.workspace-shell {
-  background: #000000 !important;
-  color: #f5f5f5 !important;
-}
-
-/* Remove purple gradients */
-* {
-  border-color: #2a2a2a !important;
-}
-
-section,
-main,
-article,
-aside,
-header,
-footer,
-[class*="hero"],
-[class*="panel"],
-[class*="card"],
-[class*="section"],
-[class*="workspace"],
-[class*="dashboard"],
-[class*="policy"],
-[class*="approval"],
-[class*="activity"],
-[class*="architecture"] {
-  background-color: #000000 !important;
-  background-image: none !important;
-  color: #f5f5f5 !important;
-}
-
-/* Cards should be dark, not purple/blue */
-[class*="card"],
-[class*="panel"],
-[class*="box"],
-[class*="tile"],
-[class*="summary"],
-[class*="queue"],
-[class*="history"],
-[class*="decision"],
-[class*="request"] {
-  background: #0b0b0b !important;
-  border: 1px solid #2a2a2a !important;
-  box-shadow: none !important;
-}
-
-/* Remove remaining purple text */
-[class*="eyebrow"],
-[class*="kicker"],
-[class*="label"],
-[class*="tag"],
-[class*="badge"],
-[class*="pill"],
-[class*="status"],
-[class*="accent"],
-h1 span,
-h2 span,
-strong,
-small {
-  color: #f5f5f5 !important;
-}
-
-/* Softer secondary text */
-p,
-li,
-span,
-label,
-input,
-textarea,
-select,
-[class*="muted"],
-[class*="caption"],
-[class*="description"],
-[class*="subtitle"],
-[class*="helper"] {
-  color: #a3a3a3 !important;
-}
-
-/* Keep main headings clean white */
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  color: #ffffff !important;
-}
-
-/* Inputs */
-input,
-textarea,
-select {
-  background: #080808 !important;
-  border: 1px solid #2a2a2a !important;
-  color: #ffffff !important;
-}
-
-input::placeholder,
-textarea::placeholder {
-  color: #737373 !important;
-}
-
-/* Buttons */
-button,
-a[class*="button"],
-[class*="btn"] {
-  border-color: #2a2a2a !important;
-  box-shadow: none !important;
-}
-
-button:not(:disabled),
-a[class*="button"] {
-  background: #ffffff !important;
-  color: #000000 !important;
-}
-
-button:not(:disabled):hover,
-a[class*="button"]:hover {
-  background: #e5e5e5 !important;
-  color: #000000 !important;
-}
-
-/* Dark secondary buttons */
-button[class*="secondary"],
-button[class*="ghost"],
-[class*="secondary"],
-[class*="ghost"] {
-  background: #0b0b0b !important;
-  color: #ffffff !important;
-  border: 1px solid #2a2a2a !important;
-}
-
-/* Sidebar */
-aside,
-nav,
-[class*="sidebar"] {
-  background: #000000 !important;
-  border-color: #222222 !important;
-}
-
-[class*="nav"] a,
-[class*="nav"] button,
-[class*="sidebar"] a,
-[class*="sidebar"] button {
-  background: #000000 !important;
-  color: #a3a3a3 !important;
-  border: 1px solid #222222 !important;
-}
-
-[class*="nav"] a[aria-current="page"],
-[class*="nav"] button[aria-current="page"],
-[class*="active"],
-[class*="selected"] {
-  background: #ffffff !important;
-  color: #000000 !important;
-}
-
-/* Logo block */
-[class*="brand"],
-[class*="logo"] {
-  background: #ffffff !important;
-  color: #000000 !important;
-  border-color: #d4d4d4 !important;
-}
-
-/* Arrows, icons, numbers */
-svg,
-path,
-[class*="icon"],
-[class*="arrow"],
-[class*="step"],
-[class*="number"] {
-  color: currentColor !important;
-  fill: currentColor !important;
-  stroke: currentColor !important;
-}
-
-/* Remove purple borders/glow */
-[class*="glow"],
-[class*="gradient"],
-[class*="highlight"] {
-  background: #0b0b0b !important;
-  background-image: none !important;
-  color: #ffffff !important;
-  box-shadow: none !important;
-}
-
-/* Fix the large white landing card */
-.landing-page section,
-.landing-page article,
-.landing-page [class*="card"],
-.landing-page [class*="panel"],
-.landing-page [class*="cta"] {
-  background: #0b0b0b !important;
-  color: #ffffff !important;
-  border: 1px solid #2a2a2a !important;
-}
-
-/* Route text */
-[class*="route"],
-[class*="route"] * {
-  color: #ffffff !important;
-}
-
-/* Tables/lists */
-table,
-thead,
-tbody,
-tr,
-td,
-th {
-  background: #0b0b0b !important;
-  color: #f5f5f5 !important;
-  border-color: #2a2a2a !important;
-}
-
-/* Mobile safety */
-@media (max-width: 768px) {
-  h1 {
-    font-size: clamp(2.4rem, 12vw, 4.5rem) !important;
-    line-height: 0.95 !important;
-  }
-
-  [class*="card"],
-  [class*="panel"],
-  [class*="workspace"] {
-    border-radius: 18px !important;
-  }
+  background: #080808;
 }
