@@ -8,45 +8,36 @@ import {
 } from "../../services/api";
 
 
-const primaryItems = [
+const navigationItems = [
+  {
+    path: "/app",
+    label: "Home",
+    shortLabel: "Home",
+    icon: "⌂",
+  },
   {
     path: "/app/trips/new",
-    label: "Trip request",
+    label: "Trip Request",
     shortLabel: "Trip",
     icon: "✦",
   },
   {
     path: "/app/approvals",
-    label: "Manager review",
-    shortLabel: "Memory",
+    label: "Manager Review",
+    shortLabel: "Review",
     icon: "✓",
   },
-];
-
-const secondaryItems = [
   {
-    path: "/app",
-    label: "Overview",
-    shortLabel: "Home",
-    icon: "⌂",
-  },
-  {
-    path: "/app/policies",
-    label: "Policies",
-    shortLabel: "Policy",
-    icon: "▤",
-  },
-  {
-    path: "/app/activity",
-    label: "Agent steps",
-    shortLabel: "Activity",
+    path: "/app/memory",
+    label: "Memory",
+    shortLabel: "Memory",
     icon: "◷",
   },
   {
-    path: "/app/architecture",
-    label: "Architecture",
-    shortLabel: "System",
-    icon: "⌘",
+    path: "/app/policies",
+    label: "Policy",
+    shortLabel: "Policy",
+    icon: "▤",
   },
 ];
 
@@ -73,52 +64,37 @@ function DesktopSidebar({
             TripGuard AI
           </strong>
 
-          <small>Travel approval agent</small>
+          <small>
+            Travel approval agent
+          </small>
         </span>
       </button>
 
       <nav className="sidebar-navigation">
-        <span className="sidebar-section-label">Core flow</span>
+        <span className="sidebar-section-label">
+          Product flow
+        </span>
 
-        {primaryItems.map(
-          (item) => (
-            <button
-              type="button"
-              key={item.path}
-              className={
-                `sidebar-link ${
-                  activePath
-                  === item.path
-                    ? "active"
-                    : ""
-                }`
-              }
-              onClick={() => {
-                navigate(
-                  item.path,
-                );
-              }}
-            >
-              <span className="sidebar-link-icon">
-                {item.icon}
-              </span>
-
-              <span>
-                {item.label}
-              </span>
-            </button>
-          ),
-        )}
-        <span className="sidebar-section-label sidebar-secondary-label">More</span>
-        {secondaryItems.map((item) => (
+        {navigationItems.map((item) => (
           <button
             type="button"
             key={item.path}
-            className={`sidebar-link ${activePath === item.path ? "active" : ""}`}
-            onClick={() => navigate(item.path)}
+            className={`sidebar-link ${
+              activePath === item.path
+                ? "active"
+                : ""
+            }`}
+            onClick={() => {
+              navigate(item.path);
+            }}
           >
-            <span className="sidebar-link-icon">{item.icon}</span>
-            <span>{item.label}</span>
+            <span className="sidebar-link-icon">
+              {item.icon}
+            </span>
+
+            <span>
+              {item.label}
+            </span>
           </button>
         ))}
       </nav>
@@ -137,7 +113,7 @@ function TopHeader({
     <header className="application-header">
       <div>
         <span className="application-header-eyebrow">
-          Agent + decision memory
+          AI travel approval platform
         </span>
 
         <h1>{title}</h1>
@@ -145,16 +121,12 @@ function TopHeader({
 
       <div className="header-actions">
         <div
-          className={
-            `backend-status ${
-              systemStatus.online
-                ? "online"
-                : "offline"
-            }`
-          }
-          title={
-            systemStatus.message
-          }
+          className={`backend-status ${
+            systemStatus.online
+              ? "online"
+              : "offline"
+          }`}
+          title={systemStatus.message}
         >
           <span />
 
@@ -163,18 +135,18 @@ function TopHeader({
             : "Service offline"}
         </div>
 
-        {activePath !== "/app/trips/new" && <button
-          type="button"
-          className="header-new-trip"
-          onClick={() => {
-            navigate(
-              "/app/trips/new",
-            );
-          }}
-        >
-          New request
-          <span>↗</span>
-        </button>}
+        {activePath !== "/app/trips/new" && (
+          <button
+            type="button"
+            className="header-new-trip"
+            onClick={() => {
+              navigate("/app/trips/new");
+            }}
+          >
+            New request
+            <span>↗</span>
+          </button>
+        )}
       </div>
     </header>
   );
@@ -185,47 +157,30 @@ function MobileNavigation({
   activePath,
   navigate,
 }) {
-  const visibleItems = [primaryItems[0], primaryItems[1], secondaryItems[0]];
-
   return (
     <nav className="mobile-navigation">
-      {visibleItems.map(
-        (item) => (
-          <button
-            type="button"
-            key={item.path}
-            className={
-              activePath
-              === item.path
-                ? "active"
-                : ""
-            }
-            onClick={() => {
-              navigate(
-                item.path,
-              );
-            }}
-          >
-            <span>
-              {item.icon}
-            </span>
+      {navigationItems.map((item) => (
+        <button
+          type="button"
+          key={item.path}
+          className={
+            activePath === item.path
+              ? "active"
+              : ""
+          }
+          onClick={() => {
+            navigate(item.path);
+          }}
+        >
+          <span>
+            {item.icon}
+          </span>
 
-            <small>
-              {item.shortLabel}
-            </small>
-          </button>
-        ),
-      )}
-      <details className="mobile-more">
-        <summary aria-label="More sections"><span>☰</span><small>More</small></summary>
-        <div className="mobile-more-menu">
-          {secondaryItems.slice(1).map((item) => (
-            <button type="button" key={item.path} onClick={() => navigate(item.path)}>
-              <span aria-hidden="true">{item.icon}</span> {item.label}
-            </button>
-          ))}
-        </div>
-      </details>
+          <small>
+            {item.shortLabel}
+          </small>
+        </button>
+      ))}
     </nav>
   );
 }
@@ -242,8 +197,7 @@ function AppShell({
     setSystemStatus,
   ] = useState({
     online: false,
-    message:
-      "Checking backend",
+    message: "Checking backend",
   });
 
   useEffect(() => {
@@ -254,9 +208,7 @@ function AppShell({
         await getSystemStatus();
 
       if (mounted) {
-        setSystemStatus(
-          nextStatus,
-        );
+        setSystemStatus(nextStatus);
       }
     }
 
@@ -270,10 +222,7 @@ function AppShell({
 
     return () => {
       mounted = false;
-
-      window.clearInterval(
-        intervalId,
-      );
+      window.clearInterval(intervalId);
     };
   }, []);
 
@@ -288,9 +237,7 @@ function AppShell({
         <TopHeader
           title={title}
           activePath={activePath}
-          systemStatus={
-            systemStatus
-          }
+          systemStatus={systemStatus}
           navigate={navigate}
         />
 

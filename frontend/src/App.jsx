@@ -7,11 +7,10 @@ import AppShell from "./components/layout/AppShell";
 import NewTripWorkspace from "./components/workspace/NewTripWorkspace";
 
 import {
-  ActivityPage,
   ApprovalsPage,
-  ArchitecturePage,
   DashboardPage,
   LandingPage,
+  MemoryPage,
   PoliciesPage,
 } from "./pages/PageViews";
 
@@ -21,20 +20,17 @@ import {
 
 
 const PAGE_TITLES = {
-  "/app": "AI agent overview",
-  "/app/trips/new": "Employee trip request",
-  "/app/policies": "Policy intelligence",
-  "/app/approvals": "Manager decision memory",
-  "/app/activity": "Agent activity",
-  "/app/architecture": "Agent architecture",
+  "/app": "Home",
+  "/app/trips/new": "Trip Request",
+  "/app/approvals": "Manager Review",
+  "/app/memory": "Decision Memory",
+  "/app/policies": "Policy",
 };
 
 
 const VALID_PATHS = new Set([
   "/",
-  ...Object.keys(
-    PAGE_TITLES,
-  ),
+  ...Object.keys(PAGE_TITLES),
 ]);
 
 
@@ -71,9 +67,7 @@ function getCurrentPath() {
       "",
     );
 
-  return normalizePath(
-    hashValue,
-  );
+  return normalizePath(hashValue);
 }
 
 
@@ -81,9 +75,7 @@ function App() {
   const [
     currentPath,
     setCurrentPath,
-  ] = useState(
-    getCurrentPath,
-  );
+  ] = useState(getCurrentPath);
 
   const [
     persistenceReady,
@@ -99,9 +91,7 @@ function App() {
       const nextPath =
         getCurrentPath();
 
-      setCurrentPath(
-        nextPath,
-      );
+      setCurrentPath(nextPath);
 
       window.scrollTo({
         top: 0,
@@ -136,9 +126,7 @@ function App() {
         );
       } finally {
         if (mounted) {
-          setPersistenceReady(
-            true,
-          );
+          setPersistenceReady(true);
         }
       }
     }
@@ -155,13 +143,11 @@ function App() {
       currentPath === "/"
         ? "TripGuard AI"
         : `${
-            PAGE_TITLES[
-              currentPath
-            ] || "Dashboard"
+            PAGE_TITLES[currentPath]
+            || "Home"
           } · TripGuard AI`;
 
-    document.title =
-      pageTitle;
+    document.title = pageTitle;
   }, [currentPath]);
 
   function navigate(path) {
@@ -223,12 +209,6 @@ function App() {
       );
       break;
 
-    case "/app/policies":
-      pageContent = (
-        <PoliciesPage />
-      );
-      break;
-
     case "/app/approvals":
       pageContent = (
         <ApprovalsPage
@@ -237,17 +217,17 @@ function App() {
       );
       break;
 
-    case "/app/activity":
+    case "/app/memory":
       pageContent = (
-        <ActivityPage
+        <MemoryPage
           navigate={navigate}
         />
       );
       break;
 
-    case "/app/architecture":
+    case "/app/policies":
       pageContent = (
-        <ArchitecturePage />
+        <PoliciesPage />
       );
       break;
 
@@ -263,13 +243,10 @@ function App() {
 
   return (
     <AppShell
-      activePath={
-        currentPath
-      }
+      activePath={currentPath}
       title={
-        PAGE_TITLES[
-          currentPath
-        ] || "Dashboard"
+        PAGE_TITLES[currentPath]
+        || "Home"
       }
       navigate={navigate}
     >

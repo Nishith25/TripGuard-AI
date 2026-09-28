@@ -4624,3 +4624,200 @@ path,
     padding-bottom: 172px;
   }
 }
+
+/* Final product flow polish: Home, Trip Request, Manager Review, Memory, Policy */
+.sidebar-navigation {
+  gap: 10px;
+}
+
+.sidebar-link {
+  min-height: 58px;
+}
+
+.mobile-navigation {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.mobile-navigation button small {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.page-introduction h2,
+.dashboard-hero h2,
+.landing-hero-copy h1,
+.landing-section-heading h2,
+.landing-final-cta h2 {
+  max-width: 980px;
+}
+
+.page-introduction p,
+.dashboard-hero p,
+.landing-hero-copy p,
+.landing-final-cta p {
+  max-width: 760px;
+}
+
+.dashboard-metric-grid article strong.capitalize,
+.record-status.capitalize {
+  text-transform: capitalize;
+}
+
+.policy-summary-grid strong.capitalize {
+  text-transform: capitalize;
+}
+
+.records-list blockquote {
+  text-transform: none;
+}
+
+.record-meta span {
+  text-align: right;
+}
+
+.page-surface .policy-summary-grid {
+  align-items: stretch;
+}
+
+.page-surface .policy-summary-grid > div {
+  min-height: 116px;
+}
+
+/* Decision Memory page */
+.page-stack .record-row .record-main p + blockquote {
+  margin-top: 12px;
+}
+
+.page-stack .record-status-icon.rejected,
+.page-stack .record-status-icon.denied {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+.page-stack .record-status-icon.approved {
+  background: #ffffff;
+  color: #000000;
+  border-color: #ffffff;
+}
+
+/* Keep final product pages concise */
+.landing-value-section,
+.landing-final-cta {
+  min-height: auto;
+}
+
+.landing-workflow-grid article {
+  min-height: 210px;
+}
+
+.landing-final-cta {
+  align-items: center;
+}
+
+.dashboard-content-grid,
+.policy-page-grid {
+  align-items: start;
+}
+
+@media (max-width: 1080px) {
+  .mobile-navigation {
+    display: grid;
+  }
+}
+
+@media (max-width: 720px) {
+  .application-shell {
+    padding-bottom: 148px;
+  }
+
+  .application-content {
+    padding-bottom: 176px;
+  }
+
+  .mobile-navigation {
+    right: 12px;
+    left: 12px;
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 72px);
+    min-height: 70px;
+    padding: 8px;
+    gap: 4px;
+    border-radius: 22px;
+  }
+
+  .mobile-navigation button {
+    min-width: 0;
+    min-height: 52px;
+    padding: 7px 4px;
+    border-radius: 16px;
+  }
+
+  .mobile-navigation button span {
+    font-size: 16px;
+    line-height: 1;
+  }
+
+  .mobile-navigation button small {
+    font-size: 10px;
+    line-height: 1.1;
+  }
+
+  .page-introduction h2,
+  .dashboard-hero h2,
+  .landing-hero-copy h1,
+  .landing-section-heading h2,
+  .landing-final-cta h2 {
+    font-size: clamp(32px, 9vw, 46px);
+    line-height: 1.05;
+    letter-spacing: -1.4px;
+  }
+
+  .page-introduction p,
+  .dashboard-hero p,
+  .landing-hero-copy p,
+  .landing-final-cta p {
+    font-size: 15px;
+    line-height: 1.58;
+  }
+
+  .dashboard-metric-grid,
+  .policy-summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .page-surface .policy-summary-grid > div {
+    min-height: auto;
+  }
+
+  .record-row {
+    grid-template-columns: 42px 1fr;
+  }
+
+  .record-meta {
+    grid-column: 2;
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .record-meta span {
+    text-align: left;
+  }
+}
+
+@media (max-width: 430px) {
+  .mobile-navigation {
+    right: 8px;
+    left: 8px;
+    padding: 7px;
+  }
+
+  .mobile-navigation button small {
+    font-size: 9px;
+  }
+
+  .mobile-navigation button span {
+    font-size: 15px;
+  }
+}

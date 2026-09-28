@@ -22,8 +22,6 @@ import {
 
 import {
 
-  clearAgentRuns,
-
   clearApprovalDecisions,
 
   getAgentRuns,
@@ -270,7 +268,7 @@ export function LandingPage({
 
               navigate(
 
-                "/app/architecture",
+                "/app",
 
               )
 
@@ -278,7 +276,7 @@ export function LandingPage({
 
           >
 
-            Architecture
+            Product Flow
 
           </button>
 
@@ -376,13 +374,13 @@ export function LandingPage({
 
                 onClick={() =>
 
-                  navigate("/app/architecture")
+                  navigate("/app")
 
                 }
 
               >
 
-                View architecture
+                View Product Flow
 
               </button>
 
@@ -2658,31 +2656,22 @@ export function ApprovalsPage({
 
 }
 
-export function ActivityPage({
+export function MemoryPage({
 
   navigate,
 
 }) {
 
-  const [
+  const decisions = getApprovalDecisions()
+    .filter((approval) => approval.status !== "pending");
 
-    runs,
+  const memoryDecisions = decisions.filter((approval) => (
+    approval.memory_saved === true
+    || approval.feedback_reason
+    || approval.review_note
+  ));
 
-    setRuns,
-
-  ] = useState(
-
-    getAgentRuns(),
-
-  );
-
-  function clearHistory() {
-
-    clearAgentRuns();
-
-    setRuns([]);
-
-  }
+  const latestMemory = memoryDecisions[0];
 
   return (
 
@@ -2694,289 +2683,327 @@ export function ActivityPage({
 
           <span>
 
-            Agent steps
+            Decision Memory
 
           </span>
 
           <h2>
 
-            Previous runs
+            What TripGuard remembers
 
           </h2>
 
           <p>
 
-            See what the agent checked for each completed trip request.
+            Manager decisions become reusable travel preferences. TripGuard can recall why a trip was approved or rejected and use that context for future recommendations.
 
           </p>
 
         </div>
 
-        {runs.length > 0 && (
+        <button
+          type="button"
+          className="secondary-action-button"
+          onClick={() => navigate("/app/trips/new")}
+        >
+          Create Trip Request
+        </button>
 
-          <button
+      </div>
 
-            type="button"
+      <div className="dashboard-metric-grid">
 
-            className="secondary-action-button"
+        <article>
 
-            onClick={
+          <span>
 
-              clearHistory
+            Saved decisions
 
-            }
+          </span>
 
-          >
+          <strong>
 
-            Clear local history
+            {decisions.length}
 
-          </button>
+          </strong>
 
-        )}
+          <small>
+
+            Manager approvals and rejections
+
+          </small>
+
+        </article>
+
+        <article>
+
+          <span>
+
+            Memory signals
+
+          </span>
+
+          <strong>
+
+            {memoryDecisions.length}
+
+          </strong>
+
+          <small>
+
+            Decisions with reusable feedback
+
+          </small>
+
+        </article>
+
+        <article>
+
+          <span>
+
+            Main learning
+
+          </span>
+
+          <strong>
+
+            Hotel distance
+
+          </strong>
+
+          <small>
+
+            Example manager preference
+
+          </small>
+
+        </article>
+
+        <article>
+
+          <span>
+
+            Future use
+
+          </span>
+
+          <strong>
+
+            Smarter trips
+
+          </strong>
+
+          <small>
+
+            Recommendations improve over time
+
+          </small>
+
+        </article>
 
       </div>
 
       <section className="page-surface">
 
-        {runs.length === 0 ? (
+        <div className="page-surface-heading">
+
+          <div>
+
+            <span>
+
+              Memory example
+
+            </span>
+
+            <h3>
+
+              Manager preference captured
+
+            </h3>
+
+          </div>
+
+        </div>
+
+        <div className="policy-summary-grid">
+
+          <div>
+
+            <span>
+
+              Traveller
+
+            </span>
+
+            <strong>
+
+              {latestMemory?.traveller_id || latestMemory?.trip?.traveller_id || "EMP_123"}
+
+            </strong>
+
+          </div>
+
+          <div>
+
+            <span>
+
+              Decision
+
+            </span>
+
+            <strong className="capitalize">
+
+              {latestMemory?.status || "Rejected"}
+
+            </strong>
+
+          </div>
+
+          <div>
+
+            <span>
+
+              Reason
+
+            </span>
+
+            <strong>
+
+              {latestMemory?.feedback_reason === "hotel_too_far"
+                ? "Hotel too far"
+                : latestMemory?.review_note || "Hotel too far from workplace"}
+
+            </strong>
+
+          </div>
+
+          <div>
+
+            <span>
+
+              Future impact
+
+            </span>
+
+            <strong>
+
+              Prefer closer hotels
+
+            </strong>
+
+          </div>
+
+        </div>
+
+      </section>
+
+      <section className="page-surface">
+
+        <div className="page-surface-heading">
+
+          <div>
+
+            <span>
+
+              Saved manager feedback
+
+            </span>
+
+            <h3>
+
+              Memory history
+
+            </h3>
+
+          </div>
+
+          <span>
+
+            {memoryDecisions.length}
+            {" items"}
+
+          </span>
+
+        </div>
+
+        {memoryDecisions.length === 0 ? (
 
           <EmptyList
-
             icon="◷"
-
-            title="No activity recorded"
-
-            description="Completed agent runs will appear here."
-
-            actionLabel="Run the agent"
-
-            onAction={() =>
-
-              navigate(
-
-                "/app/trips/new",
-
-              )
-
-            }
-
+            title="No memory saved yet"
+            description="Review a trip in Manager Review and add a reason. Saved feedback will appear here."
+            actionLabel="Open Manager Review"
+            onAction={() => navigate("/app/approvals")}
           />
 
         ) : (
 
           <div className="records-list">
 
-            {runs.map(
-
-              (run) => {
-
-                const weatherRisk =
-
-                  run.result
-
-                    ?.weather
-
-                    ?.risk_level
-
-                  || "unknown";
-
-                const compliant =
-
-                  run.result
-
-                    ?.compliance
-
-                    ?.is_compliant;
-
-                return (
-
-                  <article
-
-                    key={
-
-                      run.id
-
-                    }
-
-                    className="activity-card"
-
-                  >
-
-                    <div className="activity-route">
-
-                      <span>
-
-                        {
-
-                          run.request
-
-                            ?.origin
-
-                        }
-
-                      </span>
-
-                      <i>
-
-                        →
-
-                      </i>
-
-                      <span>
-
-                        {
-
-                          run.request
-
-                            ?.destination
-
-                        }
-
-                      </span>
-
-                    </div>
-
-                    <div className="activity-details">
-
-                      <div>
-
-                        <span>
-
-                          Agent decision
-
-                        </span>
-
-                        <strong
-
-                          className={
-
-                            compliant
-
-                              ? "positive-text"
-
-                              : "warning-text"
-
-                          }
-
-                        >
-
-                          {compliant
-
-                            ? "Policy compliant"
-
-                            : "Exception required"}
-
-                        </strong>
-
-                      </div>
-
-                      <div>
-
-                        <span>
-
-                          Total cost
-
-                        </span>
-
-                        <strong>
-
-                          {formatCurrency(
-
-                            run.result
-
-                              ?.cost_summary
-
-                              ?.total_cost,
-
-                          )}
-
-                        </strong>
-
-                      </div>
-
-                      <div>
-
-                        <span>
-
-                          Weather risk
-
-                        </span>
-
-                        <strong className="capitalize">
-
-                          {weatherRisk}
-
-                        </strong>
-
-                      </div>
-
-                      <div>
-
-                        <span>
-
-                          Approval
-
-                        </span>
-
-                        <strong className="capitalize">
-
-                          {
-
-                            run.approval_status
-
-                            || "not required"
-
-                          }
-
-                        </strong>
-
-                      </div>
-
-                    </div>
-
-                    <div className="activity-footer">
-
-                      <span>
-
-                        {formatDate(
-
-                          run.created_at,
-
-                        )}
-
-                      </span>
-
-                      <span>
-
-                        {
-
-                          run.trace
-
-                            ?.length
-
-                          || 0
-
-                        }
-
-                        {" tool events"}
-
-                      </span>
-
-                      <span>
-
-                        {run.id}
-
-                      </span>
-
-                    </div>
-
-                  </article>
-
+            {memoryDecisions.map((approval) => {
+              const route = approval.route
+                || (
+                  approval.trip?.origin && approval.trip?.destination
+                    ? `${approval.trip.origin} → ${approval.trip.destination}`
+                    : "Business trip"
                 );
 
-              },
+              return (
 
-            )}
+                <article
+                  key={approval.id}
+                  className="record-row"
+                >
+
+                  <div className={`record-status-icon ${approval.status}`}>
+                    {approval.status === "approved" ? "✓" : "!"}
+                  </div>
+
+                  <div className="record-main">
+
+                    <div>
+
+                      <span className={`record-status ${approval.status}`}>
+                        {approval.status}
+                      </span>
+
+                      <h3>
+                        {route}
+                      </h3>
+
+                    </div>
+
+                    <p>
+                      {approval.review_note || "Manager decision saved as memory for future trips."}
+                    </p>
+
+                    {approval.feedback_reason && (
+                      <blockquote>
+                        Learned preference: {approval.feedback_reason.replaceAll("_", " ")}
+                      </blockquote>
+                    )}
+
+                  </div>
+
+                  <div className="record-meta">
+
+                    <strong>
+                      {formatCurrency(
+                        approval.total_cost
+                        || approval.cost_summary?.total_cost,
+                      )}
+                    </strong>
+
+                    <span>
+                      Memory
+                    </span>
+
+                  </div>
+
+                </article>
+
+              );
+            })}
 
           </div>
 
@@ -2990,418 +3017,3 @@ export function ActivityPage({
 
 }
 
-export function ArchitecturePage() {
-
-  const architectureSteps = [
-
-    {
-
-      number:
-
-        "01",
-
-      title:
-
-        "Employee Request",
-
-      description:
-
-        "Captures traveller ID, route, dates, budget, arrival time, workplace and business purpose.",
-
-    },
-
-    {
-
-      number:
-
-        "02",
-
-      title:
-
-        "Policy Intelligence",
-
-      description:
-
-        "Loads company travel rules and converts them into constraints the agent can check.",
-
-    },
-
-    {
-
-      number:
-
-        "03",
-
-      title:
-
-        "Travel Search Tools",
-
-      description:
-
-        "Retrieves flight and hotel options, then compares cost, timing, rating and office distance.",
-
-    },
-
-    {
-
-      number:
-
-        "04",
-
-      title:
-
-        "Risk Check",
-
-      description:
-
-        "Uses weather and trip context to flag delays, unsafe choices or weak recommendations.",
-
-    },
-
-    {
-
-      number:
-
-        "05",
-
-      title:
-
-        "Decision Agent",
-
-      description:
-
-        "Selects the best policy-aware option and explains the reason in plain language.",
-
-    },
-
-    {
-
-      number:
-
-        "06",
-
-      title:
-
-        "Manager Approval",
-
-      description:
-
-        "Keeps a human decision maker in control for trips that need approval or correction.",
-
-    },
-
-    {
-
-      number:
-
-        "07",
-
-      title:
-
-        "Hindsight Memory",
-
-      description:
-
-        "Stores approval, rejection and preference feedback so future trips can recall manager decisions.",
-
-    },
-
-    {
-
-      number:
-
-        "08",
-
-      title:
-
-        "Smarter Future Trips",
-
-      description:
-
-        "Uses remembered preferences to recommend options that are easier to approve next time.",
-
-    },
-
-  ];
-
-  return (
-
-    <div className="page-stack">
-
-      <div className="page-introduction">
-
-        <div>
-
-          <span>
-
-            Architecture
-
-          </span>
-
-          <h2>
-
-            How the agent works
-
-          </h2>
-
-          <p>
-
-            TripGuard combines policy checks, travel tools, human approval and persistent memory.
-
-          </p>
-
-        </div>
-
-      </div>
-
-      <section className="architecture-hero">
-
-        <div>
-
-          <span>
-
-            Employee request
-
-          </span>
-
-          <strong>
-
-            HYD → BLR
-
-          </strong>
-
-          <p>
-
-            Traveller · Dates · Budget · Purpose
-
-          </p>
-
-        </div>
-
-        <i>
-
-          →
-
-        </i>
-
-        <div className="architecture-agent-core">
-
-          <span>
-
-            LangGraph + tools
-
-          </span>
-
-          <strong>
-
-            TripGuard Agent
-
-          </strong>
-
-          <p>
-
-            Policy-aware planning workflow
-
-          </p>
-
-        </div>
-
-        <i>
-
-          →
-
-        </i>
-
-        <div>
-
-          <span>
-
-            Hindsight memory
-
-          </span>
-
-          <strong>
-
-            Smarter next trip
-
-          </strong>
-
-          <p>
-
-            Manager feedback becomes reusable context
-
-          </p>
-
-        </div>
-
-      </section>
-
-      <div className="architecture-flow">
-
-        {architectureSteps.map(
-
-          (
-
-            step,
-
-            index,
-
-          ) => (
-
-            <article
-
-              key={
-
-                step.number
-
-              }
-
-            >
-
-              <div>
-
-                <span>
-
-                  {step.number}
-
-                </span>
-
-                {index <
-
-                  architectureSteps.length
-
-                  - 1
-
-                  && (
-
-                    <i />
-
-                  )}
-
-              </div>
-
-              <section>
-
-                <h3>
-
-                  {step.title}
-
-                </h3>
-
-                <p>
-
-                  {
-
-                    step.description
-
-                  }
-
-                </p>
-
-              </section>
-
-            </article>
-
-          ),
-
-        )}
-
-      </div>
-
-      <section className="technology-grid">
-
-        <article>
-
-          <span>
-
-            Frontend
-
-          </span>
-
-          <strong>
-
-            React
-
-          </strong>
-
-          <p>
-
-            Employee request flow, manager review screens and clear product experience.
-
-          </p>
-
-        </article>
-
-        <article>
-
-          <span>
-
-            Backend
-
-          </span>
-
-          <strong>
-
-            FastAPI
-
-          </strong>
-
-          <p>
-
-            APIs for planning, approvals, policy processing and persistent run history.
-
-          </p>
-
-        </article>
-
-        <article>
-
-          <span>
-
-            Agent orchestration
-
-          </span>
-
-          <strong>
-
-            LangGraph
-
-          </strong>
-
-          <p>
-
-            Multi-step agent workflow for policy checks, tool calls and explainable recommendations.
-
-          </p>
-
-        </article>
-
-        <article>
-
-          <span>
-
-            Persistent memory
-
-          </span>
-
-          <strong>
-
-            Hindsight
-
-          </strong>
-
-          <p>
-
-            Stores manager approval patterns and recalls them during future employee trips.
-
-          </p>
-
-        </article>
-
-      </section>
-
-    </div>
-
-  );
-
-}
