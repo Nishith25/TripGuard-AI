@@ -4515,3 +4515,55 @@ button[class*="primary"],
   background: #ffffff !important;
   border-color: #ffffff !important;
 }
+/* Final readability + purple removal */
+.sidebar-link.active,
+.mobile-navigation button.active {
+  background: #ffffff !important;
+  color: #000000 !important;
+}
+
+.sidebar-link.active *,
+.mobile-navigation button.active * {
+  color: #000000 !important;
+}
+
+.policy-upload-button,
+.policy-upload-button *,
+.policy-card,
+.policy-card *,
+.architecture-agent-core,
+.architecture-agent-core *,
+.architecture-flow article > div,
+.architecture-flow article > div *,
+.architecture-flow article > div span,
+.architecture-flow article > div i {
+  background-image: none !important;
+  color: #ffffff !important;
+  border-color: rgba(255, 255, 255, 0.18) !important;
+}
+
+.policy-upload-button,
+.architecture-agent-core,
+.architecture-flow article > div span,
+.architecture-flow article > div i {
+  background: #111111 !important;
+}
+
+.policy-upload-button:disabled,
+.policy-upload-button:disabled * {
+  background: #181818 !important;
+  color: #8a8a8a !important;
+}
+
+.policy-upload-button:not(:disabled),
+.policy-upload-button:not(:disabled) * {
+  background: #ffffff !important;
+  color: #000000 !important;
+}
+
+[class*="purple"],
+[class*="violet"] {
+  color: #ffffff !important;
+  background: #111111 !important;
+  background-image: none !important;
+}
