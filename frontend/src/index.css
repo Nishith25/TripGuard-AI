@@ -4405,3 +4405,113 @@ svg {
   background: #111111 !important;
   border: 1px solid rgba(255, 255, 255, 0.14) !important;
 }
+/* Hard remove remaining violet UI */
+button,
+button *,
+a,
+a *,
+[class*="button"],
+[class*="button"] *,
+[class*="cta"],
+[class*="cta"] *,
+[class*="primary"],
+[class*="primary"] *,
+[class*="accent"],
+[class*="accent"] *,
+[class*="eyebrow"],
+[class*="kicker"],
+[class*="centre"],
+[class*="center"],
+[class*="pending"],
+[class*="review"],
+[class*="manage"],
+[class*="view"] {
+  color: inherit !important;
+  background-image: none !important;
+  box-shadow: none !important;
+}
+
+.primary-action-button,
+.landing-primary-button,
+.page-empty-list button,
+.application-header button,
+.dashboard-hero button,
+button[class*="primary"],
+[class*="primary-button"],
+[class*="cta"] button {
+  background: #ffffff !important;
+  color: #000000 !important;
+  border-color: #ffffff !important;
+}
+
+.primary-action-button *,
+.landing-primary-button *,
+.page-empty-list button *,
+.application-header button *,
+.dashboard-hero button * {
+  color: #000000 !important;
+}
+
+.application-header button:first-of-type,
+.service-status,
+.status-pill {
+  background: #0b0b0b !important;
+  color: #ffffff !important;
+  border-color: rgba(255, 255, 255, 0.18) !important;
+}
+
+.surface-eyebrow,
+.application-header-eyebrow,
+.trip-page-eyebrow,
+.policy-card-eyebrow,
+.weather-eyebrow,
+.landing-kicker,
+.approval-modal-eyebrow,
+[class*="eyebrow"],
+[class*="kicker"] {
+  color: #ffffff !important;
+}
+
+.dashboard-hero,
+.dashboard-hero *,
+.metric-card,
+.metric-card *,
+.policy-card,
+.policy-card *,
+.recommendation-surface,
+.recommendation-surface *,
+.approval-workspace,
+.approval-workspace *,
+.agent-execution-surface,
+.agent-execution-surface *,
+.architecture-flow,
+.architecture-flow * {
+  background-image: none !important;
+}
+
+.dashboard-hero [class*="agent"],
+.dashboard-hero [class*="ai"],
+[class*="agent-ready"],
+[class*="ai"] {
+  background: #0b0b0b !important;
+  color: #ffffff !important;
+  border-color: rgba(255, 255, 255, 0.18) !important;
+}
+
+.dashboard-hero [class*="agent"] *,
+.dashboard-hero [class*="ai"] *,
+[class*="agent-ready"] *,
+[class*="ai"] * {
+  color: #ffffff !important;
+}
+
+.policy-card a,
+.policy-card button,
+.dashboard-hero a,
+.dashboard-hero button,
+.recommendation-surface a,
+.recommendation-surface button {
+  color: #000000 !important;
+  background: #ffffff !important;
+  border-color: #ffffff !important;
+}
