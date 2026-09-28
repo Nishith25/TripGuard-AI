@@ -407,12 +407,28 @@ function ApprovalModal({
           .catch(() => null);
 
       if (!decisionResponse.ok) {
+        let errorMessage =
+          "Unable to submit the approval decision.";
+
+        const detail =
+          decisionPayload?.detail;
+
+        if (typeof detail === "string") {
+          errorMessage = detail;
+        } else if (Array.isArray(detail)) {
+          errorMessage = detail
+            .map((item) =>
+              item?.msg
+              || JSON.stringify(item),
+            )
+            .join(" · ");
+        } else if (detail) {
+          errorMessage =
+            JSON.stringify(detail);
+        }
+
         throw new Error(
-          decisionPayload?.detail
-          || (
-            "Unable to submit the "
-            + "approval decision."
-          ),
+          errorMessage,
         );
       }
 
