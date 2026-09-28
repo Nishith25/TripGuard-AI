@@ -10,6 +10,9 @@ from app.integrations.travel_memory import (
     recall_hotel_preference,
     recall_manager_preferences,
 )
+from app.integrations.llm_explainer import (
+    generate_trip_explanation,
+)
 from app.tools.flight_tool import search_flights
 from app.tools.hotel_tool import search_hotels
 from app.tools.policy_tool import load_travel_policy
@@ -2258,6 +2261,90 @@ def select_recommendation_node(
     }
 
 
+def llm_explanation_node(
+    state: TripGuardState,
+) -> dict[str, Any]:
+    result = dict(
+        state.get(
+            "result",
+            {},
+        )
+    )
+
+    fallback = str(
+        result.get(
+            "explanation",
+            "",
+        )
+        or ""
+    )
+
+    if (
+        not result
+        or result.get("status")
+        == "no_inventory"
+    ):
+        return {
+            "result": result,
+            "trace":
+                add_trace(
+                    state,
+                    "LLM Explanation",
+                    (
+                        "LLM explanation was skipped "
+                        "because no recommendation "
+                        "was available."
+                    ),
+                    status="warning",
+                ),
+        }
+
+    explanation, generated = (
+        generate_trip_explanation(
+            result=result,
+            fallback=fallback,
+        )
+    )
+
+    result[
+        "explanation"
+    ] = explanation
+
+    result[
+        "explanation_source"
+    ] = (
+        "groq_llm"
+        if generated
+        else "deterministic_fallback"
+    )
+
+    return {
+        "result": result,
+        "trace":
+            add_trace(
+                state,
+                "LLM Explanation",
+                (
+                    "Generated the final "
+                    "recommendation explanation "
+                    "with Groq."
+                    if generated
+                    else (
+                        "Groq was unavailable or "
+                        "not configured; retained "
+                        "the deterministic "
+                        "explanation."
+                    )
+                ),
+                status=(
+                    "completed"
+                    if generated
+                    else "warning"
+                ),
+            ),
+    }
+
+
 def build_tripguard_graph():
     builder = StateGraph(
         TripGuardState
@@ -2295,6 +2382,11 @@ def build_tripguard_graph():
         select_recommendation_node,
     )
 
+    builder.add_node(
+        "llm_explanation",
+        llm_explanation_node,
+    )
+
     builder.add_edge(
         START,
         "parse_requirements",
@@ -2329,6 +2421,11 @@ def build_tripguard_graph():
 
     builder.add_edge(
         "select_recommendation",
+        "llm_explanation",
+    )
+
+    builder.add_edge(
+        "llm_explanation",
         END,
     )
 
